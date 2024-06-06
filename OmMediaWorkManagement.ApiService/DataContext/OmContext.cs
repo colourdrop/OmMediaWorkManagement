@@ -17,6 +17,6 @@ namespace OmMediaWorkManagement.ApiService.DataContext
         public DbSet<OmClient> OmClient { get; set; }
         public DbSet<OmClientWork> OmClientWork { get; set; }
         public DbSet<OmEmployee> OmEmployee { get; set; }
-        public DbSet<OmEmployeeWork> OmEmployeeWork { get; set; }
+        public DbSet<OmMachines> OmMachines { get; set; }
     }
 }

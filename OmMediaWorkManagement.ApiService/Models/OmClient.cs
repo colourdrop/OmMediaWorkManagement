@@ -13,5 +13,6 @@ namespace OmMediaWorkManagement.ApiService.Models
         public string? Email { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
+        public virtual List<OmClientWork> OmClientWork { get; set; } = new List<OmClientWork>();
     }
 }

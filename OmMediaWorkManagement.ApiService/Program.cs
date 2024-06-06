@@ -1,10 +1,23 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using OmMediaWorkManagement.ApiService.DataContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContextPool<OmContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Postgres");
+
+    options.UseNpgsql(connectionString,
+        npgsqlOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
+            // Adjust maxRetryCount and maxRetryDelay as needed.
+        });
+});
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
