@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OmMediaWorkManagement.ApiService.Models
 {
@@ -7,8 +8,7 @@ namespace OmMediaWorkManagement.ApiService.Models
         [Key]
         public int Id { get; set; }
         public string? CompanyName { get; set; }
-        public string? Quantity { get; set; }
-        public byte[]? Image { get; set; }
+        public double? Quantity { get; set; }       
         public DateTime JobPostedDateTime { get; set; }
         public int? PostedBy { get; set; }
         
@@ -16,7 +16,25 @@ namespace OmMediaWorkManagement.ApiService.Models
         public bool? JobIsFinished { get; set; }
         public bool? JobIsHold { get; set; }
         public bool? JobIsDeclained { get; set; }
-        
+        public virtual List<JobImages> JobImages { get; set; } = new List<JobImages>();
 
+
+    }
+    public class JobImages
+    {
+        [Key]
+        public int Id { get; set; }
+        public byte[]? Image { get; set; }
+        public int JobTodoId
+        {
+            get;
+            set;
+        }
+        [ForeignKey("JobTodoId")]
+        public virtual JobToDo JobToDo
+        {
+            get;
+            set;
+        }
     }
 }

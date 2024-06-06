@@ -19,5 +19,6 @@ namespace OmMediaWorkManagement.ApiService.DataContext
         public DbSet<OmEmployee> OmEmployee { get; set; }
         public DbSet<OmMachines> OmMachines { get; set; }
         public DbSet<JobToDo> JobToDo { get; set; }
+        public DbSet<JobImages> JobImages { get; set; }
     }
 }

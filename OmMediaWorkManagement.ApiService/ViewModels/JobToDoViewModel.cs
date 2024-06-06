@@ -9,7 +9,7 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         public string ComapnyName { get; set; }
 
         [Required(ErrorMessage = "Quantity is required")]
-        public string Quantity { get; set; }
+        public double Quantity { get; set; }
 
         [Required(ErrorMessage = "Image is required")]
         public List<IFormFile?> Images { get; set; }              

@@ -24,37 +24,38 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         #region Client Details
 
         [HttpPost("AddClient")]
-        public async Task<ActionResult> AddPostOmClient(OmClientViewModel omClientViewModel)
+        public async Task<IActionResult> AddClient(OmClientViewModel omClientViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            OmClient omClient = new OmClient()
+            var omClient = new OmClient
             {
                 Name = omClientViewModel.Name,
                 CompanyName = omClientViewModel.CompanyName,
                 MobileNumber = omClientViewModel.MobileNumber,
                 Email = omClientViewModel.Email,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 IsDeleted = false
             };
 
             _context.OmClient.Add(omClient);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok($"{omClientViewModel.Name} successfully added");
         }
 
         [HttpGet("GetAllClients")]
-        public async Task<ActionResult<IEnumerable<OmClient>>> GetAllClients()
+        public async Task<IActionResult> GetAllClients()
         {
-            return await _context.OmClient.ToListAsync();
+            var clients = await _context.OmClient.ToListAsync();
+            return Ok(clients);
         }
 
         [HttpGet("GetClientById/{id}")]
-        public async Task<ActionResult<OmClient>> GetClientById(int id)
+        public async Task<IActionResult> GetClientById(int id)
         {
             var client = await _context.OmClient.FindAsync(id);
             if (client == null)
@@ -62,11 +63,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return NotFound();
             }
 
-            return client;
+            return Ok(client);
         }
 
         [HttpPut("UpdateClient/{id}")]
-        public async Task<ActionResult> UpdateClient(int id, OmClientViewModel omClientViewModel)
+        public async Task<IActionResult> UpdateClient(int id, OmClientViewModel omClientViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -87,19 +88,19 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClient.Update(existingClient);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(existingClient);
         }
 
         [HttpDelete("DeleteClientById/{id}")]
-        public async Task<IActionResult> DeleteOmClient(int id)
+        public async Task<IActionResult> DeleteClientById(int id)
         {
-            var omClient = await _context.OmClient.FindAsync(id);
-            if (omClient == null)
+            var client = await _context.OmClient.FindAsync(id);
+            if (client == null)
             {
                 return NotFound();
             }
 
-            _context.OmClient.Remove(omClient);
+            _context.OmClient.Remove(client);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -110,24 +111,24 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         #region Work Details
 
         [HttpGet("GetWorksByClientId/{clientId}")]
-        public async Task<ActionResult<IEnumerable<OmClientWork>>> GetWorksByClientId(int clientId)
+        public async Task<IActionResult> GetWorksByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
                 .Where(work => work.OmClientId == clientId)
                 .ToListAsync();
 
-            return clientWorks;
+            return Ok(clientWorks);
         }
 
         [HttpPost("AddWork")]
-        public async Task<ActionResult> AddWork(OmClientWorkViewModel omClientWorkViewModel)
+        public async Task<IActionResult> AddWork(OmClientWorkViewModel omClientWorkViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            OmClientWork omClientWork = new OmClientWork()
+            var omClientWork = new OmClientWork
             {
                 OmClientId = omClientWorkViewModel.ClientId,
                 WorkDate = omClientWorkViewModel.WorkDate,
@@ -141,11 +142,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClientWork.Add(omClientWork);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(omClientWork);
         }
 
         [HttpPut("UpdateWork/{id}")]
-        public async Task<ActionResult> UpdateWork(int id, OmClientWorkViewModel omClientWorkViewModel)
+        public async Task<IActionResult> UpdateWork(int id, OmClientWorkViewModel omClientWorkViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -168,7 +169,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClientWork.Update(existingWork);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(existingWork);
         }
 
         #endregion
@@ -176,7 +177,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         #region JobTodo
 
         [HttpPost("AddJobTodo")]
-        public async Task<ActionResult> AddJobToDo(JobToDoViewModel jobToDoViewModel)
+        public async Task<IActionResult> AddJobTodo(JobToDoViewModel jobToDoViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -185,7 +186,17 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             try
             {
-                List<byte[]> imageBytesList = new List<byte[]>();
+                var jobToDo = new JobToDo
+                {
+                    CompanyName = jobToDoViewModel.ComapnyName,
+                    Quantity = jobToDoViewModel.Quantity,
+                    JobIsRunning = jobToDoViewModel.JobIsRunning,
+                    JobIsDeclained = jobToDoViewModel.JobIsDeclained,
+                    JobIsFinished = jobToDoViewModel.JobIsFinished,
+                    JobIsHold = jobToDoViewModel.JobIsHold,
+                    JobPostedDateTime = DateTime.UtcNow,
+                };
+
                 if (jobToDoViewModel.Images != null)
                 {
                     foreach (var formFile in jobToDoViewModel.Images)
@@ -195,50 +206,64 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                             using (var memoryStream = new MemoryStream())
                             {
                                 await formFile.CopyToAsync(memoryStream);
-                                imageBytesList.Add(memoryStream.ToArray());
+                                byte[] imageBytes = memoryStream.ToArray();
+
+                                jobToDo.JobImages.Add(new JobImages
+                                {
+                                    Image = imageBytes
+                                });
                             }
                         }
                     }
                 }
 
-                byte[] imageBytes = imageBytesList.FirstOrDefault();
-
-                JobToDo jobToDos = new JobToDo()
-                {
-                    CompanyName = jobToDoViewModel.ComapnyName,
-                    Quantity = jobToDoViewModel.Quantity,
-                    Image = imageBytes,
-                    JobIsRunning = jobToDoViewModel.JobIsRunning,
-                    JobIsDeclained = jobToDoViewModel.JobIsDeclained,
-                    JobIsFinished = jobToDoViewModel.JobIsFinished,
-                    JobIsHold = jobToDoViewModel.JobIsHold,
-                    JobPostedDateTime = DateTime.Now,
-                };
-
-                _context.JobToDo.Add(jobToDos);
-                await _context.SaveChangesAsync();
-                return Ok();
+                _context.JobToDo.Add(jobToDo);
+                  _context.SaveChanges();
+                return Ok("Job Posted Successfully");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpGet("GetJobToDoList")]
-        public async Task<ActionResult<IEnumerable<JobToDo>>> GetJobToDoAll()
+        public async Task<IActionResult> GetJobToDoList()
         {
-            return await _context.JobToDo.ToListAsync();
-        }
-
-        [HttpGet("GetJobsToDosById/{jboToDoId}")]
-        public async Task<ActionResult<IEnumerable<JobToDo>>> GetJobsToDosById(int jboToDoId)
-        {
-            var jobToDoRecord = await _context.JobToDo
-                .Where(work => work.Id == jboToDoId)
+            var jobList = await _context.JobToDo
+                .Include(d => d.JobImages)
                 .ToListAsync();
 
-            return jobToDoRecord;
+            var jobToDoResponses = jobList.Select(job => new JobToDoResponseViewModel
+            {
+                Id = job.Id,
+                CompanyName = job.CompanyName,
+                Quantity = job.Quantity,
+                JobIsRunning = job.JobIsRunning,
+                JobIsDeclained = job.JobIsDeclained,
+                JobIsFinished = job.JobIsFinished,
+                JobIsHold = job.JobIsHold,
+                JobPostedDateTime = job.JobPostedDateTime,
+                Images = job.JobImages.Select(img => Convert.ToBase64String(img.Image)).ToList()
+            }).ToList();
+
+            return Ok(jobToDoResponses);
+        }
+
+
+        [HttpGet("GetJobsToDosById/{jobToDoId}")]
+        public async Task<IActionResult> GetJobsToDosById(int jobToDoId)
+        {
+            var jobToDoRecord = await _context.JobToDo
+                .Include(j => j.JobImages)
+                .FirstOrDefaultAsync(j => j.Id == jobToDoId);
+
+            if (jobToDoRecord == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(jobToDoRecord);
         }
 
         #endregion
@@ -246,35 +271,35 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         #region OmMachines
 
         [HttpPost("AddMachine")]
-        public async Task<ActionResult> AddMachines(OmMachinesViewModel omMachinesViewModel)
+        public async Task<IActionResult> AddMachine(OmMachinesViewModel omMachinesViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            OmMachines omMachines = new OmMachines()
+            var omMachine = new OmMachines
             {
                 MachineName = omMachinesViewModel.MachineName,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 IsRunning = omMachinesViewModel.IsRunning,
                 MachineDescription = omMachinesViewModel.MachineDescription
             };
 
-            _context.OmMachines.Add(omMachines);
+            _context.OmMachines.Add(omMachine);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(omMachine);
         }
 
         [HttpGet("GetMachines")]
-        public async Task<ActionResult<IEnumerable<OmMachines>>> GetMachine()
+        public async Task<IActionResult> GetMachines()
         {
-            return await _context.OmMachines.ToListAsync();
+            var machinesList = await _context.OmMachines.ToListAsync();
+            return Ok(machinesList);
         }
 
-        [HttpPut]
-        [Route("UpdateMachineById/{id}")]
-        public async Task<ActionResult> UpdateMachine(int id, OmMachinesViewModel omMachinesViewModel)
+        [HttpPut("UpdateMachineById/{id}")]
+        public async Task<IActionResult> UpdateMachineById(int id, OmMachinesViewModel omMachinesViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -290,22 +315,26 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             existingMachine.IsRunning = omMachinesViewModel.IsRunning;
             existingMachine.MachineDescription = omMachinesViewModel.MachineDescription;
             existingMachine.MachineName = omMachinesViewModel.MachineName;
+
             _context.OmMachines.Update(existingMachine);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(existingMachine);
         }
 
         [HttpGet("GetMachineById/{machineId}")]
-        public async Task<ActionResult<IEnumerable<OmMachines>>> GetMachineById(int machineId)
+        public async Task<IActionResult> GetMachineById(int machineId)
         {
-            var machineRecord= await _context.OmMachines
-                .Where(work => work.Id == machineId)
-                .ToListAsync();
+            var machineRecord = await _context.OmMachines
+                .FirstOrDefaultAsync(m => m.Id == machineId);
 
-            return machineRecord;
+            if (machineRecord == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(machineRecord);
         }
-       
 
         #endregion
     }

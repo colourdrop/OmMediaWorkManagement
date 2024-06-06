@@ -21,11 +21,7 @@ builder.Services.AddDbContextPool<OmContext>(options =>
         });
 });
 
-// Set file upload limits
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 104857600; // Set the limit to 100 MB (adjust as necessary)
-});
+ 
 
 // Add services to the container.
 builder.Services.AddProblemDetails();

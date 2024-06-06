@@ -22,6 +22,27 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.JobImages", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("JobTodoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobTodoId");
+
+                    b.ToTable("JobImages");
+                });
+
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.JobToDo", b =>
                 {
                     b.Property<int>("Id")
@@ -32,9 +53,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
-
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("bytea");
 
                     b.Property<bool?>("JobIsDeclained")
                         .HasColumnType("boolean");
@@ -54,8 +72,8 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<int?>("PostedBy")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Quantity")
-                        .HasColumnType("text");
+                    b.Property<double?>("Quantity")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -190,6 +208,17 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.ToTable("OmMachines");
                 });
 
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.JobImages", b =>
+                {
+                    b.HasOne("OmMediaWorkManagement.ApiService.Models.JobToDo", "JobToDo")
+                        .WithMany("JobImages")
+                        .HasForeignKey("JobTodoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobToDo");
+                });
+
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClientWork", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmClient", "OmClient")
@@ -199,6 +228,11 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .IsRequired();
 
                     b.Navigation("OmClient");
+                });
+
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.JobToDo", b =>
+                {
+                    b.Navigation("JobImages");
                 });
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>

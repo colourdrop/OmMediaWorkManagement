@@ -7,11 +7,31 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class somechangesinexistingtable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "JobToDo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CompanyName = table.Column<string>(type: "text", nullable: true),
+                    Quantity = table.Column<double>(type: "double precision", nullable: true),
+                    JobPostedDateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PostedBy = table.Column<int>(type: "integer", nullable: true),
+                    JobIsRunning = table.Column<bool>(type: "boolean", nullable: true),
+                    JobIsFinished = table.Column<bool>(type: "boolean", nullable: true),
+                    JobIsHold = table.Column<bool>(type: "boolean", nullable: true),
+                    JobIsDeclained = table.Column<bool>(type: "boolean", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JobToDo", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "OmClient",
                 columns: table => new
@@ -66,6 +86,26 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "JobImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Image = table.Column<byte[]>(type: "bytea", nullable: true),
+                    JobTodoId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JobImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_JobImages_JobToDo_JobTodoId",
+                        column: x => x.JobTodoId,
+                        principalTable: "JobToDo",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OmClientWork",
                 columns: table => new
                 {
@@ -91,6 +131,11 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_JobImages_JobTodoId",
+                table: "JobImages",
+                column: "JobTodoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OmClientWork_OmClientId",
                 table: "OmClientWork",
                 column: "OmClientId");
@@ -100,6 +145,9 @@ namespace OmMediaWorkManagement.ApiService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "JobImages");
+
+            migrationBuilder.DropTable(
                 name: "OmClientWork");
 
             migrationBuilder.DropTable(
@@ -107,6 +155,9 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
             migrationBuilder.DropTable(
                 name: "OmMachines");
+
+            migrationBuilder.DropTable(
+                name: "JobToDo");
 
             migrationBuilder.DropTable(
                 name: "OmClient");
