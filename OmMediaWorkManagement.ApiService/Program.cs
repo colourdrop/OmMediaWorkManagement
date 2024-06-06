@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using OmMediaWorkManagement.ApiService.DataContext;
 
@@ -17,6 +19,12 @@ builder.Services.AddDbContextPool<OmContext>(options =>
             sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
             // Adjust maxRetryCount and maxRetryDelay as needed.
         });
+});
+
+// Set file upload limits
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600; // Set the limit to 100 MB (adjust as necessary)
 });
 
 // Add services to the container.
@@ -52,13 +60,22 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 var app = builder.Build();
+
+// Use Swagger and SwaggerUI
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Configure the HTTP request pipeline.
-app.UseExceptionHandler();
- 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthorization();
 
-app.MapDefaultEndpoints();
+// Configure the HTTP request pipeline.
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
+
+// Map endpoints
+app.MapDefaultControllerRoute();
+app.MapControllers();
 
 app.Run();

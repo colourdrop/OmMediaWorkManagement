@@ -12,10 +12,8 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         public string Quantity { get; set; }
 
         [Required(ErrorMessage = "Image is required")]
-        public IFormFile? Image { get; set; }
-              
-        public int? PostedBy { get; set; }
-
+        public List<IFormFile?> Images { get; set; }              
+        
         public bool? JobIsRunning { get; set; }
         public bool? JobIsFinished { get; set; }
         public bool? JobIsHold { get; set; }
