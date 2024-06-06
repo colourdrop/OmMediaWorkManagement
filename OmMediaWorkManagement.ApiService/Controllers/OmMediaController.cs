@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.ApiService.DataContext;
 using OmMediaWorkManagement.ApiService.Models;
+using OmMediaWorkManagement.ApiService.ViewModels;
 
 namespace OmMediaWorkManagement.ApiService.Controllers
 {
@@ -76,7 +77,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         // POST: api/OmMedia
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<OmClient>> PostOmClient(OmClient omClient)
+        public async Task<ActionResult> PostOmClient(OmClient omClient)
         {
             _context.OmClient.Add(omClient);
             await _context.SaveChangesAsync();
@@ -103,6 +104,30 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         private bool OmClientExists(int id)
         {
             return _context.OmClient.Any(e => e.Id == id);
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult> AddJobToDo(JobToDoViewModel jobToDoViewModel)
+        {
+      JobToDo jobToDos = new JobToDo()
+      {
+         CompanyName = jobToDoViewModel.ComapnyName,
+         Quantity = jobToDoViewModel.Quantity,
+          Image=jobToDoViewModel.Image,
+          PostedBy= jobToDoViewModel.PostedBy,
+          JobIsRunning= jobToDoViewModel.JobIsRunning,
+          JobIsDeclained =jobToDoViewModel?.JobIsDeclained,
+          JobIsFinished= jobToDoViewModel?.JobIsFinished,
+          JobIsHold= jobToDoViewModel?.JobIsHold,
+          JobPostedDateTime=DateTime.Now,
+
+      };
+
+            _context.JobToDO.Add(jobToDos);
+            await _context.SaveChangesAsync();
+            return Ok();
+           // return CreatedAtAction("GetOmClient", new { id = omClient.Id }, omClient);
         }
     }
 }
