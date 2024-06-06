@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -107,6 +108,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return _context.OmClient.Any(e => e.Id == id);
         }
 
+        #region JOBTODO
 
         [Route("AddJobTodo")]
         [HttpPost]
@@ -152,6 +154,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return await _context.JobToDo.ToListAsync();
         }
 
+        #endregion
+
+        #region OmMachines
+
         [Route("AddMachine")]
         [HttpPost]
         public async Task<ActionResult> AddMachines(OmMachinesViewModel omMachinesViewModel)
@@ -161,14 +167,14 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return BadRequest(ModelState);
             }
 
-           
+
 
             OmMachines omMachines = new OmMachines()
             {
                 MachineName = omMachinesViewModel.MachineName,
                 CreatedAt = DateTime.Now,
                 IsRunning = omMachinesViewModel.IsRunning,
-                MachineDescription=omMachinesViewModel.MachineDescription
+                MachineDescription = omMachinesViewModel.MachineDescription
 
             };
 
@@ -183,5 +189,52 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         {
             return await _context.OmMachines.ToListAsync();
         }
+
+        //[HttpPut]
+        //[Route("UpdateMachine")]
+        //[Authorize]
+        //public async Task<IActionResult> UpdateMachines(OmMachinesViewModel omMachinesViewModel)
+        //{
+        //    OmMachines stateMaster = new OmMachines()
+        //    {
+        //        //Id = omMachinesViewModel.,
+        //        MachineName = omMachinesViewModel.MachineName,
+        //        MachineDescription = omMachinesViewModel.MachineDescription,
+        //        IsRunning = omMachinesViewModel.IsRunning
+
+        //    };
+        //    var state = await _EAMSService.UpdateStateById(stateMaster);
+        //}
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMachine(int id, OmMachines OmMachines)
+        {
+            if (id != OmMachines.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(OmMachines).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OmClientExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+        #endregion
+
     }
     }
