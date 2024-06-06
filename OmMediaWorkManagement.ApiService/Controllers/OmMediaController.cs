@@ -108,6 +108,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         }
 
 
+        [Route("AddJobTodo")]
         [HttpPost]
         public async Task<ActionResult> AddJobToDo(JobToDoViewModel jobToDoViewModel)
         {
