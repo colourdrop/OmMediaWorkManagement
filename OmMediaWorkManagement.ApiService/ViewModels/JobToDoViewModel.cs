@@ -12,7 +12,7 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         public string Quantity { get; set; }
 
         [Required(ErrorMessage = "Image is required")]
-        public byte[]? Image { get; set; }
+        public IFormFile? Image { get; set; }
               
         public int? PostedBy { get; set; }
 

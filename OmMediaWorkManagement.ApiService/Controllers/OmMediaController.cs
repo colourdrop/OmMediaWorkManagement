@@ -45,6 +45,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
         // PUT: api/OmMedia/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOmClient(int id, OmClient omClient)
         {
@@ -110,24 +111,37 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpPost]
         public async Task<ActionResult> AddJobToDo(JobToDoViewModel jobToDoViewModel)
         {
-      JobToDo jobToDos = new JobToDo()
-      {
-         CompanyName = jobToDoViewModel.ComapnyName,
-         Quantity = jobToDoViewModel.Quantity,
-          Image=jobToDoViewModel.Image,
-          PostedBy= jobToDoViewModel.PostedBy,
-          JobIsRunning= jobToDoViewModel.JobIsRunning,
-          JobIsDeclained =jobToDoViewModel?.JobIsDeclained,
-          JobIsFinished= jobToDoViewModel?.JobIsFinished,
-          JobIsHold= jobToDoViewModel?.JobIsHold,
-          JobPostedDateTime=DateTime.Now,
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-      };
+            byte[] imageBytes = null;
+            if (jobToDoViewModel.Image != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await jobToDoViewModel.Image.CopyToAsync(memoryStream);
+                    imageBytes = memoryStream.ToArray();
+                }
+            }
 
-            _context.JobToDO.Add(jobToDos);
+            JobToDo jobToDos = new JobToDo()
+            {
+                CompanyName = jobToDoViewModel.ComapnyName,
+                Quantity = jobToDoViewModel.Quantity,
+                Image = imageBytes,
+                PostedBy = jobToDoViewModel.PostedBy,
+                JobIsRunning = jobToDoViewModel.JobIsRunning,
+                JobIsDeclained = jobToDoViewModel.JobIsDeclained,
+                JobIsFinished = jobToDoViewModel.JobIsFinished,
+                JobIsHold = jobToDoViewModel.JobIsHold,
+                JobPostedDateTime = DateTime.Now,
+            };
+
+            _context.JobToDo.Add(jobToDos);
             await _context.SaveChangesAsync();
             return Ok();
-           // return CreatedAtAction("GetOmClient", new { id = omClient.Id }, omClient);
         }
     }
-}
+    }
