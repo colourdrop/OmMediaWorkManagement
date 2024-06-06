@@ -231,6 +231,16 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return await _context.JobToDo.ToListAsync();
         }
 
+        [HttpGet("GetJobsToDosById/{jboToDoId}")]
+        public async Task<ActionResult<IEnumerable<JobToDo>>> GetJobsToDosById(int jboToDoId)
+        {
+            var jobToDoRecord = await _context.JobToDo
+                .Where(work => work.Id == jboToDoId)
+                .ToListAsync();
+
+            return jobToDoRecord;
+        }
+
         #endregion
 
         #region OmMachines
@@ -262,39 +272,40 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return await _context.OmMachines.ToListAsync();
         }
 
-        [HttpPut("UpdateMachineById/{id}")]
-        public async Task<IActionResult> UpdateMachine(int id, OmMachines omMachines)
+        [HttpPut]
+        [Route("UpdateMachineById/{id}")]
+        public async Task<ActionResult> UpdateMachine(int id, OmMachinesViewModel omMachinesViewModel)
         {
-            if (id != omMachines.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(omMachines).State = EntityState.Modified;
-
-            try
+            var existingMachine = await _context.OmMachines.FindAsync(id);
+            if (existingMachine == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OmClientExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
 
-            return NoContent();
+            existingMachine.IsRunning = omMachinesViewModel.IsRunning;
+            existingMachine.MachineDescription = omMachinesViewModel.MachineDescription;
+            existingMachine.MachineName = omMachinesViewModel.MachineName;
+            _context.OmMachines.Update(existingMachine);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
-        private bool OmClientExists(int id)
+        [HttpGet("GetMachineById/{machineId}")]
+        public async Task<ActionResult<IEnumerable<OmMachines>>> GetMachineById(int machineId)
         {
-            return _context.OmClient.Any(e => e.Id == id);
+            var machineRecord= await _context.OmMachines
+                .Where(work => work.Id == machineId)
+                .ToListAsync();
+
+            return machineRecord;
         }
+       
 
         #endregion
     }
