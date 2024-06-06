@@ -144,5 +144,44 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+        [Route("GetJobToDoList")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<JobToDo>>> GetJobToDoAll()
+        {
+            return await _context.JobToDo.ToListAsync();
+        }
+
+        [Route("AddMachine")]
+        [HttpPost]
+        public async Task<ActionResult> AddMachines(OmMachinesViewModel omMachinesViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+           
+
+            OmMachines omMachines = new OmMachines()
+            {
+                MachineName = omMachinesViewModel.MachineName,
+                CreatedAt = DateTime.Now,
+                IsRunning = omMachinesViewModel.IsRunning,
+                MachineDescription=omMachinesViewModel.MachineDescription
+
+            };
+
+            _context.OmMachines.Add(omMachines);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Route("GetMachines")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<OmMachines>>> GetMachine()
+        {
+            return await _context.OmMachines.ToListAsync();
+        }
     }
     }
