@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
+builder.Services.AddControllersWithViews();
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
