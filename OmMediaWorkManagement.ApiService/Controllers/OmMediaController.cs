@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -23,11 +21,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context = context;
         }
 
-
         #region Client Details
 
-        [HttpPost]
-        [Route("AddClient")]
+        [HttpPost("AddClient")]
         public async Task<ActionResult> AddPostOmClient(OmClientViewModel omClientViewModel)
         {
             if (!ModelState.IsValid)
@@ -50,15 +46,26 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok();
         }
-       
-        [HttpGet]
-        [Route("GetAllClients")]
+
+        [HttpGet("GetAllClients")]
         public async Task<ActionResult<IEnumerable<OmClient>>> GetAllClients()
         {
             return await _context.OmClient.ToListAsync();
         }
-        [HttpPut]
-        [Route("UpdateClient/{id}")]
+
+        [HttpGet("GetClientById/{id}")]
+        public async Task<ActionResult<OmClient>> GetClientById(int id)
+        {
+            var client = await _context.OmClient.FindAsync(id);
+            if (client == null)
+            {
+                return NotFound();
+            }
+
+            return client;
+        }
+
+        [HttpPut("UpdateClient/{id}")]
         public async Task<ActionResult> UpdateClient(int id, OmClientViewModel omClientViewModel)
         {
             if (!ModelState.IsValid)
@@ -83,7 +90,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteClientById/{id}")]
         public async Task<IActionResult> DeleteOmClient(int id)
         {
             var omClient = await _context.OmClient.FindAsync(id);
@@ -98,17 +105,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return NoContent();
         }
 
-        private bool OmClientExists(int id)
-        {
-            return _context.OmClient.Any(e => e.Id == id);
-        }
         #endregion
-
 
         #region Work Details
 
-        [HttpGet]
-        [Route("GetWorksByClientId/{clientId}")]
+        [HttpGet("GetWorksByClientId/{clientId}")]
         public async Task<ActionResult<IEnumerable<OmClientWork>>> GetWorksByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
@@ -118,8 +119,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return clientWorks;
         }
 
-        [HttpPost]
-        [Route("AddWork")]
+        [HttpPost("AddWork")]
         public async Task<ActionResult> AddWork(OmClientWorkViewModel omClientWorkViewModel)
         {
             if (!ModelState.IsValid)
@@ -144,8 +144,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        [Route("UpdateWork/{id}")]
+        [HttpPut("UpdateWork/{id}")]
         public async Task<ActionResult> UpdateWork(int id, OmClientWorkViewModel omClientWorkViewModel)
         {
             if (!ModelState.IsValid)
@@ -174,10 +173,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
         #endregion
 
-
         #region JobTodo
-        [Route("AddJobTodo")]
-        [HttpPost]
+
+        [HttpPost("AddJobTodo")]
         public async Task<ActionResult> AddJobToDo(JobToDoViewModel jobToDoViewModel)
         {
             if (!ModelState.IsValid)
@@ -203,8 +201,6 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     }
                 }
 
-                // Here, we're assuming that you'll handle multiple images somehow.
-                // For simplicity, let's just take the first image.
                 byte[] imageBytes = imageBytesList.FirstOrDefault();
 
                 JobToDo jobToDos = new JobToDo()
@@ -212,7 +208,6 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     CompanyName = jobToDoViewModel.ComapnyName,
                     Quantity = jobToDoViewModel.Quantity,
                     Image = imageBytes,
-                    //PostedBy = jobToDoViewModel.PostedBy,
                     JobIsRunning = jobToDoViewModel.JobIsRunning,
                     JobIsDeclained = jobToDoViewModel.JobIsDeclained,
                     JobIsFinished = jobToDoViewModel.JobIsFinished,
@@ -226,14 +221,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             }
             catch (Exception ex)
             {
-                 
                 return StatusCode(500, "Internal server error");
             }
         }
- 
 
-        [Route("GetJobToDoList")]
-        [HttpGet]
+        [HttpGet("GetJobToDoList")]
         public async Task<ActionResult<IEnumerable<JobToDo>>> GetJobToDoAll()
         {
             return await _context.JobToDo.ToListAsync();
@@ -243,8 +235,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
         #region OmMachines
 
-        [Route("AddMachine")]
-        [HttpPost]
+        [HttpPost("AddMachine")]
         public async Task<ActionResult> AddMachines(OmMachinesViewModel omMachinesViewModel)
         {
             if (!ModelState.IsValid)
@@ -252,15 +243,12 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return BadRequest(ModelState);
             }
 
-
-
             OmMachines omMachines = new OmMachines()
             {
                 MachineName = omMachinesViewModel.MachineName,
                 CreatedAt = DateTime.Now,
                 IsRunning = omMachinesViewModel.IsRunning,
                 MachineDescription = omMachinesViewModel.MachineDescription
-
             };
 
             _context.OmMachines.Add(omMachines);
@@ -268,39 +256,21 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok();
         }
 
-        [Route("GetMachines")]
-        [HttpGet]
+        [HttpGet("GetMachines")]
         public async Task<ActionResult<IEnumerable<OmMachines>>> GetMachine()
         {
             return await _context.OmMachines.ToListAsync();
         }
 
-        //[HttpPut]
-        //[Route("UpdateMachine")]
-        //[Authorize]
-        //public async Task<IActionResult> UpdateMachines(OmMachinesViewModel omMachinesViewModel)
-        //{
-        //    OmMachines stateMaster = new OmMachines()
-        //    {
-        //        //Id = omMachinesViewModel.,
-        //        MachineName = omMachinesViewModel.MachineName,
-        //        MachineDescription = omMachinesViewModel.MachineDescription,
-        //        IsRunning = omMachinesViewModel.IsRunning
-
-        //    };
-        //    var state = await _EAMSService.UpdateStateById(stateMaster);
-        //}
-
-        [HttpPut("{id}")]
-        [Route("updateMachineById")]
-        public async Task<IActionResult> UpdateMachine(int id, OmMachines OmMachines)
+        [HttpPut("UpdateMachineById/{id}")]
+        public async Task<IActionResult> UpdateMachine(int id, OmMachines omMachines)
         {
-            if (id != OmMachines.Id)
+            if (id != omMachines.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(OmMachines).State = EntityState.Modified;
+            _context.Entry(omMachines).State = EntityState.Modified;
 
             try
             {
@@ -320,7 +290,12 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return NoContent();
         }
+
+        private bool OmClientExists(int id)
+        {
+            return _context.OmClient.Any(e => e.Id == id);
+        }
+
         #endregion
- 
     }
 }
