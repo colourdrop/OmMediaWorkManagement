@@ -8,14 +8,12 @@ namespace OmMediaWorkManagement.ApiService.Models
         [Key]
         public int Id { get; set; }
         public string? CompanyName { get; set; }
-        public double? Quantity { get; set; }       
+        public double? Quantity { get; set; }
         public DateTime JobPostedDateTime { get; set; }
         public int? PostedBy { get; set; }
-        
-        public bool? JobIsRunning { get; set; }
-        public bool? JobIsFinished { get; set; }
-        public bool? JobIsHold { get; set; }
-        public bool? JobIsDeclained { get; set; }
+        public int JobStatusType { get; set; }
+        public bool IsStatus { get; set; }
+
         public virtual List<JobImages> JobImages { get; set; } = new List<JobImages>();
 
 
@@ -35,6 +33,17 @@ namespace OmMediaWorkManagement.ApiService.Models
         {
             get;
             set;
+        }
+    }
+
+    public class JobTypeStatus
+    {
+        [Key]
+        public int Id { get; set; }
+        public int JobStatusType { get; set; }
+        public string JobStatusName
+        {
+            get; set;
         }
     }
 }

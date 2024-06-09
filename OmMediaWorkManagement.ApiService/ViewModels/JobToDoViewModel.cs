@@ -5,18 +5,16 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
     public class JobToDoViewModel
     {
 
-        [Required(ErrorMessage = "Company Name is required")]
         public string ComapnyName { get; set; }
 
-        [Required(ErrorMessage = "Quantity is required")]
+
         public double Quantity { get; set; }
 
-        [Required(ErrorMessage = "Image is required")]
-        public List<IFormFile?> Images { get; set; }              
-        
-        public bool? JobIsRunning { get; set; }
-        public bool? JobIsFinished { get; set; }
-        public bool? JobIsHold { get; set; }
-        public bool? JobIsDeclained { get; set; }
+
+        public List<IFormFile?> Images { get; set; }
+
+        public bool IsStatus { get; set; }
+        public int JobStatusType { get; set; }
+
     }
 }

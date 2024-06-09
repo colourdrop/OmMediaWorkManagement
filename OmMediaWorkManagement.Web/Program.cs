@@ -1,5 +1,6 @@
 using OmMediaWorkManagement.Web;
 using OmMediaWorkManagement.Web.Components;
+using OmMediaWorkManagement.Web.Components.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,11 +13,12 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
+builder.Services.AddHttpClient<IOmService ,OmServices>(client =>
     {
         // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
         // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
+       // client.BaseAddress = new("https+http://localhost:7439");
+        client.BaseAddress = new("https+http://b359-13-60-77-120.ngrok-free.app");
     });
 
 var app = builder.Build();

@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmMediaWorkManagement.AppHost", "OmMediaWorkManagement.AppHost\OmMediaWorkManagement.AppHost.csproj", "{2A92FD50-D569-4CE7-8DD4-B3CAB2B14B4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OmMediaWorkManagement.AppHost", "OmMediaWorkManagement.AppHost\OmMediaWorkManagement.AppHost.csproj", "{2A92FD50-D569-4CE7-8DD4-B3CAB2B14B4E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OmMediaWorkManagement.ServiceDefaults", "OmMediaWorkManagement.ServiceDefaults\OmMediaWorkManagement.ServiceDefaults.csproj", "{513FE095-8453-4AF5-BCD2-D323E9A36335}"
 EndProject

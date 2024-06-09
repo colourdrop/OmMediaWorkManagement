@@ -190,10 +190,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 {
                     CompanyName = jobToDoViewModel.ComapnyName,
                     Quantity = jobToDoViewModel.Quantity,
-                    JobIsRunning = jobToDoViewModel.JobIsRunning,
-                    JobIsDeclained = jobToDoViewModel.JobIsDeclained,
-                    JobIsFinished = jobToDoViewModel.JobIsFinished,
-                    JobIsHold = jobToDoViewModel.JobIsHold,
+                    IsStatus = jobToDoViewModel.IsStatus,
+                    JobStatusType = jobToDoViewModel.JobStatusType,
                     JobPostedDateTime = DateTime.UtcNow,
                 };
 
@@ -218,7 +216,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 }
 
                 _context.JobToDo.Add(jobToDo);
-                  _context.SaveChanges();
+                _context.SaveChanges();
                 return Ok("Job Posted Successfully");
             }
             catch (Exception)
@@ -227,28 +225,105 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             }
         }
 
+
+        [HttpPut("UpdateJobTodo/{id}")]
+        public async Task<IActionResult> UpdateJobTodo(int id, JobToDoViewModel jobToDoViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var jobToDo = await _context.JobToDo
+                .Include(j => j.JobImages)
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (jobToDo == null)
+            {
+                return NotFound();
+            }
+
+            jobToDo.CompanyName = jobToDoViewModel.ComapnyName;
+            jobToDo.Quantity = jobToDoViewModel.Quantity;
+            jobToDo.IsStatus = jobToDoViewModel.IsStatus;
+            jobToDo.JobStatusType = jobToDoViewModel.JobStatusType;
+            jobToDo.JobPostedDateTime = DateTime.UtcNow;
+
+            if (jobToDoViewModel.Images != null)
+            {
+                // Clear existing images if new images are provided
+                jobToDo.JobImages.Clear();
+
+                foreach (var formFile in jobToDoViewModel.Images)
+                {
+                    if (formFile != null)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await formFile.CopyToAsync(memoryStream);
+                            byte[] imageBytes = memoryStream.ToArray();
+
+                            jobToDo.JobImages.Add(new JobImages
+                            {
+                                Image = imageBytes
+                            });
+                        }
+                    }
+                }
+            }
+
+            try
+            {
+                _context.Entry(jobToDo).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!JobToDoExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool JobToDoExists(int id)
+        {
+            return _context.JobToDo.Any(e => e.Id == id);
+        }
+
+
         [HttpGet("GetJobToDoList")]
         public async Task<IActionResult> GetJobToDoList()
         {
             var jobList = await _context.JobToDo
                 .Include(d => d.JobImages)
+                 .OrderByDescending(job => job.JobPostedDateTime)
                 .ToListAsync();
+
+            var jobStatusDictionary = await _context.JobTypeStatus
+                .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
 
             var jobToDoResponses = jobList.Select(job => new JobToDoResponseViewModel
             {
                 Id = job.Id,
                 CompanyName = job.CompanyName,
                 Quantity = job.Quantity,
-                JobIsRunning = job.JobIsRunning,
-                JobIsDeclained = job.JobIsDeclained,
-                JobIsFinished = job.JobIsFinished,
-                JobIsHold = job.JobIsHold,
+                JobStatusType = job.JobStatusType,
+                IsStatus = job.IsStatus,
+                JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
                 JobPostedDateTime = job.JobPostedDateTime,
                 Images = job.JobImages.Select(img => Convert.ToBase64String(img.Image)).ToList()
             }).ToList();
 
             return Ok(jobToDoResponses);
         }
+
 
 
         [HttpGet("GetJobsToDosById/{jobToDoId}")]
@@ -337,6 +412,38 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         }
 
         #endregion
-    
+
+        #region Job Type Status
+
+        // POST: api/OmMedia
+        [Route("AddPostJobTypeStatus")]
+        [HttpPost]
+        public async Task<IActionResult> PostJobTypeStatus(JobTypeStatus jobTypeStatus)
+        {
+            _context.JobTypeStatus.Add(jobTypeStatus);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetJobTypeStatus", new { id = jobTypeStatus.Id }, jobTypeStatus);
+        }
+
+
+
+        [Route("GetJobTypeStatusList")]
+        [HttpGet]
+        public async Task<IActionResult> GetJobTypeStatusList()
+        {
+            var records=await _context.JobTypeStatus.ToListAsync();
+            return Ok(records);
+        }
+        [Route("GetJobTypeStatusById")]
+        [HttpGet]
+        public async Task<IActionResult> GetJobTypeStatusById(int id)
+        {
+            var record = await _context.JobTypeStatus.FirstOrDefaultAsync(m => m.Id == id);
+            return Ok(record);
+        }
     }
+    #endregion
+
 }
+
