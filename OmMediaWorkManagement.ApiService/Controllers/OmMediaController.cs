@@ -120,6 +120,14 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok(clientWorks);
         }
 
+        [HttpGet("GetAllClientWork")]
+        public async Task<IActionResult> GetAllClientWork()
+        {
+            var clientWorks = await _context.OmClientWork                 
+                .ToListAsync();
+
+            return Ok(clientWorks);
+        }
         [HttpPost("AddWork")]
         public async Task<IActionResult> AddWork(OmClientWorkViewModel omClientWorkViewModel)
         {
@@ -190,6 +198,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 {
                     CompanyName = jobToDoViewModel.ComapnyName,
                     Quantity = jobToDoViewModel.Quantity,
+                    Description = jobToDoViewModel.Description,
                     IsStatus = jobToDoViewModel.IsStatus,
                     JobStatusType = jobToDoViewModel.JobStatusType,
                     JobPostedDateTime = DateTime.UtcNow,
@@ -197,26 +206,37 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
                 if (jobToDoViewModel.Images != null)
                 {
+                    var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+                    if (!Directory.Exists(imagesFolder))
+                    {
+                        Directory.CreateDirectory(imagesFolder);
+                    }
+
                     foreach (var formFile in jobToDoViewModel.Images)
                     {
                         if (formFile != null)
                         {
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                await formFile.CopyToAsync(memoryStream);
-                                byte[] imageBytes = memoryStream.ToArray();
+                            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(formFile.FileName);
+                            var filePath = Path.Combine(imagesFolder, uniqueFileName);
 
-                                jobToDo.JobImages.Add(new JobImages
-                                {
-                                    Image = imageBytes
-                                });
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await formFile.CopyToAsync(fileStream);
                             }
+
+                            var imagePath = Path.Combine("images", uniqueFileName);
+
+                            jobToDo.JobImages.Add(new JobImages
+                            {
+                                ImagePath = imagePath
+                            });
                         }
                     }
                 }
 
                 _context.JobToDo.Add(jobToDo);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok("Job Posted Successfully");
             }
             catch (Exception)
@@ -224,7 +244,6 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
 
         [HttpPut("UpdateJobTodo/{id}")]
         public async Task<IActionResult> UpdateJobTodo(int id, JobToDoViewModel jobToDoViewModel)
@@ -245,12 +264,30 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             jobToDo.CompanyName = jobToDoViewModel.ComapnyName;
             jobToDo.Quantity = jobToDoViewModel.Quantity;
+            jobToDo.Description = jobToDoViewModel.Description;
             jobToDo.IsStatus = jobToDoViewModel.IsStatus;
             jobToDo.JobStatusType = jobToDoViewModel.JobStatusType;
             jobToDo.JobPostedDateTime = DateTime.UtcNow;
 
             if (jobToDoViewModel.Images != null)
             {
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+                if (!Directory.Exists(imagesFolder))
+                {
+                    Directory.CreateDirectory(imagesFolder);
+                }
+
+                // Delete existing images from the folder
+                foreach (var jobImage in jobToDo.JobImages)
+                {
+                    var existingFilePath = Path.Combine(imagesFolder, Path.GetFileName(jobImage.ImagePath));
+                    if (System.IO.File.Exists(existingFilePath))
+                    {
+                        System.IO.File.Delete(existingFilePath);
+                    }
+                }
+
                 // Clear existing images if new images are provided
                 jobToDo.JobImages.Clear();
 
@@ -258,16 +295,20 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 {
                     if (formFile != null)
                     {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await formFile.CopyToAsync(memoryStream);
-                            byte[] imageBytes = memoryStream.ToArray();
+                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(formFile.FileName);
+                        var filePath = Path.Combine(imagesFolder, uniqueFileName);
 
-                            jobToDo.JobImages.Add(new JobImages
-                            {
-                                Image = imageBytes
-                            });
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await formFile.CopyToAsync(fileStream);
                         }
+
+                        var imagePath = Path.Combine("images", uniqueFileName);
+
+                        jobToDo.JobImages.Add(new JobImages
+                        {
+                            ImagePath = imagePath
+                        });
                     }
                 }
             }
@@ -303,11 +344,14 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         {
             var jobList = await _context.JobToDo
                 .Include(d => d.JobImages)
-                 .OrderByDescending(job => job.JobPostedDateTime)
+                .OrderByDescending(job => job.JobPostedDateTime)
                 .ToListAsync();
 
             var jobStatusDictionary = await _context.JobTypeStatus
                 .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
 
             var jobToDoResponses = jobList.Select(job => new JobToDoResponseViewModel
             {
@@ -318,7 +362,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 IsStatus = job.IsStatus,
                 JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
                 JobPostedDateTime = job.JobPostedDateTime,
-                Images = job.JobImages.Select(img => Convert.ToBase64String(img.Image)).ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             return Ok(jobToDoResponses);
@@ -329,8 +373,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetJobsToDosById/{jobToDoId}")]
         public async Task<IActionResult> GetJobsToDosById(int jobToDoId)
         {
-            var jobToDoRecord = await _context.JobToDo
-                .Include(j => j.JobImages)
+            var jobToDoRecord = await _context.JobToDo               
                 .FirstOrDefaultAsync(j => j.Id == jobToDoId);
 
             if (jobToDoRecord == null)

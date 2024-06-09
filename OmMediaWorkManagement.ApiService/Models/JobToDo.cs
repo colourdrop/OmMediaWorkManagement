@@ -9,6 +9,7 @@ namespace OmMediaWorkManagement.ApiService.Models
         public int Id { get; set; }
         public string? CompanyName { get; set; }
         public double? Quantity { get; set; }
+        public string? Description { get; set; }
         public DateTime JobPostedDateTime { get; set; }
         public int? PostedBy { get; set; }
         public int JobStatusType { get; set; }
@@ -22,7 +23,7 @@ namespace OmMediaWorkManagement.ApiService.Models
     {
         [Key]
         public int Id { get; set; }
-        public byte[]? Image { get; set; }
+        public string ImagePath { get; set; }
         public int JobTodoId
         {
             get;

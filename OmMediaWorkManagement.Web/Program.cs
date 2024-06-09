@@ -1,6 +1,7 @@
 using OmMediaWorkManagement.Web;
 using OmMediaWorkManagement.Web.Components;
 using OmMediaWorkManagement.Web.Components.Services;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,7 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
+builder.Services.AddRadzenComponents();
 builder.Services.AddOutputCache();
 
 builder.Services.AddHttpClient<IOmService ,OmServices>(client =>

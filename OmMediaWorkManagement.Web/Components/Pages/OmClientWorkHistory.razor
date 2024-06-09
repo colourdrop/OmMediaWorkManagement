@@ -1,0 +1,67 @@
+﻿@page "/WorkHistory"
+
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+<style>
+    .rz-grid-table {
+        width: unset;
+    }
+</style>
+<RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add New Client" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
+    <div style="white-space:nowrap; margin-left: 20px ">Edit Mode:</div>
+    <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
+                     Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
+                     Disabled="@(editMode == DataGridEditMode.Multiple && clientsWorkToInsert.Count() > 1)" />
+</RadzenStack>
+
+<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"
+                Data="@ClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
+    <Columns>
+        <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
+            <Template Context="OmClientWork">
+                @(ClientWorkHistory.IndexOf(OmClientWork) + 1)
+            </Template>
+        </RadzenDataGridColumn>
+        <!-- Dropdown column for client selection -->
+        <RadzenDataGridColumn Title="Client" Width="280px">
+            <EditTemplate Context="work">
+                <RadzenDropDown @bind-Value="work.ClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
+        <!-- Other columns for OmClientWork -->
+        <RadzenDataGridColumn Property="WorkDate" Title="Work Date" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenDatePicker @bind-Value="work.WorkDate" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="WorkDetails" Title="Work Details" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenTextBox @bind-Value="work.WorkDetails" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <!-- Add other columns for OmClientWork as needed -->
+
+        <RadzenDataGridColumn Context="work" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="work">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(work))" @onclick:stopPropagation="true">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(work))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="work">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(work))" aria-label="Save">
+                </RadzenButton>
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(work))" aria-label="Cancel">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(work))" aria-label="Delete">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+ 

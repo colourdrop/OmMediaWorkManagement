@@ -1,0 +1,22 @@
+﻿  @rendermode InteractiveServer
+<RadzenDialog Visible="@showDialog" Title="Record Inserted" Width="300px">
+    <p>@responseMessage</p>
+    <RadzenButton Text="OK" Click="@CloseDialog" />
+</RadzenDialog>
+
+@code {
+    [Parameter]
+    public bool showDialog { get; set; }
+
+    [Parameter]
+    public string responseMessage { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> showDialogChanged { get; set; }
+
+    private async Task CloseDialog()
+    {
+        showDialog = false;
+        await showDialogChanged.InvokeAsync(showDialog);
+    }
+}

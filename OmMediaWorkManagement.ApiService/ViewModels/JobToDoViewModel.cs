@@ -7,9 +7,8 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
 
         public string ComapnyName { get; set; }
 
-
         public double Quantity { get; set; }
-
+        public string? Description { get; set; }
 
         public List<IFormFile?> Images { get; set; }
 
