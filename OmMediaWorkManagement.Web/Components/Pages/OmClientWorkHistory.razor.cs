@@ -1,135 +1,140 @@
-﻿//using Microsoft.AspNetCore.Components;
-//using OmMediaWorkManagement.Web.Components.Models;
-//using OmMediaWorkManagement.Web.Components.Services;
-//using Radzen;
-//using Radzen.Blazor;
+﻿using Microsoft.AspNetCore.Components;
+using OmMediaWorkManagement.Web.Components.Models;
+using OmMediaWorkManagement.Web.Components.Services;
+using Radzen;
+using Radzen.Blazor;
 
-//namespace OmMediaWorkManagement.Web.Components.Pages
-//{
-//    public partial class OmClientWorkHistory
-//    {
-//        [Inject]
-//        public IOmService OmService { get; set; } 
+namespace OmMediaWorkManagement.Web.Components.Pages
+{
+    public partial class OmClientWorkHistory
+    {
+        [Inject]
+        public IOmService OmService { get; set; }
+        private int selectedClientId;
+        private RadzenDataGrid<OmClientWork> clientsWorkGrid;
+        public List<OmClientWork> ClientWorkHistory { get; set; } = new List<OmClientWork>();
+        public List<OmClient> clients { get; set; } = new List<OmClient>();
+        private List<OmClientWork> filteredClientWorkHistory = new List<OmClientWork>();
 
-//        private RadzenDataGrid<OmClientWork> clientsWorkGrid;
-//        public List<OmClientWork> ClientWorkHistory { get; set; } = new List<OmClientWork>();
+        protected override async Task OnInitializedAsync()
+        {
+            ClientWorkHistory = await OmService.GetAllClientWork();
+            clients = await OmService.GetAllClients();
+            filteredClientWorkHistory = ClientWorkHistory; // Initialize with all records
+        }
 
-//        public List<OmClient> clients { get; set; } = new List<OmClient>();
-//        protected override async Task OnInitializedAsync()
-//        {
+        private List<OmClientWork> clientsWorkToInsert = new List<OmClientWork>();
+        private List<OmClientWork> clientsWorkToUpdate = new List<OmClientWork>();
+        private DataGridEditMode editMode = DataGridEditMode.Single;
+        private bool IsFirstRender { get; set; } = true;
 
-//            ClientWorkHistory = await OmService.GetAllClientWork();
-//            clients = await OmService.GetAllClients();
-//        }
+        private void Reset()
+        {
+            clientsWorkToInsert.Clear();
+            clientsWorkToUpdate.Clear();
+        }
 
+        private void Reset(OmClientWork client)
+        {
+            clientsWorkToInsert.Remove(client);
+            clientsWorkToUpdate.Remove(client);
+        }
 
+        private async Task EditRow(OmClientWork client)
+        {
+            if (editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)
+            {
+                Reset();
+            }
 
-//        private List<OmClientWork> clientsWorkToInsert = new List<OmClientWork>();
-//        private List<OmClientWork> clientsWorkToUpdate = new List<OmClientWork>();
-//        private DataGridEditMode editMode = DataGridEditMode.Single;
-//        private bool IsFirstRender { get; set; } = true;
-//        private int GetRowIndex(OmClientWork client)
-//        {
-//            return ClientWorkHistory.IndexOf(client);
-//        }
-//        private void Reset()
-//        {
-//            clientsWorkToInsert.Clear();
-//            clientsWorkToUpdate.Clear();
-//        }
+            clientsWorkToUpdate.Add(client);
+            await clientsWorkGrid.EditRow(client);
+        }
 
-//        private void Reset(OmClientWork client)
-//        {
-//            clientsWorkToInsert.Remove(client);
-//            clientsWorkToUpdate.Remove(client);
-//        }
-         
+        private void OnUpdateRow(OmClientWork client)
+        {
+            Reset(client);
+            //var result = OmService.UpdateClientWork(client);
+        }
 
-//        private async Task EditRow(OmClientWork client)
-//        {
-//            if (editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)
-//            {
-//                Reset();
-//            }
+        private async Task SaveRow(OmClientWork client)
+        {
+            await clientsWorkGrid.UpdateRow(client);
+        }
 
-//            clientsWorkToUpdate.Add(client);
-//            //await clientsWorkGrid.EditRow(client);
-//        }
+        private void CancelEdit(OmClientWork client)
+        {
+            Reset(client);
+            clientsWorkGrid.CancelEditRow(client);
 
-//        private void OnUpdateRow(OmClientWork client)
-//        {
-//            Reset(client);
-//            //var result = OmService.UpdateClient(client);
-//        }
+            // Assuming OmService.GetClient returns a client by ID
+            // var clientEntry = OmService.GetClientWork(client.ClientId).Result;
+            // if (clientEntry != null)
+            // {
+            //     client = clientEntry;
+            // }
+        }
 
-//        private async Task SaveRow(OmClientWork client)
-//        {
-//            //await clientsWorkGrid.UpdateRow(client);
-//        }
+        private async Task DeleteRow(OmClientWork client)
+        {
+            Reset(client);
 
-//        private void CancelEdit(OmClientWork client)
-//        {
-//            Reset(client);
-//            //clientsWorkGrid.CancelEditRow(client);
+            if (ClientWorkHistory.Contains(client))
+            {
+                // var result = await OmService.DeleteClientWork(client.ClientId);
 
-//            //// Assuming OmService.GetClient returns a client by ID
-//            //var clientEntry = OmService.GetClient(client.ClientID).Result;
-//            //if (clientEntry != null)
-//            //{
-//            //    client = clientEntry;
-//            //}
-//        }
+                await clientsWorkGrid.Reload();
+            }
+            else
+            {
+                clientsWorkGrid.CancelEditRow(client);
+                await clientsWorkGrid.Reload();
+            }
+        }
 
-//        private async Task DeleteRow(OmClientWork client)
-//        {
-//            Reset(client);
+        private async Task InsertRow()
+        {
+            if (editMode == DataGridEditMode.Single)
+            {
+                Reset();
+            }
 
-//            //if (clients.Contains(client))
-//            //{
-//            //    var result = await OmService.DeleteClient(client.Id);
-//            //    clients = clients.Where(c => c.Id != client.Id).ToList();
-//            //    await clientsWorkGrid.Reload();
-//            //}
-//            //else
-//            //{
-//            //    clientsWorkGrid.CancelEditRow(client);
-//            //    await clientsWorkGrid.Reload();
-//            //}
-//        }
+            var newClientWork = new OmClientWork();
+            clientsWorkToInsert.Add(newClientWork);
+            await clientsWorkGrid.InsertRow(newClientWork);
+        }
 
-//        private async Task InsertRow()
-//        {
-//            if (editMode == DataGridEditMode.Single)
-//            {
-//                Reset();
-//            }
+        private async Task OnCreateRow(OmClientWork client)
+        {
+            if (clientsWorkToInsert.Contains(client))
+            {
+                clientsWorkToInsert.Remove(client);
+                // var result = await OmService.CreateClientWork(client);
+                // if (result != null)
+                // {
+                //     ClientWorkHistory.Add(result);
+                //     await clientsWorkGrid.Reload();
+                // }
+            }
+        }
 
-//            //var client = new OmClientWork { CreatedAt = DateTime.UtcNow };
-//            //clientsToInsert.Add(client);
-//            //await clientsWorkGrid.InsertRow(client);
-//        }
+        private void OnClientSelected(object value)
+        {
+            selectedClientId = (int)value;
+            if (selectedClientId > 0)
+            {
+                filteredClientWorkHistory = ClientWorkHistory.Where(c => c.Id == selectedClientId).ToList();
+            }
+            else
+            {
+                filteredClientWorkHistory = ClientWorkHistory;
+            }
+        }
 
-//        private async void OnCreateRow(OmClientWork client)
-//        {
+        private string GetClientName(int clientId)
+        {
+            return clients.FirstOrDefault(c => c.Id == clientId)?.Name ?? "Unknown Client";
+        }
 
-//            //var result = await OmService.AddClient(client);
-//            //clientsToInsert.Remove(client);
-           
-//            // Refresh the table after adding a new record
-//            await RefreshTable();
-//        }
-
-
-//        private async Task ShowDialogChanged(bool value)
-//        {
-            
-//            StateHasChanged();
-//        }
-//        private async Task RefreshTable()
-//        {
-//            clients = await OmService.GetAllClients();
-//            await clientsWorkGrid.Reload();
-//        }
-       
-//    }
-//}
+    }
+}

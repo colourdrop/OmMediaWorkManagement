@@ -53,6 +53,13 @@ namespace OmMediaWorkManagement.Web.Components.Services
         {
             return await httpClient.GetFromJsonAsync<OmClientWork>("/api/OmMedia/GetAllClientWork");
         }
+        public async Task<string> AddClientWork(OmClientWork clientWork)
+        {
+            // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
+            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddClientWork", clientWork);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
         #endregion
     }
 }

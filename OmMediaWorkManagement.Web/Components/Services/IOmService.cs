@@ -14,7 +14,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #region ClientWork
         Task<List<OmClientWork>> GetAllClientWork();
         Task<OmClientWork> GetClientWorkById();
-        //Task<string> AddClient(OmClient client);
+        Task<string> AddClientWork(OmClientWork clientWork);
         //Task<string> UpdateClient(OmClient client);
         //Task<string> DeleteClient(int clientId);
         #endregion

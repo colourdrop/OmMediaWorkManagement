@@ -1,7 +1,8 @@
 ﻿@page "/WorkHistory"
 
 @inject NavigationManager Navigation
-@rendermode InteractiveServer
+@rendermode InteractiveServer 
+
 <style>
     .rz-grid-table {
         width: unset;
@@ -10,28 +11,32 @@
 <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
+    <RadzenLabel Text="Select Value" Component="DropDownDataGridBindValue" Style="margin-right: 8px; vertical-align: middle;" />
+    <RadzenDropDownDataGrid @bind-Value="selectedClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Name="DropDownDataGridBindValue" />
+
     <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add Client Work History" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
-    <div style="white-space:nowrap; margin-left: 20px ">Edit Mode:</div>
+    <div style="white-space:nowrap; margin-left: 20px">Edit Mode:</div>
     <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
                      Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
                      Disabled="@(editMode == DataGridEditMode.Multiple && clientsWorkToInsert.Count() > 1)" />
 </RadzenStack>
 
+
 <RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"
-                Data="@ClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
+                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
     <Columns>
         <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
             <Template Context="OmClientWork">
-                @(ClientWorkHistory.IndexOf(OmClientWork) + 1)
+                @(filteredClientWorkHistory.IndexOf(OmClientWork) + 1)
             </Template>
         </RadzenDataGridColumn>
         <!-- Dropdown column for client selection -->
         <RadzenDataGridColumn Title="Client" Width="280px">
             <EditTemplate Context="work">
-                <RadzenDropDown @bind-Value="work.ClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;" />
+                <RadzenDropDown @bind-Value="work.OmClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;" />
             </EditTemplate>
             <Template Context="work">
-                @clients.FirstOrDefault(c => c.Id == work.ClientId)?.Name
+                @GetClientName(work.OmClientId)
             </Template>
         </RadzenDataGridColumn>
 
@@ -85,122 +90,4 @@
         </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
-
-@code {
-    [Inject]
-    public IOmService OmService { get; set; }
-
-    private RadzenDataGrid<OmClientWork> clientsWorkGrid;
-    public List<OmClientWork> ClientWorkHistory { get; set; } = new List<OmClientWork>();
-
-    public List<OmClient> clients { get; set; } = new List<OmClient>();
-
-    protected override async Task OnInitializedAsync()
-    {
-        ClientWorkHistory = await OmService.GetAllClientWork();
-        clients = await OmService.GetAllClients();
-    }
-
-    private List<OmClientWork> clientsWorkToInsert = new List<OmClientWork>();
-    private List<OmClientWork> clientsWorkToUpdate = new List<OmClientWork>();
-    private DataGridEditMode editMode = DataGridEditMode.Single;
-    private bool IsFirstRender { get; set; } = true;
-    private int GetRowIndex(OmClientWork client)
-    {
-        return ClientWorkHistory.IndexOf(client);
-    }
-    private void Reset()
-    {
-        clientsWorkToInsert.Clear();
-        clientsWorkToUpdate.Clear();
-    }
-
-    private void Reset(OmClientWork client)
-    {
-        clientsWorkToInsert.Remove(client);
-        clientsWorkToUpdate.Remove(client);
-    }
-
-    private async Task EditRow(OmClientWork client)
-    {
-        if (editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)
-        {
-            Reset();
-        }
-
-        clientsWorkToUpdate.Add(client);
-        //await clientsWorkGrid.EditRow(client);
-    }
-
-    private void OnUpdateRow(OmClientWork client)
-    {
-        Reset(client);
-        //var result = OmService.UpdateClient(client);
-    }
-
-    private async Task SaveRow(OmClientWork client)
-    {
-        //await clientsWorkGrid.UpdateRow(client);
-    }
-
-    private void CancelEdit(OmClientWork client)
-    {
-        Reset(client);
-        //clientsWorkGrid.CancelEditRow(client);
-
-        //// Assuming OmService.GetClient returns a client by ID
-        //var clientEntry = OmService.GetClient(client.ClientID).Result;
-        //if (clientEntry != null)
-        //{
-        //    client = clientEntry;
-        //}
-    }
-
-    private async Task DeleteRow(OmClientWork client)
-    {
-        Reset(client);
-
-        //if (clients.Contains(client))
-        //{
-        //    var result = await OmService.DeleteClient(client.Id);
-        //    clients = clients.Where(c => c.Id != client.Id).ToList();
-        //    await clientsWorkGrid.Reload();
-        //}
-        //else
-        //{
-        //    clientsWorkGrid.CancelEditRow(client);
-        //    await clientsWorkGrid.Reload();
-        //}
-    }
-
-    private async Task InsertRow()
-    {
-        if (editMode == DataGridEditMode.Single)
-        {
-            Reset();
-        }
-
-        //var client = new OmClientWork { CreatedAt = DateTime.UtcNow };
-        //clientsToInsert.Add(client);
-        //await clientsWorkGrid.InsertRow(client);
-    }
-
-    private async void OnCreateRow(OmClientWork client)
-    {
-        //var result = await OmService.AddClient(client);
-        //clientsToInsert.Remove(client);
-
-        // Refresh the table after adding a new record
-        await RefreshTable();
-    }
-
-    private async Task ShowDialogChanged(bool value)
-    {
-        StateHasChanged();
-    }
-    private async Task RefreshTable()
-    {
-        clients = await OmService.GetAllClients();
-        await clientsWorkGrid.Reload();
-    }
-}
+ 

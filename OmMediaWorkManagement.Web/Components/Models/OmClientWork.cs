@@ -5,7 +5,7 @@ namespace OmMediaWorkManagement.Web.Components.Models
 {
     public class OmClientWork
     {
-        public int ClientId { get; set; }
+        public int Id { get; set; }
 
         public DateTime WorkDate { get; set; }
 
@@ -16,6 +16,7 @@ namespace OmMediaWorkManagement.Web.Components.Models
 
         public int Total { get; set; }
         public string? Remarks { get; set; }
+        public int OmClientId { get; set; }
 
     }
 }
