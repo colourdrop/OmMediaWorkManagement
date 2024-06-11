@@ -10,7 +10,7 @@
 <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
-    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add New Client" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add Client Work History" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
     <div style="white-space:nowrap; margin-left: 20px ">Edit Mode:</div>
     <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
                      Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
@@ -30,6 +30,9 @@
             <EditTemplate Context="work">
                 <RadzenDropDown @bind-Value="work.ClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;" />
             </EditTemplate>
+            <Template Context="work">
+                @clients.FirstOrDefault(c => c.Id == work.ClientId)?.Name
+            </Template>
         </RadzenDataGridColumn>
 
         <!-- Other columns for OmClientWork -->
@@ -43,7 +46,26 @@
                 <RadzenTextBox @bind-Value="work.WorkDetails" Style="width:100%" />
             </EditTemplate>
         </RadzenDataGridColumn>
-        <!-- Add other columns for OmClientWork as needed -->
+        <RadzenDataGridColumn Property="PrintCount" Title="Print Count" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenNumeric @bind-Value="work.PrintCount" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Price" Title="Price" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenNumeric @bind-Value="work.Price" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenNumeric @bind-Value="work.Total" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenTextBox @bind-Value="work.Remarks" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
 
         <RadzenDataGridColumn Context="work" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="work">
@@ -64,4 +86,121 @@
     </Columns>
 </RadzenDataGrid>
 
- 
+@code {
+    [Inject]
+    public IOmService OmService { get; set; }
+
+    private RadzenDataGrid<OmClientWork> clientsWorkGrid;
+    public List<OmClientWork> ClientWorkHistory { get; set; } = new List<OmClientWork>();
+
+    public List<OmClient> clients { get; set; } = new List<OmClient>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClientWorkHistory = await OmService.GetAllClientWork();
+        clients = await OmService.GetAllClients();
+    }
+
+    private List<OmClientWork> clientsWorkToInsert = new List<OmClientWork>();
+    private List<OmClientWork> clientsWorkToUpdate = new List<OmClientWork>();
+    private DataGridEditMode editMode = DataGridEditMode.Single;
+    private bool IsFirstRender { get; set; } = true;
+    private int GetRowIndex(OmClientWork client)
+    {
+        return ClientWorkHistory.IndexOf(client);
+    }
+    private void Reset()
+    {
+        clientsWorkToInsert.Clear();
+        clientsWorkToUpdate.Clear();
+    }
+
+    private void Reset(OmClientWork client)
+    {
+        clientsWorkToInsert.Remove(client);
+        clientsWorkToUpdate.Remove(client);
+    }
+
+    private async Task EditRow(OmClientWork client)
+    {
+        if (editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)
+        {
+            Reset();
+        }
+
+        clientsWorkToUpdate.Add(client);
+        //await clientsWorkGrid.EditRow(client);
+    }
+
+    private void OnUpdateRow(OmClientWork client)
+    {
+        Reset(client);
+        //var result = OmService.UpdateClient(client);
+    }
+
+    private async Task SaveRow(OmClientWork client)
+    {
+        //await clientsWorkGrid.UpdateRow(client);
+    }
+
+    private void CancelEdit(OmClientWork client)
+    {
+        Reset(client);
+        //clientsWorkGrid.CancelEditRow(client);
+
+        //// Assuming OmService.GetClient returns a client by ID
+        //var clientEntry = OmService.GetClient(client.ClientID).Result;
+        //if (clientEntry != null)
+        //{
+        //    client = clientEntry;
+        //}
+    }
+
+    private async Task DeleteRow(OmClientWork client)
+    {
+        Reset(client);
+
+        //if (clients.Contains(client))
+        //{
+        //    var result = await OmService.DeleteClient(client.Id);
+        //    clients = clients.Where(c => c.Id != client.Id).ToList();
+        //    await clientsWorkGrid.Reload();
+        //}
+        //else
+        //{
+        //    clientsWorkGrid.CancelEditRow(client);
+        //    await clientsWorkGrid.Reload();
+        //}
+    }
+
+    private async Task InsertRow()
+    {
+        if (editMode == DataGridEditMode.Single)
+        {
+            Reset();
+        }
+
+        //var client = new OmClientWork { CreatedAt = DateTime.UtcNow };
+        //clientsToInsert.Add(client);
+        //await clientsWorkGrid.InsertRow(client);
+    }
+
+    private async void OnCreateRow(OmClientWork client)
+    {
+        //var result = await OmService.AddClient(client);
+        //clientsToInsert.Remove(client);
+
+        // Refresh the table after adding a new record
+        await RefreshTable();
+    }
+
+    private async Task ShowDialogChanged(bool value)
+    {
+        StateHasChanged();
+    }
+    private async Task RefreshTable()
+    {
+        clients = await OmService.GetAllClients();
+        await clientsWorkGrid.Reload();
+    }
+}
