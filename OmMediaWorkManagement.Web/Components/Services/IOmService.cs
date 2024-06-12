@@ -7,7 +7,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
     {
         #region Client
         Task<List<OmClient>> GetAllClients();
-        Task<string> AddClient(OmClient client);
+        Task<string> AddClient(OmClient client); 
         Task<string> UpdateClient(OmClient client);
         Task<string> DeleteClient(int clientId);
         #endregion
@@ -18,7 +18,16 @@ namespace OmMediaWorkManagement.Web.Components.Services
         Task<string> AddClientWork(AddWorkViewModel clientWork);
         Task<string> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid);
         Task<string> UpdateClientWork(OmClientWork client);
-       
+
+        #endregion
+
+
+        #region ClientWork
+        Task<List<JobToDo>> GetJobToDos();
+        Task<string> AddJobTodo(JobToDo client); 
+        Task<string> UpdateJobtToDo(JobToDo client);
+
+
         #endregion
     }
 }

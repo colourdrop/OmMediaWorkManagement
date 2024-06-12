@@ -89,5 +89,31 @@ namespace OmMediaWorkManagement.Web.Components.Services
             return await response.Content.ReadAsStringAsync();
         }
         #endregion
+
+        #region JobToDo
+
+        public async Task<List<JobToDo>> GetJobToDos()
+        {
+            return await httpClient.GetFromJsonAsync<List<JobToDo>>("/api/OmMedia/GetJobToDoList");
+        }
+
+        public async Task<string> AddJobTodo(JobToDo client)
+        {
+            // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
+            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddJobTodo", client);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+        public async Task<string> UpdateJobtToDo(JobToDo client)
+        {
+            var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateJobTodo/{client.Id}", client);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+       
+        #endregion
+
+
     }
 }
