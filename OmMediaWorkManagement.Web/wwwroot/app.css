@@ -23,3 +23,20 @@ h1:focus {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+
+
+.cst-btn-paid {
+    background-color: #E1FCEF !important;
+    color: #14804A !important;
+}
+.cst-btn-Unpaid {
+    background-color: #FAF0F3 !important;
+    color: #D12953 !important;
+}
+.cst-add-btn {
+    background-color: #2264E5 !important;
+    color:whitesmoke !important;
+    font-weight:600;
+}

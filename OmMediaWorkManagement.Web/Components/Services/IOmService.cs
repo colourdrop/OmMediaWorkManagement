@@ -20,5 +20,6 @@ namespace OmMediaWorkManagement.Web.Components.Services
         Task<string> UpdateClientWork(OmClientWork client);
        
         #endregion
+
     }
 }
