@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
+using OmMediaWorkManagement.Web.Components.ViewModels;
 using Radzen;
 using Radzen.Blazor;
 
@@ -16,7 +17,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private RadzenDataGrid<JobToDo> todoGrid;
         public List<JobToDo> todos { get; set; } = new List<JobToDo>();
 
-
+        public List<JobTypeStatusViewModel >jobTypeStatusViewModels=new List<JobTypeStatusViewModel>();
         private List<JobToDo> todoToInsert = new List<JobToDo>();
         private List<JobToDo> todoToUpdate = new List<JobToDo>();
         private DataGridEditMode editMode = DataGridEditMode.Single;
@@ -41,6 +42,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
 
             todos = await OmService.GetJobToDos();
+            jobTypeStatusViewModels=await OmService.GetJobTypeStatusList();
         }
 
        private async Task EditRow(JobToDo client)

@@ -111,8 +111,42 @@ namespace OmMediaWorkManagement.Web.Components.Services
             return await response.Content.ReadAsStringAsync();
         }
 
-       
+
+
+
         #endregion
+
+
+        #region GetJOB Status
+        public async Task<List<JobTypeStatusViewModel>> GetJobTypeStatusList()
+        {
+            return await httpClient.GetFromJsonAsync<List<JobTypeStatusViewModel>>("/api/OmMedia/GetJobTypeStatusList");
+        }
+        #endregion
+
+        #region Send Notification
+        public async Task<string> SendEmailByClientId(int clientId,int clientWorkId)
+        { 
+            string url = $"/api/OmMedia/SendEmailByClientId?clientId={clientId}&clientWorkId={clientWorkId}";
+
+            // Make HTTP PUT request
+            var response = await httpClient.PutAsync(url, null);
+
+            // Check if the request was successful
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and return the response content
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                // Handle the error
+                throw new HttpRequestException($"Failed to update payment work status. Status code: {response.StatusCode}");
+            }
+        }
+        #endregion
+
+
 
 
     }

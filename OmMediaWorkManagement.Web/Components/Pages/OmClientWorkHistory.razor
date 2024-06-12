@@ -101,7 +101,18 @@
                 }
             </Template>
         </RadzenDataGridColumn>
-
+        <RadzenDataGridColumn Property="IsEmailSent" Title="Is Mail Sent" Width="200px">
+            <Template Context="work">
+                @if (work.IsEmailSent)
+                {
+                    <RadzenButton Style="width:100%;" class="cst-btn-paid" Text="Email Sent" Click="@(args => SendEmail(work ))" />
+                }
+                else
+                {
+                    <RadzenButton Style="width:100%;" class="cst-btn-Unpaid" Text="Email Not Sent" Click="@(args => SendEmail(work ))" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
 
 
         <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">

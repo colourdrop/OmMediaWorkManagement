@@ -15,6 +15,9 @@ namespace OmMediaWorkManagement.Web.Components.Models
         public int Price { get; set; }
         public bool IsPaid { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsEmailSent { get; set; }
+        public bool IsSMSSent { get; set; }
+        public bool IsPushSent { get; set; }
         public int Total { get; set; }
         public string? Remarks { get; set; }
         public int OmClientId { get; set; }

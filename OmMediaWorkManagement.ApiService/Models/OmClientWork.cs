@@ -19,6 +19,9 @@ namespace OmMediaWorkManagement.ApiService.Models
         public string? Remarks { get; set; }
         public bool IsPaid { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsEmailSent { get; set; }
+        public bool IsSMSSent { get; set; }
+        public bool IsPushSent { get; set; }
         public int OmClientId
         {
             get;

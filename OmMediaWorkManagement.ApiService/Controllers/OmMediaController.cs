@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.ApiService.DataContext;
 using OmMediaWorkManagement.ApiService.Models;
 using OmMediaWorkManagement.ApiService.ViewModels;
+using System.Net.Mail;
+using System.Net;
+using System.Net.Http;
 
 namespace OmMediaWorkManagement.ApiService.Controllers
 {
@@ -114,28 +113,28 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         public async Task<IActionResult> GetWorksByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId&&work.IsDeleted==false)
+                .Where(work => work.OmClientId == clientId && work.IsDeleted == false)
                 .ToListAsync();
 
             return Ok(clientWorks);
         }
         [HttpGet("DeleteWorksByClientId")]
-        public async Task<IActionResult> DeleteWorksByClientId(int clientId,int clientWorkId)
-        {
-            var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId &&work.Id==clientWorkId)
-                .FirstOrDefaultAsync();
-            
-            _context.SaveChanges();
-            return Ok( "Client record Deleted");
-        }
-        [HttpPut("UpdatePaymentWorksStatusByClientId")]
-        public async Task<IActionResult> DeleteWorksByClientId(int clientId, int clientWorkId,bool isPaid)
+        public async Task<IActionResult> DeleteWorksByClientId(int clientId, int clientWorkId)
         {
             var clientWorks = await _context.OmClientWork
                 .Where(work => work.OmClientId == clientId && work.Id == clientWorkId)
                 .FirstOrDefaultAsync();
-            clientWorks.IsPaid=isPaid;
+
+            _context.SaveChanges();
+            return Ok("Client record Deleted");
+        }
+        [HttpPut("UpdatePaymentWorksStatusByClientId")]
+        public async Task<IActionResult> DeleteWorksByClientId(int clientId, int clientWorkId, bool isPaid)
+        {
+            var clientWorks = await _context.OmClientWork
+                .Where(work => work.OmClientId == clientId && work.Id == clientWorkId)
+                .FirstOrDefaultAsync();
+            clientWorks.IsPaid = isPaid;
 
             _context.OmClientWork.Update(clientWorks);
             _context.SaveChanges();
@@ -145,7 +144,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetAllClientWork")]
         public async Task<IActionResult> GetAllClientWork()
         {
-            var clientWorks = await _context.OmClientWork.Where(d=>d.IsDeleted==false)                
+            var clientWorks = await _context.OmClientWork.Where(d => d.IsDeleted == false)
                 .ToListAsync();
 
             return Ok(clientWorks);
@@ -166,8 +165,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 PrintCount = omClientWorkViewModel.PrintCount,
                 Price = omClientWorkViewModel.Price,
                 Total = omClientWorkViewModel.Total,
-                IsDeleted= omClientWorkViewModel.IsDeleted,
-                IsPaid= omClientWorkViewModel.IsPaid,
+                IsDeleted = omClientWorkViewModel.IsDeleted,
+                IsPaid = omClientWorkViewModel.IsPaid,
                 Remarks = omClientWorkViewModel.Remarks
             };
 
@@ -383,6 +382,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             {
                 Id = job.Id,
                 CompanyName = job.CompanyName,
+                Description = job.Description,
                 Quantity = job.Quantity,
                 JobStatusType = job.JobStatusType,
                 IsStatus = job.IsStatus,
@@ -399,7 +399,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetJobsToDosById/{jobToDoId}")]
         public async Task<IActionResult> GetJobsToDosById(int jobToDoId)
         {
-            var jobToDoRecord = await _context.JobToDo               
+            var jobToDoRecord = await _context.JobToDo
                 .FirstOrDefaultAsync(j => j.Id == jobToDoId);
 
             if (jobToDoRecord == null)
@@ -501,7 +501,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet]
         public async Task<IActionResult> GetJobTypeStatusList()
         {
-            var records=await _context.JobTypeStatus.ToListAsync();
+            var records = await _context.JobTypeStatus.ToListAsync();
             return Ok(records);
         }
         [Route("GetJobTypeStatusById")]
@@ -511,8 +511,77 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             var record = await _context.JobTypeStatus.FirstOrDefaultAsync(m => m.Id == id);
             return Ok(record);
         }
+
+        #endregion
+
+        #region Send Notification
+        [HttpPost]
+        [Route("SendEmailByClientId")]
+        public async Task<IActionResult> SendEmailByClientId(int clientId, int clientWorkId)
+        {
+            var client = await _context.OmClient.FirstOrDefaultAsync(d => d.Id == clientId);
+            var clientWork = await _context.OmClientWork.FirstOrDefaultAsync(d => d.Id == clientWorkId && d.OmClientId == clientId);
+            if (client == null)
+            {
+                return NotFound("Client not found");
+            }
+
+            try
+            {
+                // Gmail SMTP server address
+                string smtpServer = "smtp.gmail.com";
+                int port = 587; // Gmail SMTP port
+                string fromAddress = "colourdrop99@gmail.com";
+                string password = "uepe ssdz gylo xaaj";
+
+                // Create a new SmtpClient
+                using (SmtpClient smtpClient = new SmtpClient(smtpServer, port))
+                {
+                    // Enable SSL/TLS encryption
+                    smtpClient.EnableSsl = true;
+                    // Set the credentials
+                    smtpClient.Credentials = new NetworkCredential(fromAddress, password);
+
+                    // Create the email message
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        mailMessage.From = new MailAddress(fromAddress);
+                        mailMessage.To.Add(client.Email);
+                        mailMessage.Subject = "Payment Reminder: Pending Invoice for " + client.CompanyName; // Subject line
+                                                                                                             // Constructing the email body using the template
+                        string body = $"Dear {client.Name},\n\n";
+                        body += "I hope this email finds you well.\n\n";
+                        body += "This is a gentle reminder regarding the pending payment for the work done on " + clientWork.WorkDate.ToString("yyyy-MM-ddTHH:mm:ssZ") + ".\n";
+                        body += "We have provided services for " + clientWork.WorkDetails + " totaling " + clientWork.PrintCount + " prints, at a rate of " + clientWork.Price + " per print, resulting in a total amount of " + clientWork.Total + ".\n\n";
+                        body += "However, as of now, we have not received the payment for this job. We kindly request you to settle the outstanding amount at your earliest convenience.\n\n";
+                        body += "If you have already initiated the payment, please disregard this reminder. Otherwise, we would appreciate your prompt attention to this matter.\n\n";
+                        body += "Thank you for your cooperation. Should you have any questions or concerns, please feel free to contact us.\n\n";
+                        body += "Best regards,\n\n";
+                        body += "Sukhdev Singh\n";
+                        body += "Om Media Solutions\n";
+
+                        mailMessage.Body = body;
+
+                        // Send the email
+                        smtpClient.Send(mailMessage);
+                    }
+                }
+                clientWork.IsEmailSent = true;
+                _context.OmClientWork.Update(clientWork);
+                _context.SaveChanges();
+
+                return Ok("Email sent successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to send email: {ex.Message}");
+            }
+        }
+        #endregion
+
     }
-    #endregion
+
+
 
 }
 

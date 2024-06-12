@@ -154,6 +154,12 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             await LoadData();
             
         }
+        public async Task SendEmail(OmClientWork work )
+        {
+            var result = await OmService.SendEmailByClientId(work.OmClientId,work.Id );
+            await LoadData();
+
+        }
         private async void CalculateTotal(OmClientWork work)
         {
             work.Total = work.PrintCount * work.Price;

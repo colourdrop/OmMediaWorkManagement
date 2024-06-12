@@ -30,5 +30,13 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         #endregion
 
+
+        #region GetJOB Status
+        Task<List<JobTypeStatusViewModel>> GetJobTypeStatusList();
+        #endregion
+
+        #region Send Notification
+        Task<string> SendEmailByClientId(int clientId, int clientWorkId);
+        #endregion
     }
 }
