@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
+using OmMediaWorkManagement.Web.Components.ViewModels;
 using Radzen;
 using Radzen.Blazor;
+using static System.Net.WebRequestMethods;
 
 namespace OmMediaWorkManagement.Web.Components.Pages
 {
@@ -11,23 +13,40 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         [Inject]
         public IOmService OmService { get; set; }
         private int selectedClientId;
+        private bool IsFirstRender { get; set; } = true;
         private RadzenDataGrid<OmClientWork> clientsWorkGrid;
         public List<OmClientWork> ClientWorkHistory { get; set; } = new List<OmClientWork>();
         public List<OmClient> clients { get; set; } = new List<OmClient>();
-        private List<OmClientWork> filteredClientWorkHistory = new List<OmClientWork>();
-
-        protected override async Task OnInitializedAsync()
-        {
-            ClientWorkHistory = await OmService.GetAllClientWork();
-            clients = await OmService.GetAllClients();
-            filteredClientWorkHistory = ClientWorkHistory; // Initialize with all records
-        }
-
+        private List<OmClientWork> filteredClientWorkHistory = new List<OmClientWork>();         
         private List<OmClientWork> clientsWorkToInsert = new List<OmClientWork>();
         private List<OmClientWork> clientsWorkToUpdate = new List<OmClientWork>();
         private DataGridEditMode editMode = DataGridEditMode.Single;
-        private bool IsFirstRender { get; set; } = true;
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadData();
+        }
 
+        private async Task LoadData()
+        {
+            ClientWorkHistory = await OmService.GetAllClientWork();
+            clients = await OmService.GetAllClients();
+            filteredClientWorkHistory = ClientWorkHistory.ToList(); // Ensure a copy is made
+        }
+        private async Task OnClientSelected(object value)
+        {
+            selectedClientId = (int)value;
+            if (selectedClientId != 0)
+            {
+                filteredClientWorkHistory = await OmService.GetClientWorkById(selectedClientId);
+            }
+
+            else
+            {
+                filteredClientWorkHistory = await OmService.GetAllClientWork();
+            }
+            await clientsWorkGrid.Reload(); // Reload the grid to display the new data
+
+        }
         private void Reset()
         {
             clientsWorkToInsert.Clear();
@@ -51,14 +70,17 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             await clientsWorkGrid.EditRow(client);
         }
 
-        private void OnUpdateRow(OmClientWork client)
+        private async void OnUpdateRow(OmClientWork client)
         {
             Reset(client);
-            //var result = OmService.UpdateClientWork(client);
+            var result =await OmService.UpdateClientWork(client);
+            await LoadData();
         }
 
         private async Task SaveRow(OmClientWork client)
         {
+             CalculateTotal(client);
+        
             await clientsWorkGrid.UpdateRow(client);
         }
 
@@ -106,30 +128,51 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
         private async Task OnCreateRow(OmClientWork client)
         {
+            AddWorkViewModel addWorkViewModel = new AddWorkViewModel()
+            {
+                ClientId = client.OmClientId,
+                WorkDate=client.WorkDate.ToUniversalTime(),
+                PrintCount=client.PrintCount,
+                Price=client.Price,
+                Remarks=client.Remarks,
+                Total=client.Total,
+               WorkDetails=client.WorkDetails
+            };
             if (clientsWorkToInsert.Contains(client))
             {
                 clientsWorkToInsert.Remove(client);
-                // var result = await OmService.CreateClientWork(client);
-                // if (result != null)
-                // {
-                //     ClientWorkHistory.Add(result);
-                //     await clientsWorkGrid.Reload();
-                // }
+                var result = await OmService.AddClientWork(addWorkViewModel);
+                if (result != null)
+                {
+                    await LoadData();
+                }
             }
         }
-
-        private void OnClientSelected(object value)
+        public async Task UpdateIsPaidStatus(OmClientWork work, bool isPaid)
+        { 
+            var result = await OmService.UpdateClientPaymentWorkStatus(work.OmClientId,work.Id,isPaid);
+            await LoadData();
+            
+        }
+        private async void CalculateTotal(OmClientWork work)
         {
-            selectedClientId = (int)value;
-            if (selectedClientId > 0)
-            {
-                filteredClientWorkHistory = ClientWorkHistory.Where(c => c.Id == selectedClientId).ToList();
-            }
-            else
-            {
-                filteredClientWorkHistory = ClientWorkHistory;
-            }
+            work.Total = work.PrintCount * work.Price;
+          await clientsWorkGrid.UpdateRow(work);
+
+
         }
+        //private void OnClientSelected(object value)
+        //{
+        //    selectedClientId = (int)value;
+        //    if (selectedClientId > 0)
+        //    {
+        //        filteredClientWorkHistory = ClientWorkHistory.Where(c => c.Id == selectedClientId).ToList();
+        //    }
+        //    else
+        //    {
+        //        filteredClientWorkHistory = ClientWorkHistory;
+        //    }
+        //}
 
         private string GetClientName(int clientId)
         {

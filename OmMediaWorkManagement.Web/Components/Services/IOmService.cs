@@ -1,4 +1,5 @@
 ﻿using OmMediaWorkManagement.Web.Components.Models;
+using OmMediaWorkManagement.Web.Components.ViewModels;
 
 namespace OmMediaWorkManagement.Web.Components.Services
 {
@@ -13,10 +14,11 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         #region ClientWork
         Task<List<OmClientWork>> GetAllClientWork();
-        Task<OmClientWork> GetClientWorkById();
-        Task<string> AddClientWork(OmClientWork clientWork);
-        //Task<string> UpdateClient(OmClient client);
-        //Task<string> DeleteClient(int clientId);
+        Task<List<OmClientWork>> GetClientWorkById(int clientID);
+        Task<string> AddClientWork(AddWorkViewModel clientWork);
+        Task<string> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid);
+        Task<string> UpdateClientWork(OmClientWork client);
+       
         #endregion
     }
 }

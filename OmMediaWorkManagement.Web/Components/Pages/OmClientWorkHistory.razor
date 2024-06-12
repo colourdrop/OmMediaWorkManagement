@@ -11,8 +11,32 @@
 <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
-    <RadzenLabel Text="Select Value" Component="DropDownDataGridBindValue" Style="margin-right: 8px; vertical-align: middle;" />
-    <RadzenDropDownDataGrid @bind-Value="selectedClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Name="DropDownDataGridBindValue" />
+
+    <RadzenLabel Text="Select Client" Component="DropDownDataGridBindValue" Style="margin-right: 8px; vertical-align: middle;" />
+    <RadzenDropDownDataGrid @bind-Value="selectedClientId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data="@clients" TextProperty="Name" ValueProperty="Id" Name="DropDownDataGridBindValue" Change="OnClientSelected">
+        <Columns>
+            <RadzenDropDownDataGridColumn Property="Name" Title="Client Name">
+                <Template Context="context">
+                    @context.Name
+                </Template>
+            </RadzenDropDownDataGridColumn>
+            <RadzenDropDownDataGridColumn Property="CompanyName" Title="Company Name">
+                <Template Context="context">
+                    @context.CompanyName
+                </Template>
+            </RadzenDropDownDataGridColumn>
+            <RadzenDropDownDataGridColumn Property="MobileNumber" Title="Mobile Number">
+                <Template Context="context">
+                    @context.MobileNumber
+                </Template>
+            </RadzenDropDownDataGridColumn>
+        </Columns>
+    </RadzenDropDownDataGrid>
+
+
+
+    
+
 
     <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add Client Work History" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
     <div style="white-space:nowrap; margin-left: 20px">Edit Mode:</div>
@@ -53,19 +77,34 @@
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="PrintCount" Title="Print Count" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.PrintCount" Style="width:100%" />
+                <RadzenNumeric @bind-Value="work.PrintCount" Style="width:100%;"  />
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Price" Title="Price" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.Price" Style="width:100%" />
+                <RadzenNumeric @bind-Value="work.Price" Style="width:100%;"   />
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.Total" Style="width:100%" />
+                <RadzenNumeric @bind-Value="work.Total" Style="width:100%;" ReadOnly />
             </EditTemplate>
         </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IsPaid" Title="Is Paid" Width="200px">
+            <Template Context="work">
+                @if (work.IsPaid)
+                {
+                    <RadzenButton Style="width:100%;" ButtonStyle="ButtonStyle.Success" Text="Paid" Click="@(args => UpdateIsPaidStatus(work, false))" />
+                }
+                else
+                {
+                    <RadzenButton Style="width:100%;" ButtonStyle="ButtonStyle.Danger" Text="Not Paid" Click="@(args => UpdateIsPaidStatus(work, true))" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
+
+
+
         <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">
             <EditTemplate Context="work">
                 <RadzenTextBox @bind-Value="work.Remarks" Style="width:100%" />
@@ -80,7 +119,7 @@
                 </RadzenButton>
             </Template>
             <EditTemplate Context="work">
-                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(work))" aria-label="Save">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium"  Click="@((args) => SaveRow(work))" aria-label="Save">
                 </RadzenButton>
                 <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(work))" aria-label="Cancel">
                 </RadzenButton>

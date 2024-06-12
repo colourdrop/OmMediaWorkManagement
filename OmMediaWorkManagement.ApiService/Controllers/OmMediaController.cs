@@ -114,16 +114,38 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         public async Task<IActionResult> GetWorksByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId)
+                .Where(work => work.OmClientId == clientId&&work.IsDeleted==false)
                 .ToListAsync();
 
             return Ok(clientWorks);
+        }
+        [HttpGet("DeleteWorksByClientId")]
+        public async Task<IActionResult> DeleteWorksByClientId(int clientId,int clientWorkId)
+        {
+            var clientWorks = await _context.OmClientWork
+                .Where(work => work.OmClientId == clientId &&work.Id==clientWorkId)
+                .FirstOrDefaultAsync();
+            
+            _context.SaveChanges();
+            return Ok( "Client record Deleted");
+        }
+        [HttpPut("UpdatePaymentWorksStatusByClientId")]
+        public async Task<IActionResult> DeleteWorksByClientId(int clientId, int clientWorkId,bool isPaid)
+        {
+            var clientWorks = await _context.OmClientWork
+                .Where(work => work.OmClientId == clientId && work.Id == clientWorkId)
+                .FirstOrDefaultAsync();
+            clientWorks.IsPaid=isPaid;
+
+            _context.OmClientWork.Update(clientWorks);
+            _context.SaveChanges();
+            return Ok("Client record Updated");
         }
 
         [HttpGet("GetAllClientWork")]
         public async Task<IActionResult> GetAllClientWork()
         {
-            var clientWorks = await _context.OmClientWork                 
+            var clientWorks = await _context.OmClientWork.Where(d=>d.IsDeleted==false)                
                 .ToListAsync();
 
             return Ok(clientWorks);
@@ -143,7 +165,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 WorkDetails = omClientWorkViewModel.WorkDetails,
                 PrintCount = omClientWorkViewModel.PrintCount,
                 Price = omClientWorkViewModel.Price,
-                Total = omClientWorkViewModel.PrintCount * omClientWorkViewModel.Price,
+                Total = omClientWorkViewModel.Total,
+                IsDeleted= omClientWorkViewModel.IsDeleted,
+                IsPaid= omClientWorkViewModel.IsPaid,
                 Remarks = omClientWorkViewModel.Remarks
             };
 
@@ -171,7 +195,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             existingWork.WorkDetails = omClientWorkViewModel.WorkDetails;
             existingWork.PrintCount = omClientWorkViewModel.PrintCount;
             existingWork.Price = omClientWorkViewModel.Price;
-            existingWork.Total = omClientWorkViewModel.PrintCount * omClientWorkViewModel.Price;
+            existingWork.Total = omClientWorkViewModel.Total;
+            existingWork.IsPaid = omClientWorkViewModel.IsPaid;
+            existingWork.IsDeleted = omClientWorkViewModel.IsDeleted;
             existingWork.Remarks = omClientWorkViewModel.Remarks;
 
             _context.OmClientWork.Update(existingWork);

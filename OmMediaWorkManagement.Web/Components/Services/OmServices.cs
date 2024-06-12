@@ -1,4 +1,5 @@
 ﻿using OmMediaWorkManagement.Web.Components.Models;
+using OmMediaWorkManagement.Web.Components.ViewModels;
 
 namespace OmMediaWorkManagement.Web.Components.Services
 {
@@ -22,7 +23,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         public async Task<string> DeleteClient(int clientId)
         {
-            var response = await httpClient.DeleteAsync($"/prod/api/OmMedia/DeleteClientById/{clientId}");
+            var response = await httpClient.DeleteAsync($"/api/OmMedia/DeleteClientById/{clientId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
@@ -37,7 +38,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         public async Task<string> UpdateClient(OmClient client)
         {
-            var response = await httpClient.PutAsJsonAsync($"/prod/api/OmMedia/UpdateClient/{client.Id}", client);
+            var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateClient/{client.Id}", client);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
@@ -49,14 +50,41 @@ namespace OmMediaWorkManagement.Web.Components.Services
         {
             return await httpClient.GetFromJsonAsync<List<OmClientWork>>("/api/OmMedia/GetAllClientWork");
         }
-        public async Task<OmClientWork> GetClientWorkById()
+        public async Task<List<OmClientWork>> GetClientWorkById(int clientID )
         {
-            return await httpClient.GetFromJsonAsync<OmClientWork>("/api/OmMedia/GetAllClientWork");
+            return await httpClient.GetFromJsonAsync<List<OmClientWork>>($"/api/OmMedia/GetWorksByClientId/{clientID}");
         }
-        public async Task<string> AddClientWork(OmClientWork clientWork)
+        public async Task<string> AddClientWork(AddWorkViewModel clientWork)
         {
             // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
-            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddClientWork", clientWork);
+            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddWork", clientWork);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<string> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid)
+        {
+            // Construct the URL with parameters
+            string url = $"/api/OmMedia/UpdatePaymentWorksStatusByClientId?clientId={clientId}&clientWorkId={clientWorkId}&isPaid={isPaid}";
+
+            // Make HTTP PUT request
+            var response = await httpClient.PutAsync(url, null);
+
+            // Check if the request was successful
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and return the response content
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                // Handle the error
+                throw new HttpRequestException($"Failed to update payment work status. Status code: {response.StatusCode}");
+            }
+        }
+        public async Task<string> UpdateClientWork(OmClientWork client)
+        {
+            var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateWork/{client.Id}", client);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
