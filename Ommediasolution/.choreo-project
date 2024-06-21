@@ -1,0 +1,14 @@
+{
+    "id": "c8ae8075-99e7-44e7-8bcd-e2b70ed3de6d",
+    "orgId": 44118,
+    "name": "Ommediasolution",
+    "version": "1.0.0",
+    "createdDate": "2024-06-20T17:20:21.452Z",
+    "handler": "ommediasolution",
+    "region": "EU",
+    "description": "Work management ",
+    "repository": null,
+    "branch": null,
+    "gitProvider": null,
+    "gitOrganization": null
+}

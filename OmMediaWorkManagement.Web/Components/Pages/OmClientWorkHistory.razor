@@ -1,17 +1,20 @@
 ﻿@page "/WorkHistory"
 
 @inject NavigationManager Navigation
-@rendermode InteractiveServer 
+@rendermode InteractiveServer
 
 <style>
     .rz-grid-table {
         width: unset;
     }
 </style>
+
+
+
 <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
-     
+
     <RadzenDropDownDataGrid Placeholder="Please search client" @bind-Value="selectedClientId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data="@clients" TextProperty="Name" ValueProperty="Id" Name="DropDownDataGridBindValue" Change="OnClientSelected">
         <Columns>
             <RadzenDropDownDataGridColumn Property="Name" Title="Client Name">
@@ -34,10 +37,10 @@
 
 
 
-    
 
 
-    <RadzenButton class="cst-add-btn"  Icon="add_circle_outline" Text="Add Work History" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
+
+    <RadzenButton class="cst-add-btn" Icon="add_circle_outline" Text="Add Work History" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
     <div style="white-space:nowrap; margin-left: 20px">Edit Mode:</div>
     <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
                      Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
@@ -45,8 +48,8 @@
 </RadzenStack>
 
 
-<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"
-                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" >
+<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true"  AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"
+                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" Height="500px" Width="100%">
     <Columns>
         <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
             <Template Context="OmClientWork">
@@ -76,12 +79,12 @@
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="PrintCount" Title="Print Count" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.PrintCount" Style="width:100%;"  />
+                <RadzenNumeric @bind-Value="work.PrintCount" Style="width:100%;" />
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Price" Title="Price" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.Price" Style="width:100%;"   />
+                <RadzenNumeric @bind-Value="work.Price" Style="width:100%;" />
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
@@ -129,7 +132,7 @@
                 </RadzenButton>
             </Template>
             <EditTemplate Context="work">
-                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium"  Click="@((args) => SaveRow(work))" aria-label="Save">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(work))" aria-label="Save">
                 </RadzenButton>
                 <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(work))" aria-label="Cancel">
                 </RadzenButton>
@@ -139,4 +142,4 @@
         </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
- 
+
