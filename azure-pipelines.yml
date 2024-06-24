@@ -1,4 +1,7 @@
-
+- task: IISWebAppDeploymentOnMachineGroup@0
+  inputs:
+    WebSiteName: 'OmMediaWorkWeb'
+    Package: '$(System.DefaultWorkingDirectory)\**\*.zip'
 trigger:
 - main
 
