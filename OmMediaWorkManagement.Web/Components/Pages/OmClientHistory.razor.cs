@@ -79,11 +79,12 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private void OnUpdateRow(OmClient client)
         {
             Reset(client);
-           // var result = OmService.UpdateClient(client);
+           var result = OmService.UpdateClient(client);
         }
 
         private async Task SaveRow(OmClient client)
         {
+            await OmService.AddClient(client);
             await clientsGrid.UpdateRow(client);
         }
 

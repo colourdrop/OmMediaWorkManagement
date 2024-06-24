@@ -130,7 +130,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
             string url = $"/api/OmMedia/SendEmailByClientId?clientId={clientId}&clientWorkId={clientWorkId}";
 
             // Make HTTP PUT request
-            var response = await httpClient.PutAsync(url, null);
+            var response = await httpClient.PostAsJsonAsync<Object>(url, null);
 
             // Check if the request was successful
             if (response.IsSuccessStatusCode)
