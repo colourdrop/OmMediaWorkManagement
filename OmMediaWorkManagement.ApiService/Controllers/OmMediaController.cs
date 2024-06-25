@@ -87,7 +87,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClient.Update(existingClient);
             await _context.SaveChangesAsync();
 
-            return Ok(existingClient);
+            return Ok($"{omClientViewModel.Name} is Successfully Added");
         }
 
         [HttpDelete("DeleteClientById/{id}")]
@@ -96,13 +96,13 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             var client = await _context.OmClient.FindAsync(id);
             if (client == null)
             {
-                return NotFound();
+                return NotFound("Client not Found");
             }
 
             _context.OmClient.Remove(client);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok($"{client.Name} is Deleted Successfully");
         }
 
         #endregion
@@ -118,18 +118,26 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(clientWorks);
         }
-        [HttpGet("DeleteWorksByClientId")]
-        public async Task<IActionResult> DeleteWorksByClientId(int clientId, int clientWorkId)
+        [HttpDelete("DeleteWorksByClientId")]
+        public async Task<IActionResult> DeleteWorksByClientId( int clientWorkId, int omClientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId && work.Id == clientWorkId)
+                .Where(work => work.OmClientId == omClientId && work.Id == clientWorkId )
                 .FirstOrDefaultAsync();
-
-            _context.SaveChanges();
-            return Ok("Client record Deleted");
+            if (clientWorks != null)
+            {
+                clientWorks.IsDeleted = true;
+                _context.OmClientWork.Update(clientWorks);
+                _context.SaveChanges();
+                return Ok($" Work is  Deleted Successfully");
+            }
+            else
+            {
+                return NotFound("History not found");
+            }
         }
         [HttpPut("UpdatePaymentWorksStatusByClientId")]
-        public async Task<IActionResult> DeleteWorksByClientId(int clientId, int clientWorkId, bool isPaid)
+        public async Task<IActionResult> UpdatePaymentWorksStatusByClientId(int clientId, int clientWorkId, bool isPaid)
         {
             var clientWorks = await _context.OmClientWork
                 .Where(work => work.OmClientId == clientId && work.Id == clientWorkId)
@@ -173,7 +181,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClientWork.Add(omClientWork);
             await _context.SaveChangesAsync();
 
-            return Ok(omClientWork);
+            return Ok($" Work History Added for {omClientWork.OmClient.Name}");
         }
 
         [HttpPut("UpdateWork/{id}")]
@@ -202,7 +210,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClientWork.Update(existingWork);
             await _context.SaveChangesAsync();
 
-            return Ok(existingWork);
+            return Ok($"Work Updated Successfully");
         }
 
         #endregion
@@ -221,7 +229,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             {
                 var jobToDo = new JobToDo
                 {
+                    
+                    ClientName = jobToDoViewModel.ClientName,
                     CompanyName = jobToDoViewModel.ComapnyName,
+                    Price = jobToDoViewModel.Price,
+                    total=jobToDoViewModel.total,
                     Quantity = jobToDoViewModel.Quantity,
                     Description = jobToDoViewModel.Description,
                     IsStatus = jobToDoViewModel.IsStatus,
@@ -287,8 +299,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return NotFound();
             }
 
+            jobToDo.ClientName = jobToDoViewModel.ClientName;
             jobToDo.CompanyName = jobToDoViewModel.ComapnyName;
             jobToDo.Quantity = jobToDoViewModel.Quantity;
+            jobToDo.Price = jobToDoViewModel.Price;
+            jobToDo.total = jobToDoViewModel.total;
             jobToDo.Description = jobToDoViewModel.Description;
             jobToDo.IsStatus = jobToDoViewModel.IsStatus;
             jobToDo.JobStatusType = jobToDoViewModel.JobStatusType;
@@ -463,7 +478,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmMachines.Update(existingMachine);
             await _context.SaveChangesAsync();
 
-            return Ok(existingMachine);
+            return Ok($"Machine Updated Successfully");
         }
 
         [HttpGet("GetMachineById/{machineId}")]

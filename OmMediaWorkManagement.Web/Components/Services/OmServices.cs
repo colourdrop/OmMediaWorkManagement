@@ -77,6 +77,13 @@ namespace OmMediaWorkManagement.Web.Components.Services
             var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateWork/{client.Id}", client);
            return response ;
         }
+        public async Task<HttpResponseMessage> DeleteClientWork( int clientWorkId, int omClientId)
+        {
+        
+            var response = await httpClient.DeleteAsync($"/api/OmMedia/DeleteWorksByClientId?clientWorkId={clientWorkId}&omClientId={omClientId}");
+
+            return response;
+        }
         #endregion
 
         #region JobToDo

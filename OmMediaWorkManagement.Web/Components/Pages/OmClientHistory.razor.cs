@@ -26,7 +26,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private string columnEditing;
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
         private bool IsFirstRender { get; set; } = true;
-      
+
 
         private int GetRowIndex(OmClient client)
         {
@@ -79,34 +79,46 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             }
             showAlert = true; // Show alert
             await clientsGrid.Reload();
-             
+
         }
 
         private async Task SaveRow(OmClient client)
         {
-            if (client.Id == 0)
+            
+            var validationResults = new List<ValidationResult>();
+            var isValid = Validator.TryValidateObject(client, new ValidationContext(client), validationResults, true);
+            if (isValid)
             {
-                var response = await OmService.AddClient(client);
-                response.EnsureSuccessStatusCode();
-                responseMessage = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode == true)
+                if (client.Id == 0)
                 {
-                    alertColor = Radzen.AlertStyle.Success;
+                    var response = await OmService.AddClient(client);
+                    response.EnsureSuccessStatusCode();
+                    responseMessage = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode == true)
+                    {
+                        alertColor = Radzen.AlertStyle.Success;
+                    }
+                    else
+                    {
+                        alertColor = Radzen.AlertStyle.Danger;
+
+                    }
+                    showAlert = true; // Show alert
                 }
                 else
                 {
-                    alertColor = Radzen.AlertStyle.Danger;
+                    await clientsGrid.UpdateRow(client);
 
                 }
-                showAlert = true; // Show alert
             }
             else
             {
-                await clientsGrid.UpdateRow(client);
-                
+                responseMessage = "Please fill all columns";
+                alertColor = Radzen.AlertStyle.Warning;
+                showAlert = true; // Show alert
             }
-            await RefreshTable();
+                
         }
 
         private void CancelEdit(OmClient client)
@@ -197,17 +209,26 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                     validClientsToInsert.Add(client);
                 }
             }
-
-            foreach (var client in validClientsToInsert)
+            if (validClientsToInsert.Count > 0)
             {
-                await OnCreateRow(client);
+                foreach (var client in validClientsToInsert)
+                {
+                    await OnCreateRow(client);
+                }
+
+                clientsToUpdate.Clear();
+                clientsToInsert.Clear();
+
+                await clientsGrid.Reload();
+                await RefreshTable();
             }
+            else
+            {
+                  responseMessage = "Kindly check all rows as empty rows have been detected by CodersF5 AI.";
+                alertColor = Radzen.AlertStyle.Warning;
+                showAlert = true; // Show alert
 
-            clientsToUpdate.Clear();
-            clientsToInsert.Clear();
-
-            await clientsGrid.Reload();
-            await RefreshTable();
+            }
         }
 
         private async Task OnCreateRow(OmClient client)
@@ -215,8 +236,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             var response = await OmService.AddClient(client);
             clientsToInsert.Remove(client);
             response.EnsureSuccessStatusCode();
-            var statusCode = await response.Content.ReadAsStringAsync();
-            responseMessage = "response";
+            responseMessage = await response.Content.ReadAsStringAsync();
+            alertColor = Radzen.AlertStyle.Success;
             showAlert = true; // Show alert
             await RefreshTable();
         }
@@ -279,6 +300,17 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             return errors.Count == 0;
         }
 
+        string ConvertUtcToIst(DateTime utcDateTime)
+        {
+            // Get Indian Standard Time zone
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+            // Convert UTC to IST
+            DateTime istDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, istZone);
+
+            // Format datetime as "M/d/yyyy h:mm tt"
+            return istDateTime.ToString("M/d/yyyy h:mm tt");
+        }
 
 
     }

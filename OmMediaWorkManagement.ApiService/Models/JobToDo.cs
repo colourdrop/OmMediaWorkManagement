@@ -7,8 +7,11 @@ namespace OmMediaWorkManagement.ApiService.Models
     {
         [Key]
         public int Id { get; set; }
+        public string? ClientName { get; set; }
         public string? CompanyName { get; set; }
         public double? Quantity { get; set; }
+        public int ? Price { get; set; }
+        public int? total {  get; set; }
         public string? Description { get; set; }
         public DateTime JobPostedDateTime { get; set; }
         public int? PostedBy { get; set; }

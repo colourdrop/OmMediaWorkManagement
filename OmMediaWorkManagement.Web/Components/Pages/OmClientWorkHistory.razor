@@ -10,8 +10,10 @@
 </style>
 
 
-
 <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
+<RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+    @responseMessage
+</RadzenAlert>
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
 
@@ -40,16 +42,20 @@
 
 
 
-    <RadzenButton class="cst-add-btn" Icon="add_circle_outline" Text="Add Work History" Click="@InsertRow" Disabled="@(editMode == DataGridEditMode.Single && clientsWorkToInsert.Count() > 0)" />
-    <div style="white-space:nowrap; margin-left: 20px">Edit Mode:</div>
-    <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
-                     Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
-                     Disabled="@(editMode == DataGridEditMode.Multiple && clientsWorkToInsert.Count() > 1)" />
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
+        <RadzenButton class="cst-add-btn" Icon="add_circle_outline" Text="Add Work History" Click="@(() => InsertRow(1))" />
+
+        <RadzenButton class="cst-add-btn" Icon="add_circle_outline" Text="Add 10 Work History" Click="@(() => InsertRow(10))" />
+        <RadzenButton class="cst-add-btn" Icon="add_circle_outline" Text="Add 25 Work History" Click="@(() => InsertRow(25))" />
+        <RadzenButton class="cst-add-btn" Icon="add_circle_outline" Text="Add 50 Work History" Click="@(() => InsertRow(50))" />
+        <RadzenButton class="cst-add-btn" Icon="save" Text="Save All Records" Click="@SaveAllRecords" />
+        <RadzenButton class="cst-add-btn" Icon="save" Text="Clear Rows" Click="@ClearEmptyRows" />
+    </RadzenStack>
 </RadzenStack>
 
 
-<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true"  AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"
-                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" Height="500px" Width="100%">
+<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
+                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" Height="400px" Width="100%" CellClick="@OnCellClick">
     <Columns>
         <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
             <Template Context="OmClientWork">
@@ -68,6 +74,9 @@
 
         <!-- Other columns for OmClientWork -->
         <RadzenDataGridColumn Property="WorkDate" Title="Work Date" Width="200px">
+            <Template Context="work">
+                @ConvertUtcToIst(work.WorkDate)
+            </Template>
             <EditTemplate Context="work">
                 <RadzenDatePicker @bind-Value="work.WorkDate" Style="width:100%" />
             </EditTemplate>
@@ -140,6 +149,20 @@
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
+
     </Columns>
+    <FooterTemplate>
+        <tr>
+            
+             
+          
+            <td><strong>Total Total:</strong></td>
+            <td>
+                <strong>@CalculateTotalTotal()</strong>
+            </td>
+
+            <!-- Empty cells for other columns -->
+        </tr>
+    </FooterTemplate>
 </RadzenDataGrid>
 

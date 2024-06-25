@@ -18,11 +18,11 @@ namespace OmMediaWorkManagement.Web.Components.Services
         Task<HttpResponseMessage> AddClientWork(AddWorkViewModel clientWork);
         Task<HttpResponseMessage> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid);
         Task<HttpResponseMessage> UpdateClientWork(OmClientWork client);
-
+        Task<HttpResponseMessage> DeleteClientWork(int clientId,int clientWorkId);
         #endregion
 
 
-        #region ClientWork
+        #region JOBtodoStatus
         Task<List<JobToDo>> GetJobToDos();
         Task<HttpResponseMessage> AddJobTodo(JobToDo client); 
         Task<HttpResponseMessage> UpdateJobtToDo(JobToDo client);
