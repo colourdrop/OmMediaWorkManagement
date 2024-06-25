@@ -9,7 +9,9 @@
     </style>
 
     <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
-
+    <RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+    @responseMessage
+</RadzenAlert>
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
         <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add New todo" Disabled="@(editMode == DataGridEditMode.Single && todoToInsert.Count() > 0)" />
         <div style="white-space:nowrap; margin-left: 20px ">Edit Mode:</div>

@@ -12,20 +12,20 @@ namespace OmMediaWorkManagement.Web.Components.Services
             this.httpClient = httpClient;
         }
         #region Client
-        public async Task<string> AddClient(OmClient client)
+        public async Task<HttpResponseMessage> AddClient(OmClient client)
         {
            // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddClient", client);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+           
+            return  response;
         }
 
 
-        public async Task<string> DeleteClient(int clientId)
+        public async Task<HttpResponseMessage> DeleteClient(int clientId)
         {
             var response = await httpClient.DeleteAsync($"/api/OmMedia/DeleteClientById/{clientId}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            
+            return response;
         }
 
         public async Task<List<OmClient>> GetAllClients()
@@ -36,11 +36,11 @@ namespace OmMediaWorkManagement.Web.Components.Services
         }
 
 
-        public async Task<string> UpdateClient(OmClient client)
+        public async Task<HttpResponseMessage> UpdateClient(OmClient client)
         {
             var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateClient/{client.Id}", client);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+           
+            return response;
         }
         #endregion
 
@@ -54,15 +54,15 @@ namespace OmMediaWorkManagement.Web.Components.Services
         {
             return await httpClient.GetFromJsonAsync<List<OmClientWork>>($"/api/OmMedia/GetWorksByClientId/{clientID}");
         }
-        public async Task<string> AddClientWork(AddWorkViewModel clientWork)
+        public async Task<HttpResponseMessage> AddClientWork(AddWorkViewModel clientWork)
         {
             // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddWork", clientWork);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            
+            return response;
         }
 
-        public async Task<string> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid)
+        public async Task<HttpResponseMessage> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid)
         {
             // Construct the URL with parameters
             string url = $"/api/OmMedia/UpdatePaymentWorksStatusByClientId?clientId={clientId}&clientWorkId={clientWorkId}&isPaid={isPaid}";
@@ -70,23 +70,12 @@ namespace OmMediaWorkManagement.Web.Components.Services
             // Make HTTP PUT request
             var response = await httpClient.PutAsync(url, null);
 
-            // Check if the request was successful
-            if (response.IsSuccessStatusCode)
-            {
-                // Read and return the response content
-                return await response.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                // Handle the error
-                throw new HttpRequestException($"Failed to update payment work status. Status code: {response.StatusCode}");
-            }
+           return response;
         }
-        public async Task<string> UpdateClientWork(OmClientWork client)
+        public async Task<HttpResponseMessage> UpdateClientWork(OmClientWork client)
         {
             var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateWork/{client.Id}", client);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+           return response ;
         }
         #endregion
 
@@ -97,18 +86,16 @@ namespace OmMediaWorkManagement.Web.Components.Services
             return await httpClient.GetFromJsonAsync<List<JobToDo>>("/api/OmMedia/GetJobToDoList");
         }
 
-        public async Task<string> AddJobTodo(JobToDo client)
+        public async Task<HttpResponseMessage> AddJobTodo(JobToDo client)
         {
             // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddJobTodo", client);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+          return response;
         }
-        public async Task<string> UpdateJobtToDo(JobToDo client)
+        public async Task<HttpResponseMessage> UpdateJobtToDo(JobToDo client)
         {
             var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateJobTodo/{client.Id}", client);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+           return response;
         }
 
 
@@ -125,7 +112,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #endregion
 
         #region Send Notification
-        public async Task<string> SendEmailByClientId(int clientId,int clientWorkId)
+        public async Task<HttpResponseMessage> SendEmailByClientId(int clientId,int clientWorkId)
         { 
             string url = $"/api/OmMedia/SendEmailByClientId?clientId={clientId}&clientWorkId={clientWorkId}";
 
@@ -133,16 +120,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
             var response = await httpClient.PostAsJsonAsync<Object>(url, null);
 
             // Check if the request was successful
-            if (response.IsSuccessStatusCode)
-            {
-                // Read and return the response content
-                return await response.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                // Handle the error
-                throw new HttpRequestException($"Failed to update payment work status. Status code: {response.StatusCode}");
-            }
+           return response;
         }
         #endregion
 

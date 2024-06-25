@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿
+using Microsoft.AspNetCore.Components;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
 using Radzen;
 using Radzen.Blazor;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using System.Xml.Schema;
 
 namespace OmMediaWorkManagement.Web.Components.Pages
 {
@@ -10,24 +14,25 @@ namespace OmMediaWorkManagement.Web.Components.Pages
     {
         [Inject]
         public IOmService OmService { get; set; }
-        private bool showDialog = false;
-        private string responseMessage = "";
 
+        private string responseMessage = "";
+        private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
+        private bool showAlert = false;
         private RadzenDataGrid<OmClient> clientsGrid = new RadzenDataGrid<OmClient>();
         public List<OmClient> clients { get; set; } = new List<OmClient>();
-
-
         private List<OmClient> clientsToInsert = new List<OmClient>();
         private List<OmClient> clientsToUpdate = new List<OmClient>();
         private DataGridEditMode editMode = DataGridEditMode.Multiple;
         private string columnEditing;
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
-
         private bool IsFirstRender { get; set; } = true;
+      
+
         private int GetRowIndex(OmClient client)
         {
             return clients.IndexOf(client);
         }
+
         private void Reset()
         {
             clientsToInsert.Clear();
@@ -42,27 +47,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            // Fetch existing clients from OmService
-               clients = await OmService.GetAllClients();
-    //        List<OmClient> client = new List<OmClient>
-    //{
-    //    new OmClient{ Id = 1, Name = "John Doe", CompanyName = "Company A", MobileNumber = "1234567890", Email = "john@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 2, Name = "Jane Smith", CompanyName = "Company B", MobileNumber = "1234567891", Email = "jane@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 3, Name = "Bob Johnson", CompanyName = "Company C", MobileNumber = "1234567892", Email = "bob@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 4, Name = "Alice Davis", CompanyName = "Company D", MobileNumber = "1234567893", Email = "alice@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 5, Name = "Charlie Brown", CompanyName = "Company E", MobileNumber = "1234567894", Email = "charlie@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 6, Name = "Diana Ross", CompanyName = "Company F", MobileNumber = "1234567895", Email = "diana@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 7, Name = "Edward Wilson", CompanyName = "Company G", MobileNumber = "1234567896", Email = "edward@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 8, Name = "Fiona Garcia", CompanyName = "Company H", MobileNumber = "1234567897", Email = "fiona@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 9, Name = "George Lee", CompanyName = "Company I", MobileNumber = "1234567898", Email = "george@example.com", CreatedAt = DateTime.Now },
-    //    new OmClient{ Id = 10, Name = "Hannah Clark", CompanyName = "Company J", MobileNumber = "1234567899", Email = "hannah@example.com", CreatedAt = DateTime.Now }
-    //};
-    //        clients = client;
-            //// Ensure clients grid is refreshed
-            //if (clientsGrid != null)
-            //{
-            //    await clientsGrid.Reload();
-            //}
+            clients = await OmService.GetAllClients();
         }
 
         private async Task EditRow(OmClient client)
@@ -76,137 +61,173 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             await clientsGrid.EditRow(client);
         }
 
-        private void OnUpdateRow(OmClient client)
+        private async void OnUpdateRow(OmClient client)
         {
             Reset(client);
-           var result = OmService.UpdateClient(client);
+            var response = await OmService.UpdateClient(client);
+            response.EnsureSuccessStatusCode();
+            responseMessage = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode == true)
+            {
+                alertColor = Radzen.AlertStyle.Success;
+            }
+            else
+            {
+                alertColor = Radzen.AlertStyle.Danger;
+
+            }
+            showAlert = true; // Show alert
+            await clientsGrid.Reload();
+             
         }
 
         private async Task SaveRow(OmClient client)
         {
-            await OmService.AddClient(client);
-            await clientsGrid.UpdateRow(client);
+            if (client.Id == 0)
+            {
+                var response = await OmService.AddClient(client);
+                response.EnsureSuccessStatusCode();
+                responseMessage = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode == true)
+                {
+                    alertColor = Radzen.AlertStyle.Success;
+                }
+                else
+                {
+                    alertColor = Radzen.AlertStyle.Danger;
+
+                }
+                showAlert = true; // Show alert
+            }
+            else
+            {
+                await clientsGrid.UpdateRow(client);
+                
+            }
+            await RefreshTable();
         }
 
         private void CancelEdit(OmClient client)
         {
             Reset(client);
             clientsGrid.CancelEditRow(client);
-
-            // Assuming OmService.GetClient returns a client by ID
-            //var clientEntry = OmService.GetClient(client.ClientID).Result;
-            //if (clientEntry != null)
-            //{
-            //    client = clientEntry;
-            //}
         }
 
         private async Task DeleteRow(OmClient client)
         {
             Reset(client);
 
-            if (client.Id ==0)
+            if (client.Id == 0)
             {
-                // Remove from clientsToInsert list
                 clientsToInsert.Remove(client);
-                clients.Remove(client); // Remove from clients list as well, assuming clients is still tracking all clients
-                await clientsGrid.Reload(); // Refresh grid to reflect removal
+                clients.Remove(client);
+                await clientsGrid.Reload();
             }
             else if (client.Id != 0)
             {
-                // Delete from database if it's an existing client
-                var result = await OmService.DeleteClient(client.Id);
-
+                var response = await OmService.DeleteClient(client.Id);
                 clients = clients.Where(c => c.Id != client.Id).ToList();
-                await clientsGrid.Reload(); // Refresh grid after deletion
+                await clientsGrid.Reload();
+                response.EnsureSuccessStatusCode();
+                responseMessage = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode == true)
+                {
+                    alertColor = Radzen.AlertStyle.Success;
+                }
+                else
+                {
+                    alertColor = Radzen.AlertStyle.Danger;
+
+                }
+                showAlert = true; // Show alert
 
             }
             else
             {
-                // Cancel edit for newly inserted row that hasn't been saved yet
                 clientsGrid.CancelEditRow(client);
-                clientsToInsert.Remove(client); // Remove from clientsToInsert list
-                await clientsGrid.Reload(); // Refresh grid to reflect cancellation
+                clientsToInsert.Remove(client);
+                await clientsGrid.Reload();
             }
         }
 
-
         private async Task InsertRow(int numberOfRowsToAdd)
         {
-            // Add new rows
             for (int i = 0; i < numberOfRowsToAdd; i++)
             {
                 var client = new OmClient { CreatedAt = DateTime.UtcNow };
                 clientsToInsert.Add(client);
-                clients.Add(client); // Add at the end of the list
+                clients.Insert(0, client);
             }
 
-            // Set all rows to edit mode
             foreach (var client in clientsToInsert)
             {
                 await clientsGrid.EditRow(client);
             }
 
-            // Debugging: Check if clientsToInsert is populated
-            Console.WriteLine($"Number of clients to insert: {clientsToInsert.Count}");
-
-            // Refresh the grid to reflect changes
             await clientsGrid.Reload();
-
-            // Ensure UI reflects changes
             StateHasChanged();
         }
 
-
-        private async Task SaveAllRecords( )
+        private async Task ClearEmptyRows()
         {
-            // Save updated rows
-            foreach (var client in clientsToUpdate)
+            var emptyClients = clients.Where(c => string.IsNullOrWhiteSpace(c.Name) || string.IsNullOrWhiteSpace(c.CompanyName) || string.IsNullOrWhiteSpace(c.Email) || string.IsNullOrWhiteSpace(c.MobileNumber)).ToList();
+
+            foreach (var client in emptyClients)
             {
-                OnUpdateRow(client);
+                clients.Remove(client);
+                clientsToInsert.Remove(client);
+                clientsToUpdate.Remove(client);
             }
 
-            // Save newly inserted rows
-            foreach (var client in clientsToInsert)
-            {
-                OnCreateRow(client);
-            }
-
-            // Clear lists after saving
-            clientsToUpdate.Clear();
-            clientsToInsert.Clear();
+            await clientsGrid.Reload();
+            StateHasChanged();
         }
 
-        private async void OnCreateRow(OmClient client)
+        private async Task SaveAllRecords()
         {
+            var validClientsToInsert = new List<OmClient>();
 
-            var result = await OmService.AddClient(client);
-            clientsToInsert.Remove(client);
-            responseMessage = result; // Assuming result is a string message
-            showDialog = true;
-            // Refresh the table after adding a new record
+            foreach (var client in clientsToInsert)
+            {
+                if (IsValidClient(client, out List<string> errors))
+                {
+                    validClientsToInsert.Add(client);
+                }
+            }
+
+            foreach (var client in validClientsToInsert)
+            {
+                await OnCreateRow(client);
+            }
+
+            clientsToUpdate.Clear();
+            clientsToInsert.Clear();
+
+            await clientsGrid.Reload();
             await RefreshTable();
         }
 
-
-        private async Task ShowDialogChanged(bool value)
+        private async Task OnCreateRow(OmClient client)
         {
-            showDialog = value;
-            StateHasChanged();
+            var response = await OmService.AddClient(client);
+            clientsToInsert.Remove(client);
+            response.EnsureSuccessStatusCode();
+            var statusCode = await response.Content.ReadAsStringAsync();
+            responseMessage = "response";
+            showAlert = true; // Show alert
+            await RefreshTable();
         }
+
         private async Task RefreshTable()
         {
             clients = await OmService.GetAllClients();
             await clientsGrid.Reload();
         }
-        private void ShowDialog()
-        {
-            showDialog = true;
-        }
 
-
-
-        private void OnCellClick(DataGridCellMouseEventArgs<OmClient> args)
+        private async void OnCellClick(DataGridCellMouseEventArgs<OmClient> args)
         {
             if (clientsToUpdate.Any())
             {
@@ -215,20 +236,48 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
             columnEditing = args.Column.Property;
 
-            if (clientsToUpdate.Any())
-            {
-                OnUpdateRow(clientsToUpdate.First());
-            }
-
-            EditRow(args.Data);
+            await EditRow(args.Data);
         }
-        
 
         private bool IsEditing(string columnName, OmClient client)
         {
             return columnEditing == columnName && clientsToUpdate.Contains(client);
         }
 
+        private bool IsValidClient(OmClient client, out List<string> errors)
+        {
+            errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(client.Name))
+            {
+                errors.Add("Name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(client.MobileNumber))
+            {
+                errors.Add("Phone number is required.");
+            }
+            else if (!Regex.IsMatch(client.MobileNumber, @"^\d+$"))
+            {
+                errors.Add("Invalid phone number.");
+            }
+
+            if (string.IsNullOrWhiteSpace(client.Email))
+            {
+                errors.Add("Email is required.");
+            }
+            else if (!new EmailAddressAttribute().IsValid(client.Email))
+            {
+                errors.Add("Invalid email address.");
+            }
+
+            if (client.CreatedAt == default)
+            {
+                errors.Add("Creation date is required.");
+            }
+
+            return errors.Count == 0;
+        }
 
 
 

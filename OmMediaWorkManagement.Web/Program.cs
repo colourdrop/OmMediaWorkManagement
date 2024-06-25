@@ -18,7 +18,8 @@ builder.Services.AddHttpClient<IOmService ,OmServices>(client =>
     {
         // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
         // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("http://192.168.1.18:81");
+        // client.BaseAddress = new("http://192.168.1.18:81");
+        client.BaseAddress = new("https+http://localhost:7439");
         //client.BaseAddress = new("https+http://b359-13-60-77-120.ngrok-free.app");
     });
 

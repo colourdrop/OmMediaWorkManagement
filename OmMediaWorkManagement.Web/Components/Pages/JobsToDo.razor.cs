@@ -13,7 +13,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         public IOmService OmService { get; set; }
         private bool showDialog = false;
         private string responseMessage = "";
-
+        private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
+        private bool showAlert = false;
         private RadzenDataGrid<JobToDo> todoGrid;
         public List<JobToDo> todos { get; set; } = new List<JobToDo>();
 
@@ -112,11 +113,21 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private async void OnCreateRow(JobToDo client)
         {
 
-            var result = await OmService.AddJobTodo(client);
+            var response = await OmService.AddJobTodo(client);
             todoToInsert.Remove(client);
-            responseMessage = result; // Assuming result is a string message
-            showDialog = true;
-            // Refresh the table after adding a new record
+            response.EnsureSuccessStatusCode();
+            responseMessage = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode == true)
+            {
+                alertColor = Radzen.AlertStyle.Success;
+            }
+            else
+            {
+                alertColor = Radzen.AlertStyle.Danger;
+
+            }
+            showAlert = true; // Show alert
             await RefreshTable();
         }
 

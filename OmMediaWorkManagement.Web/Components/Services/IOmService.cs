@@ -7,25 +7,25 @@ namespace OmMediaWorkManagement.Web.Components.Services
     {
         #region Client
         Task<List<OmClient>> GetAllClients();
-        Task<string> AddClient(OmClient client); 
-        Task<string> UpdateClient(OmClient client);
-        Task<string> DeleteClient(int clientId);
+        Task<HttpResponseMessage> AddClient(OmClient client); 
+        Task<HttpResponseMessage> UpdateClient(OmClient client);
+        Task<HttpResponseMessage> DeleteClient(int clientId);
         #endregion
 
         #region ClientWork
         Task<List<OmClientWork>> GetAllClientWork();
         Task<List<OmClientWork>> GetClientWorkById(int clientID);
-        Task<string> AddClientWork(AddWorkViewModel clientWork);
-        Task<string> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid);
-        Task<string> UpdateClientWork(OmClientWork client);
+        Task<HttpResponseMessage> AddClientWork(AddWorkViewModel clientWork);
+        Task<HttpResponseMessage> UpdateClientPaymentWorkStatus(int clientId, int clientWorkId, bool isPaid);
+        Task<HttpResponseMessage> UpdateClientWork(OmClientWork client);
 
         #endregion
 
 
         #region ClientWork
         Task<List<JobToDo>> GetJobToDos();
-        Task<string> AddJobTodo(JobToDo client); 
-        Task<string> UpdateJobtToDo(JobToDo client);
+        Task<HttpResponseMessage> AddJobTodo(JobToDo client); 
+        Task<HttpResponseMessage> UpdateJobtToDo(JobToDo client);
 
 
         #endregion
@@ -36,7 +36,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #endregion
 
         #region Send Notification
-        Task<string> SendEmailByClientId(int clientId, int clientWorkId);
+        Task<HttpResponseMessage> SendEmailByClientId(int clientId, int clientWorkId);
         #endregion
     }
 }

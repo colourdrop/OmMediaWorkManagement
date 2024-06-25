@@ -4,14 +4,16 @@
 
 
 <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
-
+<RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+    @responseMessage
+</RadzenAlert>
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
     <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add 10 Clients" Click="@(() => InsertRow(10))" />
     <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add 25 Clients" Click="@(() => InsertRow(25))" />
     <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add 50 Clients" Click="@(() => InsertRow(50))" />
     <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="save" Text="Save All Records" Click="@SaveAllRecords" />
 </RadzenStack>
-
+ 
 <RadzenDataGrid @ref="clientsGrid" class="rz-grid-table"
                 AllowFiltering="true"   AllowPaging="true"
                 PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
@@ -88,3 +90,4 @@
         </RadzenDataGridColumn>
     </Columns>
 </RadzenDataGrid>
+ 
