@@ -150,8 +150,9 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             else
             {
                 clientsWorkGrid.CancelEditRow(client);
-                await clientsWorkGrid.Reload();
+                 
             }
+            await LoadData();
         }
 
 
@@ -267,6 +268,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 showAlert = true; // Show alert
 
             }
+            await LoadData();
 
         }
         private bool IsValidClient(OmClientWork client, out List<string> errors)

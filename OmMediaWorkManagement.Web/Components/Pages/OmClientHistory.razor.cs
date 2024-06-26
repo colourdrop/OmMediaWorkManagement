@@ -118,7 +118,9 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 alertColor = Radzen.AlertStyle.Warning;
                 showAlert = true; // Show alert
             }
-                
+          await   RefreshTable();
+
+
         }
 
         private void CancelEdit(OmClient client)

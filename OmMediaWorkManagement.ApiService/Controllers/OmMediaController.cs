@@ -181,7 +181,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             _context.OmClientWork.Add(omClientWork);
             await _context.SaveChangesAsync();
 
-            return Ok($" Work History Added for {omClientWork.OmClient.Name}");
+            return Ok($" Work History Added ");
         }
 
         [HttpPut("UpdateWork/{id}")]

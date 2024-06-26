@@ -54,8 +54,11 @@
 </RadzenStack>
 
 
-<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
-                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" Height="400px" Width="100%" CellClick="@OnCellClick">
+<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" 
+               PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
+                Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow"
+                RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" 
+                ColumnWidth="200px" Height="400px" Width="100%" CellClick="@OnCellClick">
     <Columns>
         <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
             <Template Context="OmClientWork">
