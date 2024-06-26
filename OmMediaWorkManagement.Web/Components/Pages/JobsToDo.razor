@@ -9,7 +9,62 @@
     </style>
 
     <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
-    <RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+
+<div class="accordion-container">
+    <div class="accordion">
+        <input type="checkbox" id="accordion-1" class="accordion-input">
+        <label for="accordion-1" class="accordion-header">Job Details</label>
+        <div class="accordion-content">
+            <EditForm Model="@newJobViewModel" OnValidSubmit="@AddJob" class="custom-form">
+                <div class="form-group">
+                    <div class="form-column">
+                        <label for="clientName">Client Name</label>
+                        <InputText id="clientName" @bind-Value="newJobViewModel.ClientName" class="custom-input" />
+                    </div>
+
+                    <div class="form-column">
+                        <label for="companyName">Company Name</label>
+                        <InputText id="companyName" @bind-Value="newJobViewModel.ComapnyName" class="custom-input" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-column">
+                        <label for="quantity">Quantity</label>
+                        <InputNumber id="quantity" @bind-Value="newJobViewModel.Quantity" class="custom-input" />
+                    </div>
+
+                    <div class="form-column">
+                        <label for="jobStatusType">Job Status Type</label>
+                        <InputNumber id="jobStatusType" @bind-Value="newJobViewModel.JobStatusType" class="custom-input" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <InputText id="description" @bind-Value="newJobViewModel.Description" class="custom-input" />
+                </div>
+
+                <div class="form-group">
+                    <label for="images">Upload Images</label>
+                    <InputFile id="images" class="custom-input" OnChange="@HandleFileUpload" />
+                    @if (imagePreview != null)
+                    {
+                        <img src="@imagePreview" alt="Preview" class="image-preview" />
+                    }
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="custom-btn custom-btn-primary">Submit</button>
+                    <button type="button" class="custom-btn custom-btn-secondary" @onclick="@(args => showDialog = false)">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+<RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
     @responseMessage
 </RadzenAlert>
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
@@ -150,17 +205,29 @@
 
     async Task ShowDialogWithCustomCssClasses(JobToDo todo)
     {
-        imagesToShow = todo.Images;
+        imagesToShow = todo.Images; // Assign images to imagesToShow
         await DialogService.OpenAsync("Images Dialog", ds =>
-    @<div>
-        @foreach (var image in imagesToShow)
+    @<div class="custom-dialog-wrapper-class">
+        <div class="custom-dialog-class">
+            <div style="display: flex; justify-content: center;">
+                @foreach (var image in imagesToShow)
+            {
+                <div style="padding: 10px;">
+                    <RadzenImage Path="@image" Style="width: 15rem; cursor: pointer;" AlternateText="Image Preview"
+                                 @onclick="() => ShowImagePreview(image)" />
+                </div>
+            }
+            </div>
+        </div>
+    </div>, new DialogOptions());
+    }
+
+    async Task ShowImagePreview(string imagePath)
     {
-        <img src="@image" style="max-width: 100px; max-height: 100px; margin-right: 5px;" />
+        // Implement logic to show full image preview using Radzen dialog or another method
+        // Example: Navigate to a new page with the full-size image
+        Navigation.NavigateTo($"imagepreview/{imagePath}");
     }
-    </div>, new DialogOptions()
-          {
-              CssClass = "custom-dialog-class",
-              WrapperCssClass = "custom-dialog-wrapper-class"
-          });
-    }
+
+
 }

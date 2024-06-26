@@ -96,7 +96,7 @@
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Price" Title="Price" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.Price" Style="width:100%;" />
+                <RadzenNumeric @bind-Value="work.Price" Style="width:100%;" @onkeypress="(args => OnPriceKeyDown(args, work))" />
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
@@ -146,7 +146,7 @@
             <EditTemplate Context="work">
                 <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(work))" aria-label="Save">
                 </RadzenButton>
-                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(work))" aria-label="Cancel">
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(work))" aria-label="Cancel" @onclick:stopPropagation="true">
                 </RadzenButton>
                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(work))" aria-label="Delete">
                 </RadzenButton>

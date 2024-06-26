@@ -40,3 +40,108 @@ h1:focus {
     color:whitesmoke !important;
     font-weight:600;
 }
+
+
+
+
+/*JobTodo*/
+.accordion-container {
+    width: 100%;
+    max-width: 800px; /* Adjust width as needed */
+    margin: 0 auto;
+}
+
+.accordion {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.accordion-input {
+    display: none;
+}
+
+.accordion-header {
+    display: block;
+    background-color: royalblue;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px;
+    cursor: pointer;
+}
+
+    .accordion-header:hover {
+        background-color: #0069d9;
+    }
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.accordion-input:checked + .accordion-header + .accordion-content {
+    max-height: 1000px; /* Adjust max-height as needed */
+}
+
+.custom-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    display: flex;
+    gap: 20px;
+}
+
+.form-column {
+    flex: 1;
+}
+
+.custom-input {
+    outline: 0;
+    border: 1px solid rgb(219, 213, 213);
+    padding: 8px 14px;
+    border-radius: 8px;
+    width: 100%;
+    height: 50px;
+}
+
+.image-preview {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.custom-btn {
+    padding: 8px 20px;
+    outline: 0;
+    border: 0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.custom-btn-primary {
+    background-color: royalblue;
+    color: #fff;
+}
+
+.custom-btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}

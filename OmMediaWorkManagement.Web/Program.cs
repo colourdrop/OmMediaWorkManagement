@@ -2,6 +2,7 @@ using OmMediaWorkManagement.Web;
 using OmMediaWorkManagement.Web.Components;
 using OmMediaWorkManagement.Web.Components.Services;
 using Radzen;
+using Radzen.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddRadzenComponents();
 builder.Services.AddOutputCache();
+builder.Services.AddScoped<RadzenDialog>();
 
 builder.Services.AddHttpClient<IOmService ,OmServices>(client =>
     {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Components.ViewModels;
@@ -198,8 +199,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private async void CalculateTotal(OmClientWork work)
         {
             work.Total = work.PrintCount * work.Price;
-            await clientsWorkGrid.UpdateRow(work);
-
+            //await clientsWorkGrid.UpdateRow(work);
+            StateHasChanged();
 
         }
 
@@ -252,6 +253,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             {
                 foreach (var client in validClientsToInsert)
                 {
+                    CalculateTotal(client);
                     await OnCreateRow(client);
                 }
 
@@ -358,5 +360,14 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
             return totalTotal;
         }
+        private void OnPriceKeyDown(KeyboardEventArgs args, OmClientWork work)
+        {
+            if (args.Key == "Tab" || args.Key == "Enter")
+            {
+                CalculateTotal(work);
+            }
+        }
+
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Components.ViewModels;
@@ -12,12 +13,14 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         [Inject]
         public IOmService OmService { get; set; }
         private bool showDialog = false;
+        string imagePreview;
+        private bool showAddDialog = false;
         private string responseMessage = "";
         private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
         private bool showAlert = false;
         private RadzenDataGrid<JobToDo> todoGrid;
         public List<JobToDo> todos { get; set; } = new List<JobToDo>();
-
+        private JobToDoViewModel newJobViewModel = new JobToDoViewModel();      
         public List<JobTypeStatusViewModel >jobTypeStatusViewModels=new List<JobTypeStatusViewModel>();
         private List<JobToDo> todoToInsert = new List<JobToDo>();
         private List<JobToDo> todoToUpdate = new List<JobToDo>();
@@ -146,7 +149,47 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
             showDialog = true;
         }
-        
+
+
+       
+
+        private async Task AddJob()
+        {
+            // Convert JobToDoViewModel to JobToDo if necessary
+            JobToDo newJob = new JobToDo
+            {
+                ClientName = newJobViewModel.ClientName,
+                CompanyName = newJobViewModel.ComapnyName,
+                Quantity = newJobViewModel.Quantity,
+                Description = newJobViewModel.Description,
+                JobStatusType = newJobViewModel.JobStatusType,
+                Images = newJobViewModel.Images.Select(file => file.FileName).ToList()
+            };
+
+            // Call your service to add the new job
+            var response = await OmService.AddJobTodo(newJob);
+            if (response.IsSuccessStatusCode)
+            {
+                // Handle success
+                await RefreshTable();
+                showDialog = false;
+            }
+            else
+            {
+                // Handle failure
+                // Show error message or handle as needed
+            }
+        }
+
+        void HandleFileUpload(InputFileChangeEventArgs e)
+        {
+            var file = e.File;
+            var imageBytes = new byte[file.Size];
+            var buffer = new MemoryStream(imageBytes);
+
+            file.OpenReadStream().CopyTo(buffer);
+            imagePreview = $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
+        }
 
     }
 }

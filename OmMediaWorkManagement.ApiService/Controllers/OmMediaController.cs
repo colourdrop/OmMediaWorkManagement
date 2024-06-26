@@ -49,7 +49,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetAllClients")]
         public async Task<IActionResult> GetAllClients()
         {
-            var clients = await _context.OmClient.ToListAsync();
+            var clients = await _context.OmClient.OrderByDescending(d=>d.CreatedAt).ToListAsync();
             return Ok(clients);
         }
 
@@ -113,7 +113,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         public async Task<IActionResult> GetWorksByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId && work.IsDeleted == false)
+                .Where(work => work.OmClientId == clientId && work.IsDeleted == false).OrderByDescending(d=>d.WorkDate)
                 .ToListAsync();
 
             return Ok(clientWorks);
@@ -152,7 +152,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetAllClientWork")]
         public async Task<IActionResult> GetAllClientWork()
         {
-            var clientWorks = await _context.OmClientWork.Where(d => d.IsDeleted == false)
+            var clientWorks = await _context.OmClientWork.Where(d => d.IsDeleted == false).OrderByDescending(d=>d.WorkDate)
                 .ToListAsync();
 
             return Ok(clientWorks);
