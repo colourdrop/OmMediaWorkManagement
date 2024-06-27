@@ -15,7 +15,7 @@
         <input type="checkbox" id="accordion-1" class="accordion-input">
         <label for="accordion-1" class="accordion-header">Job Details</label>
         <div class="accordion-content">
-            <EditForm Model="@newJobViewModel" OnValidSubmit="@AddJob" class="custom-form">
+            <EditForm Model="@newJobViewModel" OnValidSubmit="@(async () => await AddJob(newJobViewModel))" class="custom-form">
                 <div class="form-group">
                     <div class="form-column">
                         <label for="clientName">Client Name</label>
@@ -47,11 +47,9 @@
 
                 <div class="form-group">
                     <label for="images">Upload Images</label>
-                    <InputFile id="images" class="custom-input" OnChange="@HandleFileUpload" />
-                    @if (imagePreview != null)
-                    {
-                        <img src="@imagePreview" alt="Preview" class="image-preview" />
-                    }
+                    <InputFile @bind-Value="newJobViewModel.Images" id="images" class="custom-input" OnChange="@HandleFileUpload" Multiple="true" />
+
+                 
                 </div>
 
                 <div class="button-group">
@@ -68,7 +66,7 @@
     @responseMessage
 </RadzenAlert>
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
-        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add New todo" Disabled="@(editMode == DataGridEditMode.Single && todoToInsert.Count() > 0)" />
+@*         <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add New todo" Disabled="@(editMode == DataGridEditMode.Single && todoToInsert.Count() > 0)" /> *@
         <div style="white-space:nowrap; margin-left: 20px ">Edit Mode:</div>
         <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
                          Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
@@ -112,8 +110,22 @@
                     <RadzenNumeric @bind-Value="todo.Quantity" Style="width:100%" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-
-        
+        <RadzenDataGridColumn Property="Price" Title="Price" Width="200px">
+            <Template Context="todo">
+                @todo.Price
+            </Template>
+            <EditTemplate Context="todo">
+                <RadzenNumeric @bind-Value="todo.Price" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
+            <Template Context="todo">
+                @todo.Total
+            </Template>
+            <EditTemplate Context="todo">
+                <RadzenNumeric @bind-Value="todo.Total" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
 
             <RadzenDataGridColumn Property="JobStatusType" Title="Current Job Status" Width="200px">
                 <Template Context="todo">

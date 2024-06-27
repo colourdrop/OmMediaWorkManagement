@@ -5,6 +5,8 @@ using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Components.ViewModels;
 using Radzen;
 using Radzen.Blazor;
+using System;
+using System.Net.Http;
 
 namespace OmMediaWorkManagement.Web.Components.Pages
 {
@@ -14,14 +16,17 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         public IOmService OmService { get; set; }
         private bool showDialog = false;
         string imagePreview;
+        List<string> imageUrls = new List<string>();
         private bool showAddDialog = false;
         private string responseMessage = "";
         private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
         private bool showAlert = false;
         private RadzenDataGrid<JobToDo> todoGrid;
+        private List<IFormFile> images = new List<IFormFile>();
+        private JobToDoViewModel newJobViewModel = new JobToDoViewModel();
+
         public List<JobToDo> todos { get; set; } = new List<JobToDo>();
-        private JobToDoViewModel newJobViewModel = new JobToDoViewModel();      
-        public List<JobTypeStatusViewModel >jobTypeStatusViewModels=new List<JobTypeStatusViewModel>();
+        public List<JobTypeStatusViewModel> jobTypeStatusViewModels = new List<JobTypeStatusViewModel>();
         private List<JobToDo> todoToInsert = new List<JobToDo>();
         private List<JobToDo> todoToUpdate = new List<JobToDo>();
         private DataGridEditMode editMode = DataGridEditMode.Single;
@@ -46,10 +51,10 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
 
             todos = await OmService.GetJobToDos();
-            jobTypeStatusViewModels=await OmService.GetJobTypeStatusList();
+            jobTypeStatusViewModels = await OmService.GetJobTypeStatusList();
         }
 
-       private async Task EditRow(JobToDo client)
+        private async Task EditRow(JobToDo client)
         {
             if (editMode == DataGridEditMode.Single && todoToInsert.Count() > 0)
             {
@@ -63,7 +68,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private void OnUpdateRow(JobToDo client)
         {
             Reset(client);
-          var result= OmService.UpdateJobtToDo(client);
+            var result = OmService.UpdateJobtToDo(client);
         }
 
         private async Task SaveRow(JobToDo client)
@@ -90,7 +95,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
             if (todos.Contains(client))
             {
-             var result=await OmService.DeleteClient(client.Id);
+                var result = await OmService.DeleteClient(client.Id);
                 todos = todos.Where(c => c.Id != client.Id).ToList();
                 await todoGrid.Reload();
             }
@@ -151,45 +156,26 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
 
 
-       
 
-        private async Task AddJob()
+
+        private async Task AddJob(JobToDoViewModel jobToDoViewModel)
         {
-            // Convert JobToDoViewModel to JobToDo if necessary
-            JobToDo newJob = new JobToDo
-            {
-                ClientName = newJobViewModel.ClientName,
-                CompanyName = newJobViewModel.ComapnyName,
-                Quantity = newJobViewModel.Quantity,
-                Description = newJobViewModel.Description,
-                JobStatusType = newJobViewModel.JobStatusType,
-                Images = newJobViewModel.Images.Select(file => file.FileName).ToList()
-            };
+            
+        }
 
-            // Call your service to add the new job
-            var response = await OmService.AddJobTodo(newJob);
-            if (response.IsSuccessStatusCode)
+        private async Task HandleFileUpload(InputFileChangeEventArgs e)
+        {
+            foreach (var file in e.GetMultipleFiles())
             {
-                // Handle success
-                await RefreshTable();
-                showDialog = false;
-            }
-            else
-            {
-                // Handle failure
-                // Show error message or handle as needed
+                 
+
+                
+                  newJobViewModel.Images.Add((IFormFile?)file);
             }
         }
 
-        void HandleFileUpload(InputFileChangeEventArgs e)
-        {
-            var file = e.File;
-            var imageBytes = new byte[file.Size];
-            var buffer = new MemoryStream(imageBytes);
 
-            file.OpenReadStream().CopyTo(buffer);
-            imagePreview = $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
-        }
+
 
     }
 }

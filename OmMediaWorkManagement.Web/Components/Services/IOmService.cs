@@ -32,6 +32,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
 
         #region GetJOB Status
+       
         Task<List<JobTypeStatusViewModel>> GetJobTypeStatusList();
         #endregion
 
