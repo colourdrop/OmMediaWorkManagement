@@ -14,7 +14,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #region Client
         public async Task<HttpResponseMessage> AddClient(OmClient client)
         {
-           // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
+           // var response = await httpClient.PostAsJsonAsync("/prod /api/OmMedia/AddClient", client);
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddClient", client);
            
             return  response;
@@ -30,7 +30,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         public async Task<List<OmClient>> GetAllClients()
         {
-           // return await httpClient.GetFromJsonAsync<List<OmClient>>("/prod/api/OmMedia/GetAllClients");
+           // return await httpClient.GetFromJsonAsync<List<OmClient>>("/prod /api/OmMedia/GetAllClients");
             return await httpClient.GetFromJsonAsync<List<OmClient>>("/api/OmMedia/GetAllClients");
              
         }
@@ -56,7 +56,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
         }
         public async Task<HttpResponseMessage> AddClientWork(AddWorkViewModel clientWork)
         {
-            // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
+            // var response = await httpClient.PostAsJsonAsync("/prod /api/OmMedia/AddClient", client);
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddWork", clientWork);
             
             return response;
@@ -95,7 +95,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         public async Task<HttpResponseMessage> AddJobTodo(JobToDo client)
         {
-            // var response = await httpClient.PostAsJsonAsync("/prod/api/OmMedia/AddClient", client);
+            // var response = await httpClient.PostAsJsonAsync("/prod /api/OmMedia/AddClient", client);
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddJobTodo", client);
           return response;
         }
@@ -114,14 +114,14 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #region GetJOB Status
         public async Task<List<JobTypeStatusViewModel>> GetJobTypeStatusList()
         {
-            return await httpClient.GetFromJsonAsync<List<JobTypeStatusViewModel>>("/api/OmMedia/GetJobTypeStatusList");
+            return await httpClient.GetFromJsonAsync<List<JobTypeStatusViewModel>>(" /api/OmMedia/GetJobTypeStatusList");
         }
         #endregion
 
         #region Send Notification
         public async Task<HttpResponseMessage> SendEmailByClientId(int clientId,int clientWorkId)
         { 
-            string url = $"/api/OmMedia/SendEmailByClientId?clientId={clientId}&clientWorkId={clientWorkId}";
+            string url = $" /api/OmMedia/SendEmailByClientId?clientId={clientId}&clientWorkId={clientWorkId}";
 
             // Make HTTP PUT request
             var response = await httpClient.PostAsJsonAsync<Object>(url, null);
