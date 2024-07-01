@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240701062547_updateommediaemployee")]
+    partial class updateommediaemployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,14 +205,23 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal?>("AdvancePayment")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("DueBalance")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -220,9 +232,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsSalaryPaid")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -230,8 +239,15 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("SalaryAmount")
-                        .HasColumnType("numeric");
+                    b.Property<int?>("Salary")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShiftOverTime")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ShiftTiming")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -259,7 +275,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.ToTable("OmEmployeeDocuments");
                 });
 
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalaryManagement", b =>
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalary", b =>
                 {
                     b.Property<int>("EmployeeSalaryId")
                         .ValueGeneratedOnAdd()
@@ -270,29 +286,20 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<decimal?>("AdvancePayment")
                         .HasColumnType("numeric");
 
-                    b.Property<DateTime?>("AdvancePaymentDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<decimal?>("DueBalance")
                         .HasColumnType("numeric");
 
                     b.Property<int>("OmEmployeeId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal?>("OverBalance")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("OverTimeSalary")
+                    b.Property<decimal>("SalaryAmount")
                         .HasColumnType("numeric");
 
                     b.HasKey("EmployeeSalaryId");
 
                     b.HasIndex("OmEmployeeId");
 
-                    b.ToTable("OmEmployeeSalaryManagement");
+                    b.ToTable("OmEmployeeSalary");
                 });
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeShift", b =>
@@ -373,7 +380,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeDocuments", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
-                        .WithMany("EmployeeDocuments")
+                        .WithMany()
                         .HasForeignKey("OmEmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -381,7 +388,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Navigation("OmEmployee");
                 });
 
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalaryManagement", b =>
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalary", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
                         .WithMany()
@@ -411,11 +418,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>
                 {
                     b.Navigation("OmClientWork");
-                });
-
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployee", b =>
-                {
-                    b.Navigation("EmployeeDocuments");
                 });
 #pragma warning restore 612, 618
         }

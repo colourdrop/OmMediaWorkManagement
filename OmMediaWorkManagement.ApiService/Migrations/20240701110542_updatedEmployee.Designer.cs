@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240701110542_updatedEmployee")]
+    partial class updatedEmployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -373,7 +376,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeDocuments", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
-                        .WithMany("EmployeeDocuments")
+                        .WithMany()
                         .HasForeignKey("OmEmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -411,11 +414,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>
                 {
                     b.Navigation("OmClientWork");
-                });
-
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployee", b =>
-                {
-                    b.Navigation("EmployeeDocuments");
                 });
 #pragma warning restore 612, 618
         }

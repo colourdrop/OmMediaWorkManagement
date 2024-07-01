@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240701092234_updateommediaemployee1")]
+    partial class updateommediaemployee1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,6 +211,9 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -259,7 +265,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.ToTable("OmEmployeeDocuments");
                 });
 
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalaryManagement", b =>
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalary", b =>
                 {
                     b.Property<int>("EmployeeSalaryId")
                         .ValueGeneratedOnAdd()
@@ -292,7 +298,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
                     b.HasIndex("OmEmployeeId");
 
-                    b.ToTable("OmEmployeeSalaryManagement");
+                    b.ToTable("OmEmployeeSalary");
                 });
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeShift", b =>
@@ -373,7 +379,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeDocuments", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
-                        .WithMany("EmployeeDocuments")
+                        .WithMany()
                         .HasForeignKey("OmEmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -381,7 +387,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Navigation("OmEmployee");
                 });
 
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalaryManagement", b =>
+            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeSalary", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
                         .WithMany()
@@ -411,11 +417,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>
                 {
                     b.Navigation("OmClientWork");
-                });
-
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployee", b =>
-                {
-                    b.Navigation("EmployeeDocuments");
                 });
 #pragma warning restore 612, 618
         }

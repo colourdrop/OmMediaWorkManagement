@@ -39,5 +39,9 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #region Send Notification
         Task<HttpResponseMessage> SendEmailByClientId(int clientId, int clientWorkId);
         #endregion
+
+        #region EmployeeManagement
+        Task<List<OmEmployee>>GetOmEmployees();
+        #endregion
     }
 }

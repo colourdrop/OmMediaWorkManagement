@@ -6,6 +6,7 @@ using OmMediaWorkManagement.ApiService.ViewModels;
 using System.Net.Mail;
 using System.Net;
 using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace OmMediaWorkManagement.ApiService.Controllers
 {
@@ -49,7 +50,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetAllClients")]
         public async Task<IActionResult> GetAllClients()
         {
-            var clients = await _context.OmClient.OrderByDescending(d=>d.CreatedAt).ToListAsync();
+            var clients = await _context.OmClient.OrderByDescending(d => d.CreatedAt).ToListAsync();
             return Ok(clients);
         }
 
@@ -113,16 +114,16 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         public async Task<IActionResult> GetWorksByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId && work.IsDeleted == false).OrderByDescending(d=>d.WorkDate)
+                .Where(work => work.OmClientId == clientId && work.IsDeleted == false).OrderByDescending(d => d.WorkDate)
                 .ToListAsync();
 
             return Ok(clientWorks);
         }
         [HttpDelete("DeleteWorksByClientId")]
-        public async Task<IActionResult> DeleteWorksByClientId( int clientWorkId, int omClientId)
+        public async Task<IActionResult> DeleteWorksByClientId(int clientWorkId, int omClientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == omClientId && work.Id == clientWorkId )
+                .Where(work => work.OmClientId == omClientId && work.Id == clientWorkId)
                 .FirstOrDefaultAsync();
             if (clientWorks != null)
             {
@@ -152,7 +153,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [HttpGet("GetAllClientWork")]
         public async Task<IActionResult> GetAllClientWork()
         {
-            var clientWorks = await _context.OmClientWork.Where(d => d.IsDeleted == false).OrderByDescending(d=>d.WorkDate)
+            var clientWorks = await _context.OmClientWork.Where(d => d.IsDeleted == false).OrderByDescending(d => d.WorkDate)
                 .ToListAsync();
 
             return Ok(clientWorks);
@@ -229,11 +230,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             {
                 var jobToDo = new JobToDo
                 {
-                    
+
                     ClientName = jobToDoViewModel.ClientName,
                     CompanyName = jobToDoViewModel.ComapnyName,
                     Price = jobToDoViewModel.Price,
-                    total=jobToDoViewModel.total,
+                    total = jobToDoViewModel.total,
                     Quantity = jobToDoViewModel.Quantity,
                     Description = jobToDoViewModel.Description,
                     IsStatus = jobToDoViewModel.IsStatus,
@@ -594,6 +595,232 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         }
         #endregion
 
+
+        #region AddEmployee
+
+        [HttpPost("AddEmployee")]
+        public async Task<IActionResult> AddEmployee([FromForm] OmEmployeeViewModels omEmployeeViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var employee = new OmEmployee
+                {
+                    Name = omEmployeeViewModel.Name,
+                    CompanyName = omEmployeeViewModel.CompanyName,
+                    Address = omEmployeeViewModel.Address,
+                    CreatedDate = DateTime.UtcNow,
+                    Description = omEmployeeViewModel.Description,
+                    Email = omEmployeeViewModel.Email,
+                    PhoneNumber = omEmployeeViewModel.PhoneNumber,
+                    SalaryAmount = omEmployeeViewModel.SalaryAmount,
+                    IsSalaryPaid = false,
+                };
+
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+                if (!Directory.Exists(imagesFolder))
+                {
+                    Directory.CreateDirectory(imagesFolder);
+                }
+
+                if (omEmployeeViewModel.EmployeeProfile != null)
+                {
+                    var profileFileName = Guid.NewGuid().ToString("N").Substring(0, 16) + "_" + Path.GetFileName(omEmployeeViewModel.EmployeeProfile.FileName);
+                    var profileFilePath = Path.Combine(imagesFolder, profileFileName);
+
+                    using (var fileStream = new FileStream(profileFilePath, FileMode.Create))
+                    {
+                        await omEmployeeViewModel.EmployeeProfile.CopyToAsync(fileStream);
+                    }
+
+                    employee.EmployeeProfilePath = Path.Combine("images", profileFileName);
+                }
+
+                var employeeDocuments = new List<OmEmployeeDocuments>();
+                if (omEmployeeViewModel.EmployeeDocuments != null)
+                {
+                    foreach (var formFile in omEmployeeViewModel.EmployeeDocuments)
+                    {
+                        var documentFileName = Guid.NewGuid().ToString("N").Substring(0, 16) + "_" + Path.GetFileName(formFile.FileName);
+                        var documentFilePath = Path.Combine(imagesFolder, documentFileName);
+
+                        using (var fileStream = new FileStream(documentFilePath, FileMode.Create))
+                        {
+                            await formFile.CopyToAsync(fileStream);
+                        }
+
+                        var documentPath = Path.Combine("images", documentFileName);
+
+                        employeeDocuments.Add(new OmEmployeeDocuments
+                        {
+                            EmployeeDocumentsPath = documentPath,
+                            OmEmployee = employee // Ensures correct foreign key relation
+                        });
+                    }
+                }
+
+                _context.OmEmployee.Add(employee);
+                await _context.SaveChangesAsync();
+
+                _context.OmEmployeeDocuments.AddRange(employeeDocuments);
+                await _context.SaveChangesAsync();
+
+                return Ok("Added Successfully");
+            }
+
+            return BadRequest(ModelState);
+        }
+
+
+        [HttpPut("UpdateEmployee/{id}")]
+        public async Task<IActionResult> UpdateEmployee(int id, [FromForm] OmEmployeeViewModels omEmployeeViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var employee = await _context.OmEmployee.FindAsync(id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            // Update basic fields
+            employee.Name = omEmployeeViewModel.Name;
+            employee.CompanyName = omEmployeeViewModel.CompanyName;
+            employee.Address = omEmployeeViewModel.Address;
+            employee.Description = omEmployeeViewModel.Description;
+            employee.Email = omEmployeeViewModel.Email;
+            employee.PhoneNumber = omEmployeeViewModel.PhoneNumber;
+            employee.SalaryAmount = omEmployeeViewModel.SalaryAmount;
+            employee.IsSalaryPaid = omEmployeeViewModel.IsSalaryPaid;
+            employee.IsDeleted = omEmployeeViewModel.IsDeleted;
+
+            var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+            if (!Directory.Exists(imagesFolder))
+            {
+                Directory.CreateDirectory(imagesFolder);
+            }
+
+            // Update profile image if a new one is provided
+            if (omEmployeeViewModel.EmployeeProfile != null)
+            {
+                var profileFileName = Guid.NewGuid().ToString("N").Substring(0, 16) + "_" + Path.GetFileName(omEmployeeViewModel.EmployeeProfile.FileName);
+                var profileFilePath = Path.Combine(imagesFolder, profileFileName);
+
+                using (var fileStream = new FileStream(profileFilePath, FileMode.Create))
+                {
+                    await omEmployeeViewModel.EmployeeProfile.CopyToAsync(fileStream);
+                }
+
+                employee.EmployeeProfilePath = Path.Combine("images", profileFileName);
+            }
+
+            // Update employee documents if new ones are provided
+            if (omEmployeeViewModel.EmployeeDocuments != null && omEmployeeViewModel.EmployeeDocuments.Any())
+            {
+                // Remove old documents
+                var existingDocuments = _context.OmEmployeeDocuments.Where(d => d.OmEmployeeId == id).ToList();
+                _context.OmEmployeeDocuments.RemoveRange(existingDocuments);
+
+                // Add new documents
+                foreach (var formFile in omEmployeeViewModel.EmployeeDocuments)
+                {
+                    var documentFileName = Guid.NewGuid().ToString("N").Substring(0, 16) + "_" + Path.GetFileName(formFile.FileName);
+                    var documentFilePath = Path.Combine(imagesFolder, documentFileName);
+
+                    using (var fileStream = new FileStream(documentFilePath, FileMode.Create))
+                    {
+                        await formFile.CopyToAsync(fileStream);
+                    }
+
+                    var documentPath = Path.Combine("images", documentFileName);
+
+                    _context.OmEmployeeDocuments.Add(new OmEmployeeDocuments
+                    {
+                        OmEmployeeId = id,
+                        EmployeeDocumentsPath = documentPath
+                    });
+                }
+            }
+
+            _context.OmEmployee.Update(employee);
+            await _context.SaveChangesAsync();
+
+            return Ok("Updated Successfully");
+        }
+
+
+        [HttpGet("GetAllEmployee")]
+        public async Task<IActionResult> GetAllEmployee()
+        {
+            var employeeList = await _context.OmEmployee.Include(d => d.EmployeeDocuments).ToListAsync();
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            var employeeResponses = employeeList.Select(emp => new OmEmployeeResponseViewModel
+            {
+                Id = emp.Id,
+                Name = emp.Name,
+                Address = emp.Address,
+                CompanyName = emp.CompanyName,
+                Email = emp.Email,
+                PhoneNumber = emp.PhoneNumber,
+                SalaryAmount = emp.SalaryAmount,
+                IsSalaryPaid = emp.IsSalaryPaid,
+                Description = emp.Description,
+                EmployeeProfilePath = $"{baseUrl}/images/{Path.GetFileName(emp.EmployeeProfilePath)}",
+                CreatedDate = emp.CreatedDate,
+                IsDeleted = emp.IsDeleted,
+                EmployeeDocuments = emp.EmployeeDocuments.Select(doc => $"{baseUrl}/images/{Path.GetFileName(doc.EmployeeDocumentsPath)}").ToList()
+            }).ToList();
+
+            return Ok(employeeResponses);
+        }
+
+        [HttpPut("UpdateSalaryManagement/{id}")]
+        public async Task<IActionResult> UpdateSalaryManagement(int id, [FromForm] OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var employeeSalaryManagement = await _context.OmEmployeeSalaryManagement.FindAsync(id);
+
+            if (employeeSalaryManagement == null)
+            {
+                return NotFound();
+            }
+
+            // Update the salary management fields
+            employeeSalaryManagement.AdvancePayment = omEmployeeSalaryManagementViewModel.AdvancePayment;
+            employeeSalaryManagement.AdvancePaymentDate = DateTime.UtcNow;
+            employeeSalaryManagement.DueBalance = omEmployeeSalaryManagementViewModel.DueBalance;
+            employeeSalaryManagement.OverBalance = omEmployeeSalaryManagementViewModel.OverBalance;
+            employeeSalaryManagement.OverTimeSalary = omEmployeeSalaryManagementViewModel.OverTimeSalary;
+            employeeSalaryManagement.CreatedDate = DateTime.UtcNow;
+
+            _context.OmEmployeeSalaryManagement.Update(employeeSalaryManagement);
+            await _context.SaveChangesAsync();
+
+            return Ok("Updated Successfully");
+        }
+
+
+
+        [HttpGet("GetSalaryManagementByEmployeeId")]
+        public async Task<IActionResult> GetSalaryManagementByEmployeeId(int OmEmployeeId)
+        {
+            var employeeRecords = await _context.OmEmployeeSalaryManagement.Where(d => d.OmEmployeeId == OmEmployeeId).OrderByDescending(d => d.CreatedDate).ToListAsync();
+            return Ok(employeeRecords);
+
+        }
+
+        #endregion
     }
 
 

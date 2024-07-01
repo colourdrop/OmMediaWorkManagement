@@ -1,0 +1,52 @@
+﻿ @page "/EmployeeManagement"
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" Data="@employees" TItem="OmEmployee">
+                <Columns>
+                    <RadzenDataGridColumn TItem="OmEmployee" Property="Name" Title="Name" Width="200px" />
+                    <RadzenDataGridColumn TItem="OmEmployee" Property="Address" Title="Address" Width="200px">
+                        <Template Context="omEmployee">
+                            <RadzenImage Path="@omEmployee.EmployeeProfilePath" Style="width: 32px; height: 32px; border-radius: 16px; margin-right: 6px;" />
+                            @omEmployee.Name
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="OmEmployee" Property="Email" Title="Email" Width="200px" />
+                    <RadzenDataGridColumn TItem="OmEmployee" Property="PhoneNumber" Title="Phone" Width="140px" />
+                    <RadzenDataGridColumn TItem="OmEmployee" Property="SalaryAmount" Title="Salary" Width="140px" />
+                    <RadzenDataGridColumn TItem="OmEmployee" Property="CreatedDate" Title="Created Date" FormatString="{0:d}" Width="140px" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+        <div class="col-md-6">
+            <RadzenCard Style="margin-bottom:20px">
+                Company:
+                <b>@employees.FirstOrDefault()?.CompanyName</b>
+            </RadzenCard>
+            <RadzenTabs>
+                <Tabs>
+                    <RadzenTabsItem Text="Employee Details">
+                        <RadzenDataGrid AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@(employees.FirstOrDefault()?.EmployeeDocuments)">
+                            <Columns>
+                                <RadzenDataGridColumn Property="DocumentName" Title="Document Name" />
+                                <RadzenDataGridColumn Property="DocumentPath" Title="Document Path" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Documents">
+                        <RadzenDataList WrapItems="true" AllowPaging="true" Data="@(employees.FirstOrDefault()?.EmployeeDocuments)" PageSize="10">
+                            <Template Context="document">
+                                <RadzenCard Style="width:100px;height:100px">
+                                    Document:
+                                    <b>@document</b>
+                                </RadzenCard>
+                            </Template>
+                        </RadzenDataList>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
+        </div>
+    </div>
+</div>
+ 
