@@ -781,16 +781,42 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok(employeeResponses);
         }
 
-        [HttpPut("UpdateSalaryManagement/{id}")]
-        public async Task<IActionResult> UpdateSalaryManagement(int id, [FromForm] OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
+        [HttpPut("AddSalaryManagement")]
+        public async Task<IActionResult> AddSalaryManagement( OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var getEmploye=await _context.OmEmployee.FindAsync(omEmployeeSalaryManagementViewModel.OmEmployeeId);
+            OmEmployeeSalaryManagement omEmployeeSalary  = new OmEmployeeSalaryManagement()
+            {
+                OmEmployeeId = omEmployeeSalaryManagementViewModel.OmEmployeeId,
+                AdvancePayment=omEmployeeSalaryManagementViewModel.AdvancePayment,
+                AdvancePaymentDate=DateTime.UtcNow,
+                DueBalance= getEmploye.SalaryAmount-omEmployeeSalaryManagementViewModel.AdvancePayment,
+                OverBalance= omEmployeeSalaryManagementViewModel.OverBalance,
+                OverTimeSalary=omEmployeeSalaryManagementViewModel.OverTimeSalary,
+                CreatedDate= DateTime.UtcNow
+            };
+           
+
+            _context.OmEmployeeSalaryManagement.Add(omEmployeeSalary);
+            await _context.SaveChangesAsync();
+
+            return Ok("Added Successfully");
+        }
+
+        [HttpPut("UpdateSalaryManagement")]
+        public async Task<IActionResult> UpdateSalaryManagement(int salaryManagementid, [FromForm] OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var employeeSalaryManagement = await _context.OmEmployeeSalaryManagement.FindAsync(id);
-
+            var employeeSalaryManagement = await _context.OmEmployeeSalaryManagement.FindAsync(salaryManagementid);
+            var getEmploye = await _context.OmEmployee.FindAsync(omEmployeeSalaryManagementViewModel.OmEmployeeId);
             if (employeeSalaryManagement == null)
             {
                 return NotFound();
@@ -799,7 +825,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             // Update the salary management fields
             employeeSalaryManagement.AdvancePayment = omEmployeeSalaryManagementViewModel.AdvancePayment;
             employeeSalaryManagement.AdvancePaymentDate = DateTime.UtcNow;
-            employeeSalaryManagement.DueBalance = omEmployeeSalaryManagementViewModel.DueBalance;
+            employeeSalaryManagement.DueBalance = employeeSalaryManagement.DueBalance-  omEmployeeSalaryManagementViewModel.DueBalance;
             employeeSalaryManagement.OverBalance = omEmployeeSalaryManagementViewModel.OverBalance;
             employeeSalaryManagement.OverTimeSalary = omEmployeeSalaryManagementViewModel.OverTimeSalary;
             employeeSalaryManagement.CreatedDate = DateTime.UtcNow;

@@ -42,6 +42,7 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         #region EmployeeManagement
         Task<List<OmEmployee>>GetOmEmployees();
+        Task<List<OmEmployeeSalaryManagement>> GetSalaryManagementByEmployeeId(int employeeID);
         #endregion
     }
 }

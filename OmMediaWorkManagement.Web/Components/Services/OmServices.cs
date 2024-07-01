@@ -136,6 +136,10 @@ namespace OmMediaWorkManagement.Web.Components.Services
         {
             return await httpClient.GetFromJsonAsync<List<OmEmployee>>(" /api/OmMedia/GetAllEmployee");
         }
+        public async Task<List<OmEmployeeSalaryManagement>> GetSalaryManagementByEmployeeId(int employeeID)
+        {
+            return await httpClient.GetFromJsonAsync<List<OmEmployeeSalaryManagement>>($"/api/OmMedia/GetSalaryManagementByEmployeeId?OmEmployeeId={employeeID}");
+        }
         #endregion
 
 

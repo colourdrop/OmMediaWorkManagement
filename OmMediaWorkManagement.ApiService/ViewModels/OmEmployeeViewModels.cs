@@ -25,12 +25,11 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
        
         public int OmEmployeeId { get; set; }  
         public decimal? AdvancePayment { get; set; } 
-        public DateTime? AdvancePaymentDate { get; set; }
+       
         public decimal? OverTimeSalary { get; set; }
         public decimal? DueBalance { get; set; } 
         public decimal? OverBalance { get; set; }
-        public DateTime? CreatedDate { get; set; }= DateTime.UtcNow;
-      
+        
     
     }
 }
