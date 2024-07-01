@@ -661,8 +661,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
                 _context.OmEmployee.Add(employee);
                 await _context.SaveChangesAsync();
-
-                _context.OmEmployeeDocuments.AddRange(employeeDocuments);
+                if (employeeDocuments.Count != 0)
+                {
+                    _context.OmEmployeeDocuments.AddRange(employeeDocuments);
+                }
                 await _context.SaveChangesAsync();
 
                 return Ok("Added Successfully");
@@ -781,26 +783,43 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok(employeeResponses);
         }
 
-        [HttpPut("AddSalaryManagement")]
-        public async Task<IActionResult> AddSalaryManagement( OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
+        [HttpPost("AddSalaryManagement")]
+        public async Task<IActionResult> AddSalaryManagement(OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var getEmploye=await _context.OmEmployee.FindAsync(omEmployeeSalaryManagementViewModel.OmEmployeeId);
-            OmEmployeeSalaryManagement omEmployeeSalary  = new OmEmployeeSalaryManagement()
+
+            // Find the employee by ID
+            var employee = await _context.OmEmployee.FindAsync(omEmployeeSalaryManagementViewModel.OmEmployeeId);
+            if (employee == null)
+            {
+                return NotFound("Employee not found");
+            }
+
+            // Find the latest salary record
+            var latestSalary = await _context.OmEmployeeSalaryManagement
+                .Where(d => d.OmEmployeeId == omEmployeeSalaryManagementViewModel.OmEmployeeId)
+                .OrderByDescending(d => d.CreatedDate)
+                .FirstOrDefaultAsync();
+
+            // Calculate DueBalance based on whether there is a latest salary record
+            decimal? dueBalance = (latestSalary?.DueBalance ?? employee.SalaryAmount) - omEmployeeSalaryManagementViewModel.AdvancePayment;
+
+            // Create new OmEmployeeSalaryManagement object
+            var omEmployeeSalary = new OmEmployeeSalaryManagement()
             {
                 OmEmployeeId = omEmployeeSalaryManagementViewModel.OmEmployeeId,
-                AdvancePayment=omEmployeeSalaryManagementViewModel.AdvancePayment,
-                AdvancePaymentDate=DateTime.UtcNow,
-                DueBalance= getEmploye.SalaryAmount-omEmployeeSalaryManagementViewModel.AdvancePayment,
-                OverBalance= omEmployeeSalaryManagementViewModel.OverBalance,
-                OverTimeSalary=omEmployeeSalaryManagementViewModel.OverTimeSalary,
-                CreatedDate= DateTime.UtcNow
+                AdvancePayment = omEmployeeSalaryManagementViewModel.AdvancePayment,
+                AdvancePaymentDate = DateTime.UtcNow,
+                DueBalance = dueBalance,
+                OverBalance = omEmployeeSalaryManagementViewModel.OverBalance,
+                OverTimeSalary = omEmployeeSalaryManagementViewModel.OverTimeSalary,
+                CreatedDate = DateTime.UtcNow
             };
-           
 
+            // Add to DbContext and save changes
             _context.OmEmployeeSalaryManagement.Add(omEmployeeSalary);
             await _context.SaveChangesAsync();
 
