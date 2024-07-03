@@ -277,9 +277,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 await _context.SaveChangesAsync();
                 return Ok("Job Posted Successfully");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return BadRequest(ex.Message);
             }
         }
 

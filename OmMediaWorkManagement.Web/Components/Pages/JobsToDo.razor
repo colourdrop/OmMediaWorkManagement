@@ -23,7 +23,7 @@
                     </div>
 
                     <div class="form-column">
-                        <label for="companyName">Company Name</label>
+                        <label for="companyName">Party Name</label>
                         <InputText id="companyName" @bind-Value="newJobViewModel.ComapnyName" class="custom-input" />
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="form-column">
-                        <label for="jobStatusType">Job Status Type</label>
+                        <label for="jobStatusType">Job Status  </label>
                         <InputNumber id="jobStatusType" @bind-Value="newJobViewModel.JobStatusType" class="custom-input" />
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                 </Template>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn Property="CompanyName" Title="Company Name" Width="280px">
+            <RadzenDataGridColumn Property="CompanyName" Title="Party Name" Width="280px">
                 <EditTemplate Context="todo">
                     <RadzenTextBox @bind-Value="todo.CompanyName" Style="width:100%; display: block;" />
                 </EditTemplate>
