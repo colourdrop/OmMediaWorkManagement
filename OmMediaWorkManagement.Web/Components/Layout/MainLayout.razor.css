@@ -6,10 +6,12 @@
 
 main {
     flex: 1;
+    background-color: whitesmoke    ;
 }
 
 .sidebar {
-    background-color:#EDF6FF;
+    background-color:white;
+    box-shadow:unset;
     
 }
 

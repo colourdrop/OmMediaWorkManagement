@@ -145,3 +145,15 @@ h1:focus {
     background-color: #6c757d;
     color: #fff;
 }
+.add-cst-btn {
+    background-color: white !important;
+    border: 1px solid #10A5A5 !important;
+    color: #6E6E6E !important;
+    border-radius: 26px !important;
+}
+    .add-cst-btn:hover {
+        background-color: #10A5A5 !important;
+        border: 1px solid #10A5A5 !important;
+        color: white !important;
+        border-radius: 26px !important;
+    }

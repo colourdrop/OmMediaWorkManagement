@@ -70,13 +70,13 @@
     }
 
         .nav-item ::deep a.active {
-            background-color: #007DFE;
+            background-color: #10a5a5;
             color: #EDF6FF;
             font-weight: 600;
         }
 
         .nav-item ::deep a:hover {
-            background-color: #007DFE;
+            background-color: #10a5a5;
             color: #EDF6FF;
             font-weight: 600;
         }

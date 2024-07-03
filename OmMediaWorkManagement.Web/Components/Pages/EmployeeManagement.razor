@@ -2,7 +2,7 @@
 
  @rendermode InteractiveServer
 
-<div class="container-fluid">
+<div class="container-fluid mt-5">
     <div class="row">
         <div class="col-md-6">
             <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" PageSize="5"
@@ -31,8 +31,9 @@
             <RadzenTabs>
                 <Tabs>
                     <RadzenTabsItem Text="Salary Management ">
-                        <RadzenButton Text="Add Salary" Click="@AddSalary" Style="margin-top: 20px;" />
-                        <RadzenDataGrid @ref="salaryManagementGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@salaryManagementData">
+                        <RadzenButton  class="add-cst-btn"Text="Add Salary" Click="@AddSalary"   />
+                         
+                        <RadzenDataGrid   @ref="salaryManagementGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@salaryManagementData">
                             <Columns>
                                 <RadzenDataGridColumn Property="AdvancePayment" Title="AdvancePayment" />
                                 <RadzenDataGridColumn Property="AdvancePaymentDate" Title="AdvancePaymentDate" />
@@ -46,10 +47,10 @@
                     <RadzenTabsItem Text="Documents">
                         <RadzenDataList WrapItems="true" AllowPaging="true" Data="@(SelectedEmp.FirstOrDefault()?.EmployeeDocuments)" PageSize="10">
                             <Template Context="document">
-                                @foreach (var empDoc in employees.FirstOrDefault()?.EmployeeDocuments)
+                                @foreach (var empDoc in SelectedEmp.FirstOrDefault()?.EmployeeDocuments)
                                 {
                                     <RadzenCard Style="width:100px;height:100px">
-                                        <RadzenImage Path="@empDoc" Style="width: 100px; height:100px; border-radius: 16px; cursor: pointer;" @onclick="@(e => ShowImagePreview(empDoc))" />
+                                        <RadzenImage Path="@empDoc" Style="width: 100px; height:100px; border-radius: 16px; cursor: pointer;"   />
 
                                     </RadzenCard>
                                    
@@ -64,18 +65,4 @@
     </div>
 </div>
  
-
-@code {
-    Popup popup;
-    string selectedImage;
-
-    ElementReference searchElement; // Reference to the search input element
-
-    void ShowImagePreview(string imagePath)
-    {
-        selectedImage = imagePath;
-       
-    }
-
-     
-}
+ 
