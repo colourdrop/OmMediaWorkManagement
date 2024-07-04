@@ -10,7 +10,7 @@
 
     <RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
 
-<div class="accordion-container">
+@* <div class="accordion-container">
     <div class="accordion">
         <input type="checkbox" id="accordion-1" class="accordion-input">
         <label for="accordion-1" class="accordion-header">Job Details</label>
@@ -61,7 +61,7 @@
     </div>
 </div>
 
-
+ *@
 <RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
     @responseMessage
 </RadzenAlert>
@@ -73,27 +73,32 @@
                          Disabled="@(editMode == DataGridEditMode.Multiple && todoToInsert.Count() > 1)" />
     </RadzenStack>
 
-    <RadzenDataGrid @ref="todoGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"
-                    Data="@todos" TItem="JobToDo" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px">
+<RadzenDataGrid @ref="todoGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
+                PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
+                    Data="@todos" TItem="JobToDo" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" CellClick="@OnCellClick">
         <Columns>
             @* <RadzenDataGridColumn Property="Id" Title="todo ID" Width="120px" Frozen="true" /> *@
-            <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
+            <RadzenDataGridColumn Title="S.No" Width="120px" Frozen="true">
                 <Template Context="todo">
                     @(todos.IndexOf(todo) + 1)
                 </Template>
             </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn Property="CompanyName" Title="Party Name" Width="280px">
+        <RadzenDataGridColumn Property="ClientName" Title="Client Name" Width="280px">
+            <EditTemplate Context="todo">
+                <RadzenTextBox @bind-Value="todo.ClientName" Style="width:100%; display: block;" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="CompanyName" Title="Party Name" Width="280px">
                 <EditTemplate Context="todo">
                     <RadzenTextBox @bind-Value="todo.CompanyName" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn> 
-            <RadzenDataGridColumn Property="Description" Title="Job Description" Width="280px">
+            <RadzenDataGridColumn Property="Description" Title="Description" Width="280px">
                 <EditTemplate Context="todo">
                     <RadzenTextBox @bind-Value="todo.Description" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="JobPostedDateTime" Title="Job Posted Time" Width="200px">
+            <RadzenDataGridColumn Property="JobPostedDateTime" Title="Job Time" Width="200px">
                 <Template Context="todo">
                     @String.Format("{0:g}", todo.JobPostedDateTime)
                 </Template>
@@ -115,7 +120,7 @@
                 @todo.Price
             </Template>
             <EditTemplate Context="todo">
-                <RadzenNumeric @bind-Value="todo.Price" Style="width:100%" />
+                <RadzenNumeric @bind-Value="todo.Price" Style="width:100%" @onkeypress="(args => OnPriceKeyDown(args, todo))" />
             </EditTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
@@ -123,7 +128,7 @@
                 @todo.Total
             </Template>
             <EditTemplate Context="todo">
-                <RadzenNumeric @bind-Value="todo.Total" Style="width:100%" />
+                <RadzenNumeric @bind-Value="todo.Total" Style="width:100%" ReadOnly />
             </EditTemplate>
         </RadzenDataGridColumn>
 
@@ -195,16 +200,28 @@
                     </RadzenButton>
                 </Template>
                 <EditTemplate Context="todo">
-                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(todo))" aria-label="Save">
+                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(todo))" aria-label="Save" @onclick:stopPropagation="true">
                     </RadzenButton>
-                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(todo))" aria-label="Cancel">
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(todo))" aria-label="Cancel" @onclick:stopPropagation="true">
                     </RadzenButton>
-                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(todo))" aria-label="Delete">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(todo))" aria-label="Delete" @onclick:stopPropagation="true">
                     </RadzenButton>
                 </EditTemplate>
             </RadzenDataGridColumn>
         </Columns>
+    <FooterTemplate>
+        <tr>
 
+
+
+            <td><strong>Total Total:</strong></td>
+            <td>
+                <strong>@CalculateTotalTotal()</strong>
+            </td>
+
+            <!-- Empty cells for other columns -->
+        </tr>
+    </FooterTemplate>
     </RadzenDataGrid>
 
 @* <div class="rz-p-12 rz-text-align-center">

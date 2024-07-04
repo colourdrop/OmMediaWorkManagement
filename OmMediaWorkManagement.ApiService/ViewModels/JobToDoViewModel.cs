@@ -13,7 +13,7 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         public int? total { get; set; }
         public string? Description { get; set; }
 
-        public List<IFormFile?> Images { get; set; }
+        public List<IFormFile?>? Images { get; set; }
 
         public bool IsStatus { get; set; }
         public int JobStatusType { get; set; }

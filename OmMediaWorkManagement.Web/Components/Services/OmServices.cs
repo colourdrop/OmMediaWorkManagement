@@ -93,18 +93,25 @@ namespace OmMediaWorkManagement.Web.Components.Services
             return await httpClient.GetFromJsonAsync<List<JobToDo>>("/api/OmMedia/GetJobToDoList");
         }
 
-        public async Task<HttpResponseMessage> AddJobTodo(JobToDo client)
+        public async Task<HttpResponseMessage> AddJobTodo(JobToDo toDo)
         {
             // var response = await httpClient.PostAsJsonAsync("/prod /api/OmMedia/AddClient", client);
-            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddJobTodo", client);
+            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddJobTodo", toDo);
             return response;
         }
-        public async Task<HttpResponseMessage> UpdateJobtToDo(JobToDo client)
+        public async Task<HttpResponseMessage> UpdateJobtToDo(int id, JobToDoViewModel toDo)
         {
-            var response = await httpClient.PutAsJsonAsync($"/api/OmMedia/UpdateJobTodo/{client.Id}", client);
+            var response = await httpClient.PutAsJsonAsync<JobToDoViewModel>(
+                $"/api/OmMedia/UpdateJobTodo/{id}?ClientName={toDo.ClientName}&ComapnyName={toDo.ComapnyName}&Quantity={toDo.Quantity}&Price={toDo.Price}&total={toDo.total}&Description={toDo.Description}&IsStatus={toDo.IsStatus}&JobStatusType={toDo.JobStatusType}",
+                null);
             return response;
         }
+        public async Task<HttpResponseMessage> DeleteJobTodo(int id)
+        {
+            var response = await httpClient.DeleteAsync($"/api/OmMedia/DeleteJobTodo/{id}");
 
+            return response;
+        }
 
 
 

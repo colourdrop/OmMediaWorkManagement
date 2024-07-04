@@ -295,7 +295,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 .Include(j => j.JobImages)
                 .FirstOrDefaultAsync(j => j.Id == id);
 
-            if (jobToDo == null)
+            if (jobToDo.Id == 0|| jobToDo.Id ==null)
             {
                 return NotFound();
             }
@@ -356,8 +356,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             try
             {
-                _context.Entry(jobToDo).State = EntityState.Modified;
+                _context.JobToDo.Update(jobToDo);
                 await _context.SaveChangesAsync();
+                return Ok("Updated Successfully");
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -370,8 +371,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
+              
         }
 
         private bool JobToDoExists(int id)
@@ -397,8 +397,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             var jobToDoResponses = jobList.Select(job => new JobToDoResponseViewModel
             {
                 Id = job.Id,
+               ClientName= job.ClientName,
                 CompanyName = job.CompanyName,
                 Description = job.Description,
+                Price = job.Price,
+                Total=job.total,
                 Quantity = job.Quantity,
                 JobStatusType = job.JobStatusType,
                 IsStatus = job.IsStatus,
@@ -424,6 +427,46 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             }
 
             return Ok(jobToDoRecord);
+        }
+
+
+        [HttpDelete("DeleteJobTodo/{id}")]
+        public async Task<IActionResult> DeleteJobTodo(int id)
+        {
+            var jobToDo = await _context.JobToDo
+                .Include(j => j.JobImages) // Include JobImages to ensure they are loaded
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (jobToDo == null)
+            {
+                return NotFound(); // Return NotFound if JobToDo with given id is not found
+            }
+
+            // Delete associated images physically from wwwroot and from database
+            foreach (var jobImage in jobToDo.JobImages)
+            {
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), jobImage.ImagePath);
+
+                // Check if file exists before attempting to delete
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+
+                _context.JobImages.Remove(jobImage); // Remove each JobImage from DbSet
+            }
+
+            _context.JobToDo.Remove(jobToDo); // Remove the JobToDo itself
+
+            try
+            {
+                await _context.SaveChangesAsync(); // Save changes to database
+                return Ok("JobTodo Deleted "); // Return Ok if deletion is successful
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting JobToDo: {ex.Message}");
+            }
         }
 
         #endregion

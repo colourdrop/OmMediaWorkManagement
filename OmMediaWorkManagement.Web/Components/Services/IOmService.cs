@@ -24,15 +24,15 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         #region JOBtodoStatus
         Task<List<JobToDo>> GetJobToDos();
-        Task<HttpResponseMessage> AddJobTodo(JobToDo client); 
-        Task<HttpResponseMessage> UpdateJobtToDo(JobToDo client);
-
-
+        Task<HttpResponseMessage> AddJobTodo(JobToDo toDo); 
+        Task<HttpResponseMessage> UpdateJobtToDo(int id,JobToDoViewModel toDo);
+        Task<HttpResponseMessage> DeleteJobTodo(int  Id);
+        
         #endregion
 
 
         #region GetJOB Status
-       
+
         Task<List<JobTypeStatusViewModel>> GetJobTypeStatusList();
         #endregion
 
