@@ -3,51 +3,61 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OmMediaWorkManagement.ApiService.Models
 {
-    public class JobToDo
-    {
-        [Key]
-        public int Id { get; set; }
-        public string? ClientName { get; set; }
-        public string? CompanyName { get; set; }
-        public double? Quantity { get; set; }
-        public int ? Price { get; set; }
-        public int? total {  get; set; }
-        public string? Description { get; set; }
-        public DateTime JobPostedDateTime { get; set; }
-        public int? PostedBy { get; set; }
-        public int JobStatusType { get; set; }
-        public bool IsStatus { get; set; }
+	public class JobToDo
+	{
+		[Key]
+		public int Id { get; set; }
+		public int OmClientId
+		{
+			get;
+			set;
+		}
+		[ForeignKey("OmClientId")]
+		public virtual OmClient OmClient
+		{
+			get;
+			set;
+		}
+		public string? CompanyName { get; set; }
+		public double? Quantity { get; set; }
+		public int? Price { get; set; }
+		public int? total { get; set; }
+		public string? Description { get; set; }
+		public DateTime JobPostedDateTime { get; set; }
+		public int? PostedBy { get; set; }
+		public int JobStatusType { get; set; }
+		public bool IsStatus { get; set; }
 
-        public virtual List<JobImages> JobImages { get; set; } = new List<JobImages>();
+		public virtual List<JobImages> JobImages { get; set; } = new List<JobImages>();
 
 
-    }
-    public class JobImages
-    {
-        [Key]
-        public int Id { get; set; }
-        public string ImagePath { get; set; }
-        public int JobTodoId
-        {
-            get;
-            set;
-        }
-        [ForeignKey("JobTodoId")]
-        public virtual JobToDo JobToDo
-        {
-            get;
-            set;
-        }
-    }
+	}
+	public class JobImages
+	{
+		[Key]
+		public int Id { get; set; }
+		public string ImagePath { get; set; }
+		public int JobTodoId
+		{
+			get;
+			set;
+		}
+		[ForeignKey("JobTodoId")]
+		public virtual JobToDo JobToDo
+		{
+			get;
+			set;
+		}
+	}
 
-    public class JobTypeStatus
-    {
-        [Key]
-        public int Id { get; set; }
-        public int JobStatusType { get; set; }
-        public string JobStatusName
-        {
-            get; set;
-        }
-    }
+	public class JobTypeStatus
+	{
+		[Key]
+		public int Id { get; set; }
+		public int JobStatusType { get; set; }
+		public string JobStatusName
+		{
+			get; set;
+		}
+	}
 }

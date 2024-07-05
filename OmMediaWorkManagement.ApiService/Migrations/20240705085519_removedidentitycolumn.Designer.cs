@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240705085519_removedidentitycolumn")]
+    partial class removedidentitycolumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,6 +187,9 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ClientName")
+                        .HasColumnType("text");
+
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
 
@@ -199,9 +205,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<int>("JobStatusType")
                         .HasColumnType("integer");
 
-                    b.Property<int>("OmClientId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("PostedBy")
                         .HasColumnType("integer");
 
@@ -215,8 +218,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OmClientId");
 
                     b.ToTable("JobToDo");
                 });
@@ -336,9 +337,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("AppPin")
-                        .HasColumnType("integer");
-
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
 
@@ -363,18 +361,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("OTP")
-                        .HasColumnType("text");
-
-                    b.Property<int>("OTPAttempts")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("OTPExpireTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("OTPGeneratedTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
@@ -528,6 +514,9 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("MobileNumber")
+                        .HasColumnType("text");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -541,6 +530,10 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
                     b.Property<DateTime?>("OTPExpireTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
@@ -566,6 +559,9 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<int>("UserRegistrationId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -641,17 +637,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Navigation("JobToDo");
                 });
 
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.JobToDo", b =>
-                {
-                    b.HasOne("OmMediaWorkManagement.ApiService.Models.OmClient", "OmClient")
-                        .WithMany("JobToDo")
-                        .HasForeignKey("OmClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OmClient");
-                });
-
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClientWork", b =>
                 {
                     b.HasOne("OmMediaWorkManagement.ApiService.Models.OmClient", "OmClient")
@@ -703,8 +688,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>
                 {
-                    b.Navigation("JobToDo");
-
                     b.Navigation("OmClientWork");
                 });
 

@@ -19,7 +19,12 @@ namespace OmMediaWorkManagement.ApiService.Models
         public string? EmployeeProfilePath { get; set; }
         public DateTime CreatedDate { get; set; }   
         public bool IsDeleted { get; set; }
-        public ICollection<OmEmployeeDocuments> EmployeeDocuments { get; set; }
+		public int AppPin { get; set; }
+		public DateTime? OTPGeneratedTime { get; set; }
+		public string? OTP { get; set; }
+		public DateTime? OTPExpireTime { get; set; }
+		public int OTPAttempts { get; set; }
+		public ICollection<OmEmployeeDocuments> EmployeeDocuments { get; set; }
     }
 
     public class OmEmployeeDocuments

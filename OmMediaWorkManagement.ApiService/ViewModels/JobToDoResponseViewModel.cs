@@ -3,6 +3,7 @@
     public class JobToDoResponseViewModel
     {
         public int Id { get; set; }
+        public int OmClientId { get; set; }
         public string? ClientName { get; set; }
 
         public string? CompanyName { get; set; }

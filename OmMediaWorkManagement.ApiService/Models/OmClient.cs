@@ -14,5 +14,6 @@ namespace OmMediaWorkManagement.ApiService.Models
         public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
         public virtual List<OmClientWork> OmClientWork { get; set; } = new List<OmClientWork>();
+        public virtual List<JobToDo> JobToDo { get; set; } = new List<JobToDo>();
     }
 }

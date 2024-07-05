@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240705092214_updatedjobotodoclient")]
+    partial class updatedjobotodoclient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -336,9 +339,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("AppPin")
-                        .HasColumnType("integer");
-
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
 
@@ -363,18 +363,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("OTP")
-                        .HasColumnType("text");
-
-                    b.Property<int>("OTPAttempts")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("OTPExpireTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("OTPGeneratedTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");

@@ -4,8 +4,8 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
 {
     public class JobToDoViewModel
     {
-
-        public string? ClientName { get; set; }
+      
+        public int OmClientId { get; set; }
         public string? ComapnyName { get; set; }
 
         public double Quantity { get; set; }
