@@ -3,24 +3,26 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Components.Authorization;
 using OmMediaWorkManagement.Web.AuthInterface;
 using OmMediaWorkManagement.Web.AuthModels;
+using OmMediaWorkManagement.Web.Helper;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace OmMediaWorkManagement.Web.AuthService
 {
     public class AuthenticationService : IAuthenticationService
     {
-       
-        private readonly JsonSerializerOptions _options;
-        private readonly AuthenticationStateProvider _authStateProvider;
+
+
+        private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly ILocalStorageService _localStorage;
         private readonly HttpClient httpClient;
-        public AuthenticationService(  AuthenticationStateProvider authStateProvider, ILocalStorageService localStorage , HttpClient httpClient)
+        public AuthenticationService(AuthenticationStateProvider authenticationStateProvider ,ILocalStorageService localStorage , HttpClient httpClient)
         {
-          
-            _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            _authStateProvider = authStateProvider;
+           
+           _authenticationStateProvider = authenticationStateProvider;
             _localStorage = localStorage;
             this.httpClient = httpClient;
         }
@@ -30,20 +32,20 @@ namespace OmMediaWorkManagement.Web.AuthService
             try
             {
                 // Create the request URI
-                var requestUri = "/api/OmMediaAuth/login";
-
-                // Log the full URL
-                var fullUrl = httpClient.BaseAddress + requestUri;
-                Console.WriteLine($"Request URL: {fullUrl}");
-
-                // Log the request content
-                var requestContent = JsonSerializer.Serialize(userForAuthentication);
-                Console.WriteLine($"Request Content: {requestContent}");
+                var requestUri = "/api/OmMediaAuth/login";                 
+                var fullUrl = httpClient.BaseAddress + requestUri;          
+                             
 
                 // Send the request
                 var response = await httpClient.PostAsJsonAsync(requestUri, userForAuthentication);
+                var gettoken = await response.Content.ReadAsStringAsync();
+                var authResponse = JsonSerializer.Deserialize<AuthResponse>(gettoken);
+                var token = authResponse.token;
 
-                // Check if the request was successful
+                
+                await _localStorage.SetItemAsync("authToken", token);
+                ((AuthStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(userForAuthentication.Username);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
                 return response;
             }
             catch (Exception ex)
@@ -53,20 +55,23 @@ namespace OmMediaWorkManagement.Web.AuthService
         }
 
 
-        public Task Logout()
+        public async Task Logout()
         {
-            throw new NotImplementedException();
+            await _localStorage.RemoveItemAsync("authToken");
+            //((AuthStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
+            //httpClient.DefaultRequestHeaders.Authorization = null;
         }
 
-        public async Task<HttpResponseMessage> RegisterUser(UserRegistrationViewModel userForRegistration)
+        public async Task<HttpResponseMessage> RegisterUser(UserRegistration userForRegistration)
         {
-            string url = $"/api/OmMediaAuth/registration";
+            
+                
+                var response = await httpClient.PostAsJsonAsync("/api/OmMediaAuth/registration", userForRegistration);
 
-            // Make HTTP PUT request
-            var response = await httpClient.PostAsJsonAsync<Object>(url, userForRegistration);
 
-            // Check if the request was successful
-            return response;
+                return response;
+             
         }
+
     }
 }

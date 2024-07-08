@@ -1,7 +1,20 @@
 ﻿@page "/Home"
-
+@inject AuthenticationStateProvider AuthenticationStateProvider
+ 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+<AuthorizeView>
+
+    <Authorized>
+        <h1>@context.User.Identity.Name</h1>
+    </Authorized>
+    <NotAuthorized>
+
+        <h2 >oopss...........</h2>
+    </NotAuthorized>
+
+</AuthorizeView>
+ 

@@ -17,23 +17,43 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         string LastSubmitResult;
         public async Task HandleValidSubmit()
         {
+            
+            UserRegistration userRegistration = new UserRegistration()
+            {
+                FirstName = userRegistrationViewModel.FirstName,
+                UserName = userRegistrationViewModel.UserName,
+                EmailAddress = userRegistrationViewModel.EmailAddress,
+                Password = userRegistrationViewModel.Password, // Use Password instead of ConfirmPassword
+                PhoneNumber = userRegistrationViewModel.PhoneNumber,
+                RoleId = "", // Ensure RoleId is set as needed
+             
+            };
+
             ShowAuthError = false;
-            var response = await AuthenticationService.RegisterUser(userRegistrationViewModel);
-            response.EnsureSuccessStatusCode();
-            responseMessage = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode == true)
+            try
             {
+                var response = await AuthenticationService.RegisterUser(userRegistration);
 
-
-                ShowAuthError = true;
+                if (response.IsSuccessStatusCode)
+                {
+                    ShowAuthError = true;
+                    // Optionally handle success behavior here
+                }
+                else
+                {
+                    ShowAuthError = false;
+                    // Handle error or navigate away as needed
+                    NavigationManager.NavigateTo("/");
+                }
             }
-            else
+            catch (Exception ex)
             {
+                // Handle exceptions here
                 ShowAuthError = false;
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/"); // Example fallback navigation
             }
         }
-        
+
     }
 }

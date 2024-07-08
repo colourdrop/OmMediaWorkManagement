@@ -25,6 +25,28 @@ namespace OmMediaWorkManagement.Web.AuthModels
         public string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Role is Required")]
-        public string RoleId { get; set; }
+        public string? RoleId { get; set; }
+    }
+
+    public class UserRegistration
+    {
+         
+        public string FirstName { get; set; }
+      
+        public string UserName { get; set; }
+ 
+        public string EmailAddress { get; set; }
+
+      
+        public string Password { get; set; }
+ 
+        public string PhoneNumber { get; set; }
+    
+        public string? RoleId
+        {
+            get;
+            set;
+        }
+
     }
 }

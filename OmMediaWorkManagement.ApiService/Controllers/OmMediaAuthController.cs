@@ -47,7 +47,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 			}
 			// Check if email or username already exists
 			var existingUsername = await _userManager.FindByNameAsync(registerViewModel.UserName);
-
+			
 
 			if (existingUsername != null)
 			{
@@ -60,6 +60,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 			if (existingUser != null)
 			{
 				return BadRequest("Email address already exists.");
+			}
+			if (registerViewModel.RoleId.IsNullOrEmpty())
+			{
+                var role= _roleManager.Roles.ToList() ;
+				registerViewModel.RoleId=role.FirstOrDefault(d=>d.Name=="User")?.Id;
 			}
 
 			// Hash the password

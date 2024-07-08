@@ -18,15 +18,16 @@ builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddRadzenComponents();
 builder.Services.AddOutputCache();
 builder.Services.AddScoped<RadzenDialog>();
-builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddAuthorizationCore();
-builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
-builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
+
 builder.Services.AddHttpClient<IAuthenticationService, AuthenticationService>(client =>
 {
     client.BaseAddress = new Uri("https+http://localhost:7439");
@@ -36,6 +37,7 @@ builder.Services.AddHttpClient<IOmService, OmServices>(client =>
 {
     client.BaseAddress = new Uri("https+http://localhost:7439");
 });
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -49,10 +51,11 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
-app.UseOutputCache(); 
+ 
+app.UseOutputCache();
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode()
+     ;
 
 app.MapDefaultEndpoints();
 

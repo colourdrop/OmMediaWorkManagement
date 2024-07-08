@@ -18,8 +18,8 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         
         [Required(ErrorMessage = "Mobile Number is required")]
         public string PhoneNumber { get; set; }
-		[Required(ErrorMessage = "Role is Required")]
-		public string RoleId
+		 
+		public string? RoleId
 		{
 			get;
 			set;
