@@ -3,8 +3,11 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
 {
     public class UserRegistrationViewModel
     {
-		[Required(ErrorMessage ="UserName is required")]
+        [Required(ErrorMessage = "FirstName is required")]
+        public string FirstName { get; set; }
+        [Required(ErrorMessage ="UserName is required")]
 		public string UserName { get; set; }
+
 
 		[EmailAddress]
 		[Required(ErrorMessage = "EmailAddress   is required")]

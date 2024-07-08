@@ -1,4 +1,10 @@
-﻿ 
+﻿<header class="cst-header">
+    <h3 class="cst-header-title">
+        <img type="image/png" src="~/OmFaviNew.svg" alt="Om Media Logo" class="cst-header-logo" />
+        Om Media
+    </h3>
+</header>
+
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
@@ -13,7 +19,9 @@
 
             </NavLink>
         </div>
+        <AuthorizeView>
         <div class="nav-item px-3">
+       
             <NavLink class="nav-link" style="gap: 1rem;" href="clients">
                 <i class="fa-solid fa-user-plus fa-xl" style="color:#bebfc1;"></i>
                 AddClient
@@ -44,7 +52,7 @@
                 EmployeeManagement
             </NavLink>
         </div>
-
+        </AuthorizeView>
          
 
     </nav>

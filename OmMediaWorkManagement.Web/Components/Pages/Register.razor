@@ -1,0 +1,99 @@
+﻿@page "/Register"
+ @using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+<style>
+
+    .cst-input {
+        width: 100% !important;
+        background: white !important;
+        border: none !important;
+        padding: 15px 20px !important;
+        border-radius: 20px !important;
+        margin-top: 15px;
+        box-shadow: #cff0ff 0px 10px 10px -5px !important;
+        border-inline: 2px solid transparent;
+    }
+
+</style>
+@if (ShowAuthError)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@responseMessage</p>
+    </div>
+}@if (LastSubmitResult != null)
+{
+    <h2>
+        Last submit status: @LastSubmitResult
+    </h2>
+}
+<div class="container">
+    <div class="heading">Sign In</div>
+    <EditForm Model="@userRegistrationViewModel" OnSubmit="@HandleValidSubmit" FormName="RegisterForm">
+        <DataAnnotationsValidator />
+
+        <div class="form">
+            <div class="form-group">
+                <div class="form-left">
+                    <label for="firstName">First Name</label>
+                    <InputText id="firstName" @bind-Value="userRegistrationViewModel.FirstName" class="cst-input" />
+                    <ValidationMessage For="@(() => userRegistrationViewModel.FirstName)" />
+                </div>
+                <div class="form-right">
+                    <label for="email">E-mail</label>
+                    <InputText id="email" @bind-Value="userRegistrationViewModel.EmailAddress" class="cst-input" />
+                    <ValidationMessage For="@(() => userRegistrationViewModel.EmailAddress)" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-left">
+                    <label for="phoneNumber">Phone Number</label>
+                    <InputText id="phoneNumber" @bind-Value="userRegistrationViewModel.PhoneNumber" class="cst-input" />
+                    <ValidationMessage For="@(() => userRegistrationViewModel.PhoneNumber)" />
+                </div>
+                <div class="form-right">
+                    <label for="userName">User Name</label>
+                    <InputText id="userName" @bind-Value="userRegistrationViewModel.UserName" class="cst-input" />
+                    <ValidationMessage For="@(() => userRegistrationViewModel.UserName)" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-left">
+                    <label for="Password">Password</label>
+                    <InputText id="Password" @bind-Value="userRegistrationViewModel.Password" style="width: 18rem !important;" type="password" class="cst-input" />
+                    <ValidationMessage For="@(() => userRegistrationViewModel.Password)" />
+                </div>
+                <div class="form-right">
+                    <label for="Confirm Password">Confirm Password</label>
+                    <InputText id="Confirm Password" @bind-Value="userRegistrationViewModel.ConfirmPassword" type="password" class="cst-input" />
+                    <ValidationMessage For="@(() => userRegistrationViewModel.ConfirmPassword)" />
+                </div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="login-button" value="Save">SignUp</button>
+        </div>
+    </EditForm>
+
+    <div class="social-account-container">
+        <span class="title">Register yourself</span>
+
+        <button class="cst-register" onclick="@Login">
+           SignIn
+        </button>
+
+
+    </div>
+
+    <span class="agreement"><a href="#">Learn user licence agreement</a></span>
+</div>
+
+@code {
+    public void Login()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

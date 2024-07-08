@@ -17,7 +17,9 @@ using System.Threading.Tasks;
 
 namespace OmMediaWorkManagement.ApiService.Controllers
 {
-	public class OmMediaAuthController : ControllerBase
+    [Route("api/[controller]")]
+    [ApiController]
+    public class OmMediaAuthController : ControllerBase
 	{
 		private readonly OmContext _context;
 		private readonly UserManager<UserRegistration> _userManager;
@@ -66,6 +68,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 			// Create UserRegistration object
 			var newUser = new UserRegistration
 			{
+				FirstName = registerViewModel.FirstName,
 				UserName = registerViewModel.UserName,
 				Email = registerViewModel.EmailAddress,
 				PhoneNumber = registerViewModel.PhoneNumber,

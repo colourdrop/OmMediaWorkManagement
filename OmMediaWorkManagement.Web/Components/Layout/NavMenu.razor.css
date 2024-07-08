@@ -74,13 +74,20 @@
             background-color: #3D99C0;
             color: #EDF6FF;
             font-weight: 600;
+            /*box-shadow: 10px 10px 20px #babecc, -10px -10px 20px #ffffff !important;*/
         }
+
+    .nav-item ::deep a {
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
 
         .nav-item ::deep a:hover {
             background-color: #3D99C0;
             color: #EDF6FF;
             font-weight: 600;
+            box-shadow: 10px 10px 20px #babecc, -10px -10px 20px #ffffff !important;
         }
+
 
 .nav-scrollable {
     display: none;
@@ -89,6 +96,55 @@
 .navbar-toggler:checked ~ .nav-scrollable {
     display: block;
 }
+/* Header Styles */
+.cst-header {
+    background-color: #f8f9fa; /* Light gray background */
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.cst-header-title {
+    display: inline-flex;
+    align-items: center;
+    font-size: 24px;
+    color: #343a40; /* Dark gray color */
+    margin: 0;
+}
+
+/* Logo Styles */
+.cst-header-logo {
+    height: 40px; /* Adjust the height as needed */
+    margin-right: 10px;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+    /* Animations */
+    .cst-header-logo:hover {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+/* Transition and Animation */
+@keyframes cst-slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.cst-header {
+    animation: cst-slideIn 1s ease-out;
+}
+
+
 
 @media (min-width: 641px) {
     .navbar-toggler {

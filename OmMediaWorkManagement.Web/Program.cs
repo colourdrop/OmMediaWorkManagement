@@ -1,6 +1,11 @@
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using OmMediaWorkManagement.Web;
+using OmMediaWorkManagement.Web.AuthInterface;
+using OmMediaWorkManagement.Web.AuthService;
 using OmMediaWorkManagement.Web.Components;
 using OmMediaWorkManagement.Web.Components.Services;
+using OmMediaWorkManagement.Web.Helper;
 using Radzen;
 using Radzen.Blazor;
 
@@ -9,22 +14,28 @@ var builder = WebApplication.CreateBuilder(args);
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
 
+builder.Services.AddHttpContextAccessor();
+
 // Add services to the container.
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddRadzenComponents();
 builder.Services.AddOutputCache();
 builder.Services.AddScoped<RadzenDialog>();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
+builder.Services.AddHttpClient<IAuthenticationService, AuthenticationService>(client =>
+{
+    client.BaseAddress = new Uri("https+http://localhost:7439");
+});
 builder.Services.AddScoped<IOmService, OmServices>();
-builder.Services.AddHttpClient<IOmService ,OmServices>(client =>
-    {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-          client.BaseAddress = new("http://192.168.1.22:81");
-        //client.BaseAddress = new("https+http://localhost:7439");
-       
-    });
-
+builder.Services.AddHttpClient<IOmService, OmServices>(client =>
+{
+    client.BaseAddress = new Uri("https+http://localhost:7439");
+});
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -39,8 +50,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.UseOutputCache();
-
+app.UseOutputCache(); 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

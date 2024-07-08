@@ -5,7 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace OmMediaWorkManagement.ApiService.Models
 {
     public class UserRegistration : IdentityUser
-    {  
+    {
+        public string FirstName { get; set; }
         public DateTime? CreatedOn { get; set; }
         public string? OTP { get; set; }
         public DateTime? OTPExpireTime { get; set; }

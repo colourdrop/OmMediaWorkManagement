@@ -1,0 +1,75 @@
+﻿@page "/"
+
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+ @inject ILocalStorageService LocalStorage
+@rendermode InteractiveServer
+<style>
+
+    .cst-input {
+        width: 100% !important;
+        background: white !important;
+        border: none !important;
+        padding: 15px 20px !important;
+        border-radius: 20px !important;
+        margin-top: 15px;
+        box-shadow: #cff0ff 0px 10px 10px -5px !important;
+        border-inline: 2px solid transparent;
+    }
+
+</style>
+@if (ShowAuthError)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@responseMessage</p>
+    </div>
+}@if (LastSubmitResult != null)
+{
+    <h2>
+        Last submit status: @LastSubmitResult
+    </h2>
+}
+<div class="container">
+    <div class="heading">Sign In</div>
+    <EditForm Model="@userForAuthentication" OnValidSubmit="@HandleValidSubmit" FormName="LoginForm">
+        <DataAnnotationsValidator />
+
+        <div class="form">
+            <div class=" ">
+                <label for="email">E-mail</label>
+                <InputText @bind-Value="userForAuthentication.Username" class="cst-input" />
+                <ValidationMessage For="@(() => userForAuthentication.Username)" />
+            </div>
+
+            <div class=" ">
+                <label for="password">Password</label>
+                <InputText @bind-Value="userForAuthentication.Password" type="password" class="cst-input" />
+                <ValidationMessage For="@(() => userForAuthentication.Password)" />
+            </div>
+
+            <div class="forgot-password">
+                <a href="#">Forgot Password ?</a>
+            </div>
+
+            <button type="submit" class="login-button" value="Save">Sign In</button>
+        </div>
+    </EditForm>
+    <div class="social-account-container">
+        <span class="title">Register yourself</span>
+
+        <button class="cst-register" onclick="@Register">
+               SignUp
+            </button>
+
+        
+    </div>
+
+    <span class="agreement"><a href="#">Learn user licence agreement</a></span>
+</div>
+
+@code {
+    public void Register()
+    {
+        NavigationManager.NavigateTo("/Register");
+    }
+}

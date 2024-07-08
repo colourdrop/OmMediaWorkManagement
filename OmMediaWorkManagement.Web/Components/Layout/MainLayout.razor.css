@@ -6,16 +6,13 @@
 
 main {
     flex: 1;
-    background-color: #f7f7f7;
+    background-color: #fafafa;
 }
 
 .sidebar {
-    background-color: rgba(255, 255, 255, 0.5); /* semi-transparent white */
-    backdrop-filter: blur(10px); /* blur effect for the glass look */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* subtle drop shadow */
+    box-shadow: 10px 10px 20px #babecc,-10px -10px 20px #ffffff !important; /* subtle drop shadow */
     border: 1px solid rgba(255, 255, 255, 0.3); /* optional border for better visibility */
-    border-radius: 15px; /* optional: rounded corners */
-   
+    border-radius: 20px; /* optional: rounded corners */
 }
 
 
