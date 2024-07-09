@@ -135,7 +135,12 @@
                 <RadzenTextBox @bind-Value="work.Remarks" Style="width:100%" />
             </EditTemplate>
         </RadzenDataGridColumn>
-
+        <RadzenDataGridColumn Property="OmEmpName" Title="WorkAddedBY" Width="200px">
+            <Template Context="work">
+                <RadzenText Text="@work.UserName" Style="width:100%" ReadOnly />
+            </Template>
+        </RadzenDataGridColumn>
+        
         <RadzenDataGridColumn Context="work" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="work">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(work))" @onclick:stopPropagation="true">

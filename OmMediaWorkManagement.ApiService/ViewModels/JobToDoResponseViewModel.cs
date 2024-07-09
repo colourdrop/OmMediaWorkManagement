@@ -14,6 +14,8 @@
         public bool? IsStatus { get; set; }
         public int JobStatusType { get; set; }
         public string JobStatusName { get; set; }
+        public int OmEmpId {  get; set; }
+        public string OmEmpName {  get; set; }
 
         public DateTime? JobPostedDateTime { get; set; }
         public List<string>? Images { get; set; }

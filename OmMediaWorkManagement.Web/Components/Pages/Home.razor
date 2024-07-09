@@ -1,20 +1,15 @@
-﻿@page "/Home"
+﻿@page "/"
 @inject AuthenticationStateProvider AuthenticationStateProvider
+  @rendermode InteractiveServer
  
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+ 
+ 
 <AuthorizeView>
 
     <Authorized>
-        <h1>@context.User.Identity.Name</h1>
+        <h4> <h3>@context.User.Identity.Name </h3> Welcome  to Om Media World</h4>
     </Authorized>
-    <NotAuthorized>
-
-        <h2 >oopss...........</h2>
-    </NotAuthorized>
+    
 
 </AuthorizeView>
  

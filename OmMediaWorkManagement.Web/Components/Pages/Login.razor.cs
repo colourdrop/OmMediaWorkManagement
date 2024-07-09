@@ -32,7 +32,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             {
 
                 // Navigate to the home page or any desired location
-                NavigationManager.NavigateTo("/Home", true); // Navigate and reload the page
+                NavigationManager.NavigateTo("/", true); // Navigate and reload the page
             }
             else
             {

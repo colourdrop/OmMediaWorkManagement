@@ -27,8 +27,15 @@ namespace OmMediaWorkManagement.ApiService.Models
 		public int? PostedBy { get; set; }
 		public int JobStatusType { get; set; }
 		public bool IsStatus { get; set; }
+        public int OmEmpId { get; set; }
 
-		public virtual List<JobImages> JobImages { get; set; } = new List<JobImages>();
+        [ForeignKey("OmEmpId")]
+        public virtual OmEmployee OmEmployee
+        {
+            get;
+            set;
+        }
+        public virtual List<JobImages> JobImages { get; set; } = new List<JobImages>();
 
 
 	}

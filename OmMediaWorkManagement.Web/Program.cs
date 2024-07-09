@@ -27,17 +27,13 @@ builder.Services.AddRazorComponents()
 builder.Services.AddRadzenComponents();
 builder.Services.AddOutputCache();
 builder.Services.AddScoped<RadzenDialog>();
-
-builder.Services.AddHttpClient<IAuthenticationService, AuthenticationService>(client =>
-{
-    client.BaseAddress = new Uri("https+http://localhost:7439");
-});
+ 
 builder.Services.AddScoped<IOmService, OmServices>();
-builder.Services.AddHttpClient<IOmService, OmServices>(client =>
-{
-    client.BaseAddress = new Uri("https+http://localhost:7439");
-});
-
+ 
+builder.Services.AddHttpClient("ServerAPI",
+      client => client.BaseAddress = new Uri("https+http://localhost:7439"));
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+  .CreateClient("ServerAPI"));
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

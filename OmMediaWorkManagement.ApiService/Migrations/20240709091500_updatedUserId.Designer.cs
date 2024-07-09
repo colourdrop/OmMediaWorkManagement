@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240709091500_updatedUserId")]
+    partial class updatedUserId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,9 +205,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<int>("OmClientId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("OmEmpId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("PostedBy")
                         .HasColumnType("integer");
 
@@ -214,14 +214,16 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<double?>("Quantity")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int?>("total")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OmClientId");
-
-                    b.HasIndex("OmEmpId");
 
                     b.ToTable("JobToDo");
                 });
@@ -279,8 +281,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("OmClient");
                 });
 
@@ -335,8 +335,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OmClientId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("OmClientWork");
                 });
@@ -404,8 +402,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("OmEmployee");
                 });
@@ -676,26 +672,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
-                        .WithMany()
-                        .HasForeignKey("OmEmpId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("OmClient");
-
-                    b.Navigation("OmEmployee");
-                });
-
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>
-                {
-                    b.HasOne("OmMediaWorkManagement.ApiService.Models.UserRegistration", "UserRegistration")
-                        .WithMany("OmClient")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserRegistration");
                 });
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClientWork", b =>
@@ -706,26 +683,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OmMediaWorkManagement.ApiService.Models.UserRegistration", "UserRegistration")
-                        .WithMany("OmClientWork")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("OmClient");
-
-                    b.Navigation("UserRegistration");
-                });
-
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployee", b =>
-                {
-                    b.HasOne("OmMediaWorkManagement.ApiService.Models.UserRegistration", "UserRegistration")
-                        .WithMany("OmEmployee")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserRegistration");
                 });
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployeeDocuments", b =>
@@ -776,15 +734,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmEmployee", b =>
                 {
                     b.Navigation("EmployeeDocuments");
-                });
-
-            modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.UserRegistration", b =>
-                {
-                    b.Navigation("OmClient");
-
-                    b.Navigation("OmClientWork");
-
-                    b.Navigation("OmEmployee");
                 });
 #pragma warning restore 612, 618
         }

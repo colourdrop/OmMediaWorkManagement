@@ -24,4 +24,7 @@ public class OmClient
     public DateTime CreatedAt { get; set; }
 
     public bool IsDeleted { get; set; }
+
+    public string? UserId { get; set; }
+    public string? UserName { get; set; }
 }

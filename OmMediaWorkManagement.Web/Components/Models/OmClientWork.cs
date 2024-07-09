@@ -21,6 +21,8 @@ namespace OmMediaWorkManagement.Web.Components.Models
         public int Total { get; set; }
         public string? Remarks { get; set; }
         public int OmClientId { get; set; }
+        public string? userId { get; set; }
+        public string? UserName { get; set; }
 
     }
 }

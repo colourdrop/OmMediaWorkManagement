@@ -58,8 +58,8 @@ namespace OmMediaWorkManagement.Web.AuthService
         public async Task Logout()
         {
             await _localStorage.RemoveItemAsync("authToken");
-            //((AuthStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
-            //httpClient.DefaultRequestHeaders.Authorization = null;
+            ((AuthStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
+            httpClient.DefaultRequestHeaders.Authorization = null;
         }
 
         public async Task<HttpResponseMessage> RegisterUser(UserRegistration userForRegistration)

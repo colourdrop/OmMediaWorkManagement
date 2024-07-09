@@ -143,7 +143,9 @@
 .cst-header {
     animation: cst-slideIn 1s ease-out;
 }
-
+.logout-item{
+    margin-bottom:0%;
+}
 
 
 @media (min-width: 641px) {

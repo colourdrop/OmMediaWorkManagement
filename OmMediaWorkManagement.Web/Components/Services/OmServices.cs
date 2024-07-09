@@ -30,9 +30,14 @@ namespace OmMediaWorkManagement.Web.Components.Services
 
         public async Task<List<OmClient>> GetAllClients()
         {
-            // return await httpClient.GetFromJsonAsync<List<OmClient>>("/prod /api/OmMedia/GetAllClients");
-            return await httpClient.GetFromJsonAsync<List<OmClient>>("/api/OmMedia/GetAllClients");
-
+            try
+            {
+                // return await httpClient.GetFromJsonAsync<List<OmClient>>("/prod /api/OmMedia/GetAllClients");
+                return await httpClient.GetFromJsonAsync<List<OmClient>>("/api/OmMedia/GetAllClients");
+            }
+            catch(Exception ex) {
+                throw ex;
+            }
         }
 
 

@@ -13,5 +13,8 @@ namespace OmMediaWorkManagement.ApiService.Models
         public int? Attempts { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
+        public virtual List<OmClient> OmClient { get; set; } = new List<OmClient>();
+        public virtual List<OmClientWork> OmClientWork { get; set; } = new List<OmClientWork>();
+        public virtual List<OmEmployee> OmEmployee { get; set; } = new List<OmEmployee>();
     }
 }

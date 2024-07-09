@@ -178,7 +178,12 @@
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-
+        <RadzenDataGridColumn Property="Total" Title="JobPostedBy" Width="200px">
+            <Template Context="todo">
+                @todo.OmEmpName
+            </Template>
+        
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn Title="Images" Width="300px">
             <Template Context="todo">
                 @foreach (var image in todo.Images)

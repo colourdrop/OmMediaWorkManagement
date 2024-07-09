@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OmMediaWorkManagement.ApiService.Models
 {
@@ -24,7 +25,14 @@ namespace OmMediaWorkManagement.ApiService.Models
 		public string? OTP { get; set; }
 		public DateTime? OTPExpireTime { get; set; }
 		public int OTPAttempts { get; set; }
-		public ICollection<OmEmployeeDocuments> EmployeeDocuments { get; set; }
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual UserRegistration UserRegistration
+        {
+            get;
+            set;
+        }
+        public ICollection<OmEmployeeDocuments> EmployeeDocuments { get; set; }
     }
 
     public class OmEmployeeDocuments

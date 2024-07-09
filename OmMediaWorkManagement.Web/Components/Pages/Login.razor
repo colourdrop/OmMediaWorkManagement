@@ -1,6 +1,6 @@
-﻿@page "/"
+﻿@page "/login"
  
- 
+ @rendermode InteractiveServer
 <style>
 
     .cst-input {
@@ -33,7 +33,7 @@
 
         <div class="form">
             <div class=" ">
-                <label for="email">E-mail</label>
+                <label for="email">UserName</label>
                 <InputText @bind-Value="userForAuthentication.Username" class="cst-input" />
                 <ValidationMessage For="@(() => userForAuthentication.Username)" />
             </div>
@@ -52,7 +52,7 @@
         </div>
     </EditForm>
     <div class="social-account-container">
-        <span class="title">Register yourself</span>
+        <span class="title">Register yourself by click on SignUp</span>
 
         <button class="cst-register" onclick="@Register">
                SignUp
@@ -61,7 +61,7 @@
         
     </div>
 
-    <span class="agreement"><a href="#">Learn user licence agreement</a></span>
+     
 </div>
 
 @code {

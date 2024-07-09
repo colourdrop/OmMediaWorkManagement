@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OmMediaWorkManagement.ApiService.DataContext;
@@ -11,9 +12,11 @@ using OmMediaWorkManagement.ApiService.DataContext;
 namespace OmMediaWorkManagement.ApiService.Migrations
 {
     [DbContext(typeof(OmContext))]
-    partial class OmContextModelSnapshot : ModelSnapshot
+    [Migration("20240709092838_updatedUserIdidentity")]
+    partial class updatedUserIdidentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,9 +205,6 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<int>("OmClientId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("OmEmpId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("PostedBy")
                         .HasColumnType("integer");
 
@@ -214,14 +214,16 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<double?>("Quantity")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int?>("total")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OmClientId");
-
-                    b.HasIndex("OmEmpId");
 
                     b.ToTable("JobToDo");
                 });
@@ -676,15 +678,7 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OmMediaWorkManagement.ApiService.Models.OmEmployee", "OmEmployee")
-                        .WithMany()
-                        .HasForeignKey("OmEmpId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("OmClient");
-
-                    b.Navigation("OmEmployee");
                 });
 
             modelBuilder.Entity("OmMediaWorkManagement.ApiService.Models.OmClient", b =>

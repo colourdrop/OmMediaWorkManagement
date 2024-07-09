@@ -20,6 +20,8 @@ namespace OmMediaWorkManagement.Web.Components.Models
 
         public DateTime? JobPostedDateTime { get; set; }
         public List<string>? Images { get; set; }
+        public int OmEmpId { get; set; }
+        public string? OmEmpName { get; set; }
     }
     public class UpdateTodo
     {

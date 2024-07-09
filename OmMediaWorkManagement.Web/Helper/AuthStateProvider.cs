@@ -2,34 +2,33 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 
 namespace OmMediaWorkManagement.Web.Helper
 {
     public class AuthStateProvider : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient;      
-       
+        private readonly HttpClient _httpClient;
         private readonly ILocalStorageService _localStorage;
 
         public AuthStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
         {
-            _httpClient = httpClient;           
+            _httpClient = httpClient;
             _localStorage = localStorage;
-         
         }
+
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var savedToken = await _localStorage.GetItemAsync<string>("authToken");
 
-            if (string.IsNullOrWhiteSpace(savedToken))
+            if (string.IsNullOrWhiteSpace(savedToken) || IsTokenExpired(savedToken))
             {
+                await _localStorage.RemoveItemAsync("authToken");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                
             }
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
         }
 
@@ -88,6 +87,21 @@ namespace OmMediaWorkManagement.Web.Helper
                 case 3: base64 += "="; break;
             }
             return Convert.FromBase64String(base64);
+        }
+
+        private bool IsTokenExpired(string jwt)
+        {
+            var payload = jwt.Split('.')[1];
+            var jsonBytes = ParseBase64WithoutPadding(payload);
+            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+            if (keyValuePairs != null && keyValuePairs.TryGetValue("exp", out object exp))
+            {
+                var expTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(exp.ToString()!));
+                return expTime < DateTimeOffset.UtcNow;
+            }
+
+            return true;
         }
     }
 }

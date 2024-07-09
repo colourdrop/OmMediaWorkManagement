@@ -22,6 +22,7 @@ namespace OmMediaWorkManagement.ApiService.Models
         public bool IsEmailSent { get; set; }
         public bool IsSMSSent { get; set; }
         public bool IsPushSent { get; set; }
+       
         public int OmClientId
         {
             get;
@@ -33,5 +34,15 @@ namespace OmMediaWorkManagement.ApiService.Models
             get;
             set;
         }
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual UserRegistration UserRegistration
+        {
+            get;
+            set;
+        }
+
+
+
     }
 }
