@@ -6,7 +6,7 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
     {
       
         public int OmClientId { get; set; }
-        public string? ComapnyName { get; set; }
+     
 
         public double Quantity { get; set; }
         public int? Price { get; set; }

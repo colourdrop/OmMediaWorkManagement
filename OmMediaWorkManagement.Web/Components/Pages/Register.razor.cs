@@ -37,14 +37,14 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ShowAuthError = true;
-                    // Optionally handle success behavior here
+                    ShowAuthError = false;
+                    NavigationManager.NavigateTo("/login");
                 }
                 else
                 {
                     ShowAuthError = false;
                     // Handle error or navigate away as needed
-                    NavigationManager.NavigateTo("/");
+                    NavigationManager.NavigateTo("/Register");
                 }
             }
             catch (Exception ex)

@@ -64,7 +64,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             if (registerViewModel.RoleId.IsNullOrEmpty())
             {
                 var role = _roleManager.Roles.ToList();
-                registerViewModel.RoleId = role.FirstOrDefault(d => d.Name == "User")?.Id;
+              var UserRoleId = role.FirstOrDefault(d => d.Name == "User")?.Id;
+                if (UserRoleId != null)
+                {
+                    registerViewModel.RoleId = UserRoleId;
+                }
             }
 
             // Hash the password

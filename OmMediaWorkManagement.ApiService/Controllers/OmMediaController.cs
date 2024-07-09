@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.ApiService.DataContext;
 using OmMediaWorkManagement.ApiService.Models;
@@ -307,7 +307,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 {
 
                     OmClientId = jobToDoViewModel.OmClientId,
-                    CompanyName = jobToDoViewModel.ComapnyName,
+                  
                     Price = jobToDoViewModel.Price,
                     total = jobToDoViewModel.total,
                     Quantity = jobToDoViewModel.Quantity,
@@ -378,7 +378,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             }
 
             jobToDo.OmClientId = jobToDoViewModel.OmClientId;
-            jobToDo.CompanyName = jobToDoViewModel.ComapnyName;
+            
             jobToDo.Quantity = jobToDoViewModel.Quantity;
             jobToDo.Price = jobToDoViewModel.Price;
             jobToDo.total = jobToDoViewModel.total;
