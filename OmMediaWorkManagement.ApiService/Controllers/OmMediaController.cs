@@ -453,7 +453,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             try
             {
                 _context.JobToDo.Update(jobToDo);
-                  _context.SaveChanges();
+                _context.SaveChanges();
                 return Ok("Updated Successfully");
             }
             catch (Exception ex)
@@ -503,7 +503,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 Description = job.Description,
                 Price = job.Price,
                 Total = job.total,
-                TotalPayable=job.TotalPayable,
+                TotalPayable = job.TotalPayable,
                 DueBalance = job.DueBalance,
                 PaidAmount = job.PaidAmount,
                 Quantity = job.Quantity,
@@ -580,6 +580,39 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             }
         }
 
+        [HttpGet("GetJobsToDosByEmpId")]
+        //[Authorize]
+        public async Task<IActionResult> GetJobsToDosByUserId(int empId)
+        {
+            var getJobList = await _context.JobToDo.Include(d=>d.OmEmployee).Include(d=>d.OmClient).Include(d=>d.JobImages).Where(d => d.OmEmpId == empId).OrderByDescending(d=>d.JobPostedDateTime).ToListAsync();
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var jobStatusDictionary = await _context.JobTypeStatus
+              .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
+            // Use Task.WhenAll to await all async projections
+            var jobToDoResponsesTasks = getJobList.Select(async job => new JobToDoResponseViewModel
+            {
+                Id = job.Id,
+                OmClientId = job.OmClientId,
+                ClientName = job.OmClient.Name,
+                CompanyName = job.OmClient.CompanyName,
+                Description = job.Description,           
+                Quantity = job.Quantity,
+                JobStatusType = job.JobStatusType,
+                IsStatus = job.IsStatus,
+                JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
+                JobPostedDateTime = job.JobPostedDateTime,
+                OmEmpId = job.OmEmpId,
+                OmEmpName = job.OmEmployee.Name,
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+            }).ToList();
+
+            // Await all tasks to get the list of JobToDoResponseViewModel
+            var jobToDoResponses = await Task.WhenAll(jobToDoResponsesTasks);
+
+
+            return Ok(jobToDoResponses.ToList());
+        }
         #endregion
 
         #region OmMachines
