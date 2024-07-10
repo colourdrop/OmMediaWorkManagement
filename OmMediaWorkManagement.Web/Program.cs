@@ -31,8 +31,9 @@ builder.Services.AddScoped<RadzenDialog>();
 builder.Services.AddScoped<IOmService, OmServices>();
  
 builder.Services.AddHttpClient("ServerAPI",
-     // client => client.BaseAddress = new Uri("https+http://localhost:7439"));
-     client => client.BaseAddress = new Uri("http://192.168.1.22:81")); 
+      client => client.BaseAddress = new Uri("https+http://localhost:7439"));
+   //  client => client.BaseAddress = new Uri("http://192.168.1.22:81")); 
+    // client => client.BaseAddress = new Uri("http://192.168.75.1")); 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
 var app = builder.Build();

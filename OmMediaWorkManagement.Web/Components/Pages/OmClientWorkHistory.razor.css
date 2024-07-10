@@ -1,0 +1,41 @@
+﻿.footer-template {
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 10px;
+    text-align: left;
+    border-top: 2px solid #dee2e6;
+    animation: fadeIn 1s ease-in-out;
+}
+
+    .footer-template strong {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .footer-template td {
+        padding: 10px;
+    }
+
+    .footer-template .total-payable,
+    .footer-template .total-paid,
+    .footer-template .total-due {
+        transition: all 0.3s ease;
+    }
+
+        .footer-template .total-payable:hover,
+        .footer-template .total-paid:hover,
+        .footer-template .total-due:hover {
+            background-color: #007bff;
+            color: white;
+            transform: scale(1.1);
+        }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

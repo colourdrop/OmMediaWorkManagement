@@ -19,16 +19,24 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         public IOmService OmService { get; set; }
         private bool showDialog = false;
         string imagePreview;
+        private int selectedClientId;
         List<string> imageUrls = new List<string>();
         private bool showAddDialog = false;
         private string responseMessage = "";
         private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
         private bool showAlert = false;
+
+        IEnumerable<JobToDo> jobToDo;
+        bool allowRowSelectOnRowClick = false;
+
+        IList<JobToDo> selectedOmClientWork;
+
         private RadzenDataGrid<JobToDo> todoGrid;
         private List<IFormFile> images = new List<IFormFile>();
         private JobToDoViewModel newJobViewModel = new JobToDoViewModel();
-
+        public List<OmClient> clients { get; set; } = new List<OmClient>();
         public List<JobToDo> todos { get; set; } = new List<JobToDo>();
+        private List<JobToDo> filteredtodos = new List<JobToDo>();
         public List<JobTypeStatusViewModel> jobTypeStatusViewModels = new List<JobTypeStatusViewModel>();
         private List<JobToDo> todoToInsert = new List<JobToDo>();
         private List<JobToDo> todoToUpdate = new List<JobToDo>();
@@ -57,9 +65,33 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
 
             todos = await OmService.GetJobToDos();
+            jobToDo = todos;
             jobTypeStatusViewModels = await OmService.GetJobTypeStatusList();
+            clients = await OmService.GetAllClients();
         }
+        //private async Task OnClientSelected(object value)
+        //{
+        //    selectedClientId = (int)value;
+        //    if (selectedClientId != 0)
+        //    {
+        //        filteredtodos = await OmService.GetClientWorkById(selectedClientId);
+        //    }
 
+        //    else
+        //    {
+        //        filteredtodos = await OmService.GetAllClientWork();
+        //    }
+        //    await todoGrid.Reload(); // Reload the grid to display the new data
+
+        //}
+        private string GetClientName(int clientId)
+        {
+            return clients.FirstOrDefault(c => c.Id == clientId)?.Name ?? "Unknown Client";
+        }
+        private string GetClientCompanyName(int clientId)
+        {
+            return clients.FirstOrDefault(c => c.Id == clientId)?.CompanyName ?? "Unknown Client";
+        }
         private async Task EditRow(JobToDo client)
         {
             if (editMode == DataGridEditMode.Single && todoToInsert.Count() > 0)
@@ -84,15 +116,19 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             var isValid = Validator.TryValidateObject(toDo, new ValidationContext(toDo), validationResults, true);
             if (isValid)
             {
-                if (toDo.Id != 0&& toDo.Price!= null && toDo.Total!=null)
+                if (toDo.Id != 0&& toDo.Price!= null  )
                 {
                     JobToDoViewModel jobToDoViewModel = new JobToDoViewModel()
                     {
+                        OmClientId=toDo.OmClientId,
                         ClientName = toDo.ClientName,
                         ComapnyName = toDo.CompanyName,
                         Quantity = (int)toDo.Quantity,
                         Price = (int)toDo.Price,
-                        total = toDo.Total,                       
+                        TotalPayable = toDo.TotalPayable,
+                        DueBalance = toDo.DueBalance,
+                        PaidAmount = toDo.PaidAmount,
+                        total = 0,                       
                         Description = toDo.Description,
                         IsStatus = toDo.IsStatus,
                         JobStatusType = toDo.JobStatusType,
@@ -253,29 +289,45 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 CalculateTotal(toDo);
             }
         }
+        private void OnPaidAmountKeyDown(KeyboardEventArgs args, JobToDo toDo)
+        {
+            if (args.Key == "Tab" || args.Key == "Enter")
+            {
+                toDo.DueBalance = toDo.TotalPayable - toDo.PaidAmount;
+
+                StateHasChanged();
+            }
+        }
         private async void CalculateTotal(JobToDo todo)
         {
-            todo.Total = (int?)(todo.Quantity * todo.Price);
-            //await clientsWorkGrid.UpdateRow(work);
+            todo.TotalPayable = (int?)(todo.Quantity * todo.Price);
+            todo.DueBalance = todo.TotalPayable - todo.PaidAmount;
             StateHasChanged();
 
         }
-        decimal CalculateTotalTotal()
+        int? CalculateTotalTotal()
         {
-            decimal totalTotal = 0;
+            int? totalTotal = 0;
+            totalTotal = todos.Sum(x => x.TotalPayable);
 
-            // Check if todos is not null before iterating
-            if (todos != null)
-            {
-                foreach (var item in todos)
-                {
-                    // Check if item.Total is not null before attempting to add its value
-                    if (item.Total != null)
-                    {
-                        totalTotal += (int)item.Total;
-                    }
-                }
-            }
+
+            return totalTotal;
+        }
+        int? CalculateTotalPaidAmount()
+        {
+            int? totalTotal = 0;
+            totalTotal = todos.Sum(x => x.PaidAmount);
+
+
+
+            return totalTotal;
+        }
+        int? CalculateTotalDueAmount()
+        {
+            int? totalTotal = 0;
+            totalTotal = todos.Sum(x => x.DueBalance);
+
+
 
             return totalTotal;
         }

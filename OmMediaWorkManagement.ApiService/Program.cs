@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using OmMediaWorkManagement.ApiService.DataContext;
 using OmMediaWorkManagement.ApiService.Middleware;
 using OmMediaWorkManagement.ApiService.Models;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,7 +104,14 @@ builder.Services.AddSwaggerGen(opt =>
         }
     });
 });
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
 
+
+builder.Logging.AddSerilog(logger);
 var app = builder.Build();
 
 // Use Swagger and SwaggerUI

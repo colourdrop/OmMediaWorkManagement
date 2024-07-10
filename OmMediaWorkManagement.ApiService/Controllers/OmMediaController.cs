@@ -1,4 +1,4 @@
-﻿ using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.ApiService.DataContext;
 using OmMediaWorkManagement.ApiService.Models;
@@ -16,10 +16,12 @@ namespace OmMediaWorkManagement.ApiService.Controllers
     public class OmMediaController : ControllerBase
     {
         private readonly OmContext _context;
+        private readonly ILogger<OmMediaController> _logger;
 
-        public OmMediaController(OmContext context)
+        public OmMediaController(OmContext context, ILogger<OmMediaController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         #region Client Details
@@ -62,22 +64,22 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllClients()
         {
-            
-            var clients = await _context.OmClient.Include(d=>d.UserRegistration).OrderByDescending(d => d.CreatedAt).Select(d=>new
+
+            var clients = await _context.OmClient.Include(d => d.UserRegistration).OrderByDescending(d => d.CreatedAt).Select(d => new
             {
-                d.Id, 
-                d.Name, 
-                d.CompanyName, 
-                d.MobileNumber, 
-                d.Email, 
-                d.CreatedAt, 
-                d.IsDeleted, 
-                d.UserId, 
+                d.Id,
+                d.Name,
+                d.CompanyName,
+                d.MobileNumber,
+                d.Email,
+                d.CreatedAt,
+                d.IsDeleted,
+                d.UserId,
                 d.UserRegistration.UserName
-            
-            
+
+
             }).ToListAsync();
-           
+
             return Ok(clients);
         }
 
@@ -167,7 +169,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(clientWorks);
         }
-       
+
         [HttpDelete("DeleteWorksByClientId")]
         [Authorize]
         public async Task<IActionResult> DeleteWorksByClientId(int clientWorkId, int omClientId)
@@ -212,10 +214,14 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 d.WorkDate,
                 d.WorkDetails,
                 d.PrintCount,
+                d.OmClientId,
                 d.Price,
                 d.Total,
                 d.Remarks,
                 d.IsPaid,
+                d.TotalPayable,
+                d.DueBalance,
+                d.PaidAmount,
                 d.IsDeleted,
                 d.IsEmailSent,
                 d.IsSMSSent,
@@ -228,7 +234,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(clientWorks);
         }
-        
+
         [HttpPost("AddWork")]
         [Authorize]
         public async Task<IActionResult> AddWork(OmClientWorkViewModel omClientWorkViewModel)
@@ -245,7 +251,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 WorkDetails = omClientWorkViewModel.WorkDetails,
                 PrintCount = omClientWorkViewModel.PrintCount,
                 Price = omClientWorkViewModel.Price,
+                PaidAmount = omClientWorkViewModel.PaidAmount,
+                DueBalance = omClientWorkViewModel.DueBalance,
                 Total = omClientWorkViewModel.Total,
+                TotalPayable = omClientWorkViewModel.TotalPayable,
                 IsDeleted = omClientWorkViewModel.IsDeleted,
                 IsPaid = omClientWorkViewModel.IsPaid,
                 Remarks = omClientWorkViewModel.Remarks,
@@ -277,6 +286,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             existingWork.WorkDetails = omClientWorkViewModel.WorkDetails;
             existingWork.PrintCount = omClientWorkViewModel.PrintCount;
             existingWork.Price = omClientWorkViewModel.Price;
+            existingWork.PaidAmount = omClientWorkViewModel.PaidAmount;
+            existingWork.TotalPayable = omClientWorkViewModel.TotalPayable;
+            existingWork.DueBalance = omClientWorkViewModel.DueBalance;
             existingWork.Total = omClientWorkViewModel.Total;
             existingWork.IsPaid = omClientWorkViewModel.IsPaid;
             existingWork.IsDeleted = omClientWorkViewModel.IsDeleted;
@@ -296,6 +308,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [Authorize]
         public async Task<IActionResult> AddJobTodo(JobToDoViewModel jobToDoViewModel)
         {
+            _logger.LogInformation("got hit");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -307,8 +320,11 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 {
 
                     OmClientId = jobToDoViewModel.OmClientId,
-                  
+
                     Price = jobToDoViewModel.Price,
+                    PaidAmount = jobToDoViewModel.PaidAmount,
+                    TotalPayable = jobToDoViewModel.TotalPayable,
+                    DueBalance = jobToDoViewModel.DueBalance,
                     total = jobToDoViewModel.total,
                     Quantity = jobToDoViewModel.Quantity,
                     Description = jobToDoViewModel.Description,
@@ -378,9 +394,12 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             }
 
             jobToDo.OmClientId = jobToDoViewModel.OmClientId;
-            
+
             jobToDo.Quantity = jobToDoViewModel.Quantity;
             jobToDo.Price = jobToDoViewModel.Price;
+            jobToDo.PaidAmount = jobToDoViewModel.PaidAmount;
+            jobToDo.DueBalance = jobToDoViewModel.DueBalance;
+            jobToDo.TotalPayable = jobToDoViewModel.TotalPayable;
             jobToDo.total = jobToDoViewModel.total;
             jobToDo.Description = jobToDoViewModel.Description;
             jobToDo.IsStatus = jobToDoViewModel.IsStatus;
@@ -434,10 +453,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             try
             {
                 _context.JobToDo.Update(jobToDo);
-                await _context.SaveChangesAsync();
+                  _context.SaveChanges();
                 return Ok("Updated Successfully");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
                 if (!JobToDoExists(id))
                 {
@@ -484,6 +503,9 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 Description = job.Description,
                 Price = job.Price,
                 Total = job.total,
+                TotalPayable=job.TotalPayable,
+                DueBalance = job.DueBalance,
+                PaidAmount = job.PaidAmount,
                 Quantity = job.Quantity,
                 JobStatusType = job.JobStatusType,
                 IsStatus = job.IsStatus,

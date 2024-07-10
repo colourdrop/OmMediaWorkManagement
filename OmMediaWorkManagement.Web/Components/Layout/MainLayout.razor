@@ -2,7 +2,7 @@
 @inject IAuthenticationService AuthenticationService
 <div class="page">
     <AuthorizeView> <Authorized>
-            <div class="sidebar">
+            <div class="sidebar" >
                 <NavMenu />
                
             </div>
@@ -61,10 +61,10 @@
             }
 </style>
 
-
+ 
 
 @code {
-
+      
     [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
 
     protected async override Task OnInitializedAsync()

@@ -106,8 +106,9 @@ namespace OmMediaWorkManagement.Web.Components.Services
         }
         public async Task<HttpResponseMessage> UpdateJobtToDo(int id, JobToDoViewModel toDo)
         {
+       
             var response = await httpClient.PutAsJsonAsync<JobToDoViewModel>(
-                $"/api/OmMedia/UpdateJobTodo/{id}?ClientName={toDo.ClientName}&ComapnyName={toDo.ComapnyName}&Quantity={toDo.Quantity}&Price={toDo.Price}&total={toDo.total}&Description={toDo.Description}&IsStatus={toDo.IsStatus}&JobStatusType={toDo.JobStatusType}",
+                $"/api/OmMedia/UpdateJobTodo/{id}?OmClientId={toDo.OmClientId}&Quantity={toDo.Quantity}&Price={toDo.Price}&PaidAmount={toDo.PaidAmount}&DueBalance={toDo.DueBalance}&TotalPayable={toDo.TotalPayable}&total={toDo.total}&Description={toDo.Description}&IsStatus={toDo.IsStatus}&JobStatusType={toDo.JobStatusType}",
                 null);
             return response;
         }

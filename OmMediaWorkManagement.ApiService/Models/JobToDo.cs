@@ -21,7 +21,10 @@ namespace OmMediaWorkManagement.ApiService.Models
 		public string? CompanyName { get; set; }
 		public double? Quantity { get; set; }
 		public int? Price { get; set; }
-		public int? total { get; set; }
+        public int? PaidAmount { get; set; }
+        public int? TotalPayable { get; set; }
+        public int? DueBalance { get; set; }
+        public int? total { get; set; }
 		public string? Description { get; set; }
 		public DateTime JobPostedDateTime { get; set; }
 		public int? PostedBy { get; set; }

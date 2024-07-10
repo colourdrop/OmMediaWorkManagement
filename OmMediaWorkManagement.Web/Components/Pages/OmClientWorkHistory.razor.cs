@@ -21,6 +21,10 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private bool showAlert = false;
         private bool IsFirstRender { get; set; } = true;
         private RadzenDataGrid<OmClientWork> clientsWorkGrid;
+        IEnumerable<OmClientWork> clientWork;
+        bool allowRowSelectOnRowClick = false;
+
+        IList<OmClientWork> selectedOmClientWork;
         public List<OmClientWork> ClientWorkHistory { get; set; } = new List<OmClientWork>();
         public List<OmClient> clients { get; set; } = new List<OmClient>();
         private List<OmClientWork> filteredClientWorkHistory = new List<OmClientWork>();
@@ -38,6 +42,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
             ClientWorkHistory = await OmService.GetAllClientWork();
             clients = await OmService.GetAllClients();
+            clientWork = ClientWorkHistory;
             filteredClientWorkHistory = ClientWorkHistory.ToList(); // Ensure a copy is made
         }
         private async Task OnClientSelected(object value)
@@ -104,8 +109,11 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                     WorkDate = client.WorkDate.ToUniversalTime(),
                     PrintCount = client.PrintCount,
                     Price = client.Price,
+                    PaidAmount = client.PaidAmount,
+                    TotalPayable=client.TotalPayable,
+                    DueBalance = client.DueBalance,
                     Remarks = client.Remarks,
-                    Total = client.Total,
+                    Total = 0,
                     WorkDetails = client.WorkDetails
                 };
 
@@ -198,8 +206,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         private async void CalculateTotal(OmClientWork work)
         {
-            work.Total = work.PrintCount * work.Price;
-            //await clientsWorkGrid.UpdateRow(work);
+            work.TotalPayable = work.PrintCount * work.Price;
+            work.DueBalance = work.TotalPayable - work.PaidAmount;
             StateHasChanged();
 
         }
@@ -349,14 +357,29 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
 
         // Method to calculate total total (assuming it's a decimal column)
-        decimal CalculateTotalTotal()
+        int? CalculateTotalTotal()
         {
-            decimal totalTotal = 0;
+            int? totalTotal = 0;
+            totalTotal = filteredClientWorkHistory.Sum(x => x.TotalPayable);
 
-            foreach (var item in filteredClientWorkHistory)
-            {
-                totalTotal += item.Total;
-            }
+
+            return totalTotal;
+        }
+        int? CalculateTotalPaidAmount()
+        {
+            int? totalTotal = 0;
+            totalTotal =  filteredClientWorkHistory.Sum(x => x.PaidAmount);
+
+            
+
+            return totalTotal;
+        }
+        int? CalculateTotalDueAmount()
+        {
+            int? totalTotal = 0;
+            totalTotal = filteredClientWorkHistory.Sum(x => x.DueBalance);
+
+
 
             return totalTotal;
         }
@@ -365,6 +388,15 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             if (args.Key == "Tab" || args.Key == "Enter")
             {
                 CalculateTotal(work);
+            }
+        } 
+        private void OnPaidAmountKeyDown(KeyboardEventArgs args, OmClientWork work)
+        {
+            if (args.Key == "Tab" || args.Key == "Enter")
+            {
+                work.DueBalance = work.TotalPayable -work.PaidAmount;
+
+                StateHasChanged();
             }
         }
 

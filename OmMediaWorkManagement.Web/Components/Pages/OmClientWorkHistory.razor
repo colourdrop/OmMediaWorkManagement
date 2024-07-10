@@ -1,7 +1,7 @@
 ﻿@page "/WorkHistory"
 
 @inject NavigationManager Navigation
- 
+
 
 <style>
     .rz-grid-table {
@@ -54,12 +54,32 @@
 </RadzenStack>
 
 
-<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" 
-               PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
+<RadzenDataGrid @ref="clientsWorkGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
+                PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
                 Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow"
-                RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" 
-                ColumnWidth="200px" Height="400px" Width="100%" CellClick="@OnCellClick">
+                RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset"
+                ColumnWidth="200px" Height="400px" Width="100%" CellClick="@OnCellClick" SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" @bind-Value=@selectedOmClientWork>
     <Columns>
+
+        <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false"  >
+            <HeaderTemplate>
+                <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                Value="@(selectedOmClientWork == null || selectedOmClientWork?.Any() != true ? false : !clientWork.All(i => selectedOmClientWork.Contains(i)) ? null : clientWork.Any(i => selectedOmClientWork.Contains(i)))"
+                                Change="@(args => selectedOmClientWork = args == true ? clientWork.ToList() : null)" />
+            </HeaderTemplate>
+            <Template Context="data">
+                <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedOmClientWork != null && selectedOmClientWork.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                TValue="bool" Change=@(args => { if(!allowRowSelectOnRowClick) { clientsWorkGrid.SelectRow(data); }}) />
+            </Template>
+        </RadzenDataGridColumn>
+
+
+
+
+
+
+
+
         <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
             <Template Context="OmClientWork">
                 @(filteredClientWorkHistory.IndexOf(OmClientWork) + 1)
@@ -99,11 +119,28 @@
                 <RadzenNumeric @bind-Value="work.Price" Style="width:100%;" @onkeypress="(args => OnPriceKeyDown(args, work))" />
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
+        <RadzenDataGridColumn Property="TotalPayable" Title="TotalPayable" Width="200px">
             <EditTemplate Context="work">
-                <RadzenNumeric @bind-Value="work.Total" Style="width:100%;" ReadOnly />
+                <RadzenNumeric @bind-Value="work.TotalPayable" Style="width:100%;" />
             </EditTemplate>
         </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="PaidAmount" Title="PaidAmount" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenNumeric @bind-Value="work.PaidAmount" Style="width:100%;" @onkeypress="(args => OnPaidAmountKeyDown(args,work))" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="DueBalance" Title="DueBalance" Width="200px">
+            <EditTemplate Context="work">
+                <RadzenNumeric @bind-Value="work.DueBalance" Style="width:100%;" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        @*         <RadzenDataGridColumn Property="Total" Title="Total" Width="200px">
+        <EditTemplate Context="work">
+        <RadzenNumeric @bind-Value="work.Total" Style="width:100%;" ReadOnly />
+        </EditTemplate>
+        </RadzenDataGridColumn> *@
+
+
         <RadzenDataGridColumn Property="IsPaid" Title="Is Paid" Width="200px">
             <Template Context="work">
                 @if (work.IsPaid)
@@ -140,7 +177,7 @@
                 <RadzenText Text="@work.UserName" Style="width:100%" ReadOnly />
             </Template>
         </RadzenDataGridColumn>
-        
+
         <RadzenDataGridColumn Context="work" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="work">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(work))" @onclick:stopPropagation="true">
@@ -160,17 +197,22 @@
 
     </Columns>
     <FooterTemplate>
-        <tr>
-            
-             
-          
-            <td><strong>Total Total:</strong></td>
-            <td>
+        <tr class="footer-template">
+            <td><strong>Total Payable Amount:</strong></td>
+            <td class="total-payable">
                 <strong>@CalculateTotalTotal()</strong>
             </td>
-
-            <!-- Empty cells for other columns -->
+            <td><span></span></td>
+            <td><strong>Total Paid Amount:</strong></td>
+            <td class="total-paid">
+                <strong>@CalculateTotalPaidAmount()</strong>
+            </td>
+            <td><strong>Total Due Amount:</strong></td>
+            <td class="total-due">
+                <strong>@CalculateTotalDueAmount()</strong>
+            </td>
         </tr>
     </FooterTemplate>
+
 </RadzenDataGrid>
 

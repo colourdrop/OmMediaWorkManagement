@@ -17,6 +17,9 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         public int Price { get; set; }
         public bool IsPaid { get; set; }
         public bool IsDeleted { get; set; }
+        public int? PaidAmount { get; set; }
+        public int? TotalPayable { get; set; }
+        public int? DueBalance { get; set; }
         public int? Total { get; set; }
         public string? Remarks { get; set; }
 
