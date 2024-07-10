@@ -39,3 +39,33 @@
         opacity: 1;
     }
 }
+
+
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help; /* Change cursor to indicate hoverable */
+}
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: auto;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position the tooltip above the text */
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }

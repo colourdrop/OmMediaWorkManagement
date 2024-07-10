@@ -24,14 +24,14 @@
                 Height="400px" Width="100%" CellClick="@OnCellClick">
 
     <Columns>
-        <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
+        <RadzenDataGridColumn Title="S.N" Width="80px" Frozen="true">
             <Template Context="client">
                 @(clients.IndexOf(client) + 1)
             </Template>
 
         </RadzenDataGridColumn>
 
-        <RadzenDataGridColumn TItem="OmClient" Property="Name" Title="Client Name" Width="280px">
+        <RadzenDataGridColumn TItem="OmClient" Property="Name" Title="Client Name" Width="240px">
             <Template Context="client">
                 <RadzenText Text="@client.Name" />
             </Template>
@@ -44,7 +44,7 @@
             </EditTemplate>
         </RadzenDataGridColumn>
 
-        <RadzenDataGridColumn TItem="OmClient" Property="CompanyName" Title="Company Name" Width="280px">
+        <RadzenDataGridColumn TItem="OmClient" Property="CompanyName" Title="Company Name" Width="240px">
             <Template Context="client">
                 <RadzenText Text="@client.CompanyName" />
             </Template>

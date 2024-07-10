@@ -13,7 +13,10 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         [Inject]
         public NavigationManager NavigationManager { get; set; }
         public bool ShowAuthError { get; set; }
+        private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
+ 
         public string responseMessage { get; set; }
+        private bool showAlert = false;
         string LastSubmitResult;
         public async Task HandleValidSubmit()
         {
@@ -34,15 +37,19 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             try
             {
                 var response = await AuthenticationService.RegisterUser(userRegistration);
-
+                responseMessage = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    ShowAuthError = false;
+                    alertColor = Radzen.AlertStyle.Success;
+                    showAlert = true;
+                 
+
                     NavigationManager.NavigateTo("/login");
                 }
                 else
                 {
-                    ShowAuthError = false;
+                    alertColor = Radzen.AlertStyle.Danger;
+                    showAlert = true;
                     // Handle error or navigate away as needed
                     NavigationManager.NavigateTo("/Register");
                 }

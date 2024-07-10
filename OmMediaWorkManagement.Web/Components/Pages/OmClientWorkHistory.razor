@@ -58,7 +58,7 @@
                 PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
                 Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow"
                 RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset"
-                ColumnWidth="200px" Height="400px" Width="100%" CellClick="@OnCellClick" SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" @bind-Value=@selectedOmClientWork>
+                ColumnWidth="180px" Height="400px" Width="100%" CellClick="@OnCellClick" SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" @bind-Value=@selectedOmClientWork>
     <Columns>
 
         <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false"  >
@@ -80,13 +80,13 @@
 
 
 
-        <RadzenDataGridColumn Title="Serial Number" Width="120px" Frozen="true">
+        <RadzenDataGridColumn Title="S.N" Width="100px" Frozen="true">
             <Template Context="OmClientWork">
                 @(filteredClientWorkHistory.IndexOf(OmClientWork) + 1)
             </Template>
         </RadzenDataGridColumn>
         <!-- Dropdown column for client selection -->
-        <RadzenDataGridColumn Title="Party Name" Width="280px">
+        <RadzenDataGridColumn Title="Party Name" Width="160px">
             <EditTemplate Context="work">
                 <RadzenDropDown @bind-Value="work.OmClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;" />
             </EditTemplate>
@@ -96,7 +96,7 @@
         </RadzenDataGridColumn>
 
         <!-- Other columns for OmClientWork -->
-        <RadzenDataGridColumn Property="WorkDate" Title="Date" Width="200px">
+        <RadzenDataGridColumn Property="WorkDate" Title="Date" Width="240px">
             <Template Context="work">
                 @ConvertUtcToIst(work.WorkDate)
             </Template>
@@ -141,7 +141,7 @@
         </RadzenDataGridColumn> *@
 
 
-        <RadzenDataGridColumn Property="IsPaid" Title="Is Paid" Width="200px">
+        <RadzenDataGridColumn Property="IsPaid" Title="Is Paid" Width="150px">
             <Template Context="work">
                 @if (work.IsPaid)
                 {
@@ -153,7 +153,7 @@
                 }
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="IsEmailSent" Title="Is Mail Sent" Width="200px">
+        <RadzenDataGridColumn Property="IsEmailSent" Title="Is Mail Sent" Width="150px">
             <Template Context="work">
                 @if (work.IsEmailSent)
                 {
@@ -167,12 +167,13 @@
         </RadzenDataGridColumn>
 
 
-        <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">
+       <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">
             <EditTemplate Context="work">
                 <RadzenTextBox @bind-Value="work.Remarks" Style="width:100%" />
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="OmEmpName" Title="WorkAddedBY" Width="200px">
+
+        <RadzenDataGridColumn Property="OmEmpName" Title="WorkAddedBY" Width="150px">
             <Template Context="work">
                 <RadzenText Text="@work.UserName" Style="width:100%" ReadOnly />
             </Template>

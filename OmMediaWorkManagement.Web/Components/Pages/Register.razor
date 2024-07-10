@@ -16,6 +16,9 @@
     }
 
 </style>
+<RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
+    @responseMessage
+</RadzenAlert>
 @if (ShowAuthError)
 {
     <div class="alert alert-danger" role="alert">
