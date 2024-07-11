@@ -1,16 +1,22 @@
 ﻿.footer-template {
     background-color: #f8f9fa;
-    color: #333;
+    color: #3D99C0;
     padding: 10px;
     text-align: left;
     border-top: 2px solid #dee2e6;
     animation: fadeIn 1s ease-in-out;
 }
-
-    .footer-template strong {
-        font-weight: bold;
-        color: #007bff;
-    }
+.cst-amount:hover {
+    background:none;
+    font-size:larger;
+    background-color:whitesmoke;
+    border:none;
+}
+.footer-template strong {
+    font-weight: bold;
+    color: #3D99C0;
+    animation: fadeIn 1s ease-in-out;
+}
 
     .footer-template td {
         padding: 10px;
