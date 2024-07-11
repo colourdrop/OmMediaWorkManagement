@@ -1,72 +1,59 @@
 ﻿<header class="cst-header">
     <h3 class="cst-header-title">
-        <img type="image/png" src="/OmFaviNew.svg" alt="Om Media Logo" class="cst-header-logo" />
+    
+        <img type="image/png" src="/OmFaviNew.svg" alt="Om Media Logo" class="cst-header-logo" @onclick="ToggleSidebar" />
         Om Media
     </h3>
 </header>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="auto-hiding-nav-menu"
-     @onmouseover="ExpandNavMenu"
-     @onmouseout="CollapseNavMenu">
-    <nav class="nav-menu @(collapseNavMenu ? "collapsed" : "expand")">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" style="gap: 1rem;" href="" Match="NavLinkMatch.All">
-                <i class="fa-solid fa-house   fa-xl cst-nav-icon" style="color:#999999;"></i>
 
-
-                <span>  Home</span>
-              
-
+<div class="auto-hiding-nav-menu">
+    <nav class="nav-menu">
+        <div class="nav-item px-1">
+            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="" Match="NavLinkMatch.All">
+                <i class="fa-solid fa-house fa-xl cst-nav-icon" style="color:#999999;"></i>
+                <span>Home</span>
             </NavLink>
         </div>
-      
-        <div class="nav-item px-3">
-       
-            <NavLink class="nav-link" style="gap: 1rem;" href="clients">
+        <div class="nav-item px-1">
+            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="clients">
                 <i class="fa-solid fa-user-plus fa-xl cst-nav-icon" style="color:#999999;"></i>
-                AddClient
+                <span>Client</span>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" style="gap: 1rem;" href="WorkHistory">
-
+        <div class="nav-item px-1">
+            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="WorkHistory">
                 <i class="fa-regular fa-clipboard fa-xl cst-nav-icon" style="color:#999999;"></i>
-
-
-                WorkHistory
+                <span>Work-H</span>
             </NavLink>
-        </div> 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" style="gap: 1rem;" href="JobsToDo">
+        </div>
+        <div class="nav-item px-1">
+            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="JobsToDo">
                 <i class="fa-solid fa-table-list fa-xl cst-nav-icon" style="color:#999999;"></i>
-
-
-               Offset/R/B 
+                <span>Offset/R/B</span>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" style="gap: 1rem;" href="EmployeeManagement">
-
+        <div class="nav-item px-1">
+            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="EmployeeManagement">
                 <i class="fa-solid fa-bars-progress fa-xl cst-nav-icon" style="color:#999999;"></i>
-
-                EmployeeManagement
+                <span>Employee-M</span>
             </NavLink>
         </div>
-       
-       
-
     </nav>
-    <div class="nav-item px-3 logout-item">
-        <NavLink class="nav-link" style="gap: 1rem;" href="logout">
+    <div class="nav-item px-1 logout-item">
+        <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="logout">
             <i class="fa-solid fa-arrow-right-from-bracket fa-xl cst-nav-icon" style="color:#999999;"></i>
-            Logout
+            <span>Logout</span>
         </NavLink>
     </div>
 </div>
 <style>
-
+    .wrap-text {
+        white-space: normal;
+        word-wrap: break-word;
+    }
     .collapse {
         /* Never collapse the sidebar for wide screens */
         display: block;
@@ -75,18 +62,15 @@
  
 </style>
 @code {
-    private bool collapseNavMenu = true;
-    private bool isHovered = false;
+    [Parameter]
+    public bool SidebarOpen { get; set; }
 
-    private void ExpandNavMenu()
-    {
-        isHovered = true;
-        if (collapseNavMenu) collapseNavMenu = false;
-    }
+    [Parameter]
+    public EventCallback OnSidebarToggle { get; set; }
 
-    private void CollapseNavMenu()
+    private async Task ToggleSidebar()
     {
-        isHovered = false;
-        if (!collapseNavMenu) collapseNavMenu = true;
+        await OnSidebarToggle.InvokeAsync(null);
     }
+    
 }

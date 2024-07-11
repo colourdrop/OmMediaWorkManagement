@@ -113,7 +113,7 @@
     border-radius: 19px;
     width: 84%;
     height: 7%;
-    left: 8%;
+    left: -1%;
 }
 
 .cst-header-title {
@@ -130,12 +130,15 @@
     margin-right: 10px;
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
+.cst-header-logo:hover {
+    cursor: pointer;
+}
 
-    /* Animations */
-    .cst-header-logo:hover {
-        transform: scale(1.1);
-        opacity: 0.8;
-    }
+/* Animations */
+.cst-header-logo:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
 
 /* Transition and Animation */
 @keyframes cst-slideIn {

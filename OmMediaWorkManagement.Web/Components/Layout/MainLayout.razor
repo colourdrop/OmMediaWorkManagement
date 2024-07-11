@@ -1,10 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @inject IAuthenticationService AuthenticationService
+
 <div class="page">
     <AuthorizeView> <Authorized>
-            <div class="sidebar" >
-                <NavMenu />
-               
+
+            <div class="sidebar" style="width:@(SidebarOpen ? "250px" : "55px")">
+                <NavMenu SidebarOpen="SidebarOpen" OnSidebarToggle="ToggleSidebar" />
             </div>
 
         </Authorized>
@@ -67,7 +68,8 @@
  
 
 @code {
-      
+    [Parameter]
+    public bool SidebarOpen { get; set; } = false;
     [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
 
     protected async override Task OnInitializedAsync()
@@ -79,4 +81,10 @@
             navigationManager.NavigateTo($"/login");
         }
     }
+    private void ToggleSidebar()
+    {
+        SidebarOpen = !SidebarOpen;
+    }
 }
+
+

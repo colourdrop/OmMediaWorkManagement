@@ -20,8 +20,19 @@ main {
     position: sticky;
     margin-top: 1%;
     margin-left: 1%;
+    z-index: 1;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+.sidebar-content {
+    opacity: 1;
+    transition: opacity 0.5s;
 }
 
+    .sidebar-content:not(.expanded) {
+        opacity: 0;
+        pointer-events: none;
+    }
 
 .top-row {
     background-color: #f7f7f7;
@@ -67,6 +78,8 @@ main {
         height: 96vh;
         position: sticky;
         top: 0;
+        transition: width 0.5s;
+        overflow: hidden;
     }
 
     .top-row {
@@ -74,7 +87,15 @@ main {
         top: 0;
         z-index: 1;
     }
+    .sidebar-content {
+        opacity: 1;
+        transition: opacity 0.5s;
+    }
 
+        .sidebar-content:not(.expanded) {
+            opacity: 0;
+            pointer-events: none;
+        }
     .top-row.auth ::deep a:first-child {
         flex: 1;
         text-align: right;
