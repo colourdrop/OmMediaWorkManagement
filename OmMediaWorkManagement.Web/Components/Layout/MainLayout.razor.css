@@ -5,15 +5,15 @@
 }
 
 main {
-    flex:1;
-    min-width:0;
-    margin:1rem;
-    background-color: #fafafa;
+    flex: 1;
+    min-width: 0;
+    margin: 1rem;
+    background-color: #f1f2f6;
 }
 
 .sidebar {
     box-shadow: 10px 10px 20px #babecc,-10px -10px 20px #ffffff !important; /* subtle drop shadow */
-    border: 1px solid rgba(255, 255, 255, 0.3); /* optional border for better visibility */
+    border: 1px solid rgb(223 222 222); /* optional border for better visibility */
     border-radius: 20px; /* optional: rounded corners */
     width: 250px;
     height: 94vh;

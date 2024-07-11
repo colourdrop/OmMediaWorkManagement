@@ -13,7 +13,7 @@
     <nav class="nav-menu @(collapseNavMenu ? "collapsed" : "expand")">
         <div class="nav-item px-3">
             <NavLink class="nav-link" style="gap: 1rem;" href="" Match="NavLinkMatch.All">
-                <i class="fa-solid fa-house fa-bounce fa-xl" style="color:#bebfc1;"></i>
+                <i class="fa-solid fa-house   fa-xl cst-nav-icon" style="color:#999999;"></i>
 
 
                 <span>  Home</span>
@@ -25,14 +25,14 @@
         <div class="nav-item px-3">
        
             <NavLink class="nav-link" style="gap: 1rem;" href="clients">
-                <i class="fa-solid fa-user-plus fa-xl" style="color:#bebfc1;"></i>
+                <i class="fa-solid fa-user-plus fa-xl cst-nav-icon" style="color:#999999;"></i>
                 AddClient
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" style="gap: 1rem;" href="WorkHistory">
 
-                <i class="fa-regular fa-clipboard fa-xl" style="color:#bebfc1;"></i>
+                <i class="fa-regular fa-clipboard fa-xl cst-nav-icon" style="color:#999999;"></i>
 
 
                 WorkHistory
@@ -40,7 +40,7 @@
         </div> 
         <div class="nav-item px-3">
             <NavLink class="nav-link" style="gap: 1rem;" href="JobsToDo">
-                <i class="fa-solid fa-table-list fa-xl" style="color:#bebfc1;"></i>
+                <i class="fa-solid fa-table-list fa-xl cst-nav-icon" style="color:#999999;"></i>
 
 
                Offset/R/B 
@@ -49,7 +49,7 @@
         <div class="nav-item px-3">
             <NavLink class="nav-link" style="gap: 1rem;" href="EmployeeManagement">
 
-                <i class="fa-solid fa-bars-progress fa-xl" style="color:#bebfc1;"></i>
+                <i class="fa-solid fa-bars-progress fa-xl cst-nav-icon" style="color:#999999;"></i>
 
                 EmployeeManagement
             </NavLink>
@@ -60,7 +60,7 @@
     </nav>
     <div class="nav-item px-3 logout-item">
         <NavLink class="nav-link" style="gap: 1rem;" href="logout">
-            <i class="fa-solid fa-arrow-right-from-bracket fa-xl" style="color:#bebfc1;"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket fa-xl cst-nav-icon" style="color:#999999;"></i>
             Logout
         </NavLink>
     </div>
@@ -71,6 +71,8 @@
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+
+ 
 </style>
 @code {
     private bool collapseNavMenu = true;
