@@ -122,7 +122,7 @@
                 </Template>
             </RadzenDataGridColumn>
        
-        <RadzenDataGridColumn Title="PartyName" Width="280px">
+        <RadzenDataGridColumn Title="PartyName" Width="240px">
             <EditTemplate Context="todo">
                 <RadzenDropDown @bind-Value="todo.OmClientId" Data="@clients" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;" />
             </EditTemplate>
@@ -201,7 +201,7 @@
             </EditTemplate>
         </RadzenDataGridColumn> *@
 
-            <RadzenDataGridColumn Property="JobStatusType" Title="Current Job Status" Width="200px">
+        @*     <RadzenDataGridColumn Property="JobStatusType" Title="Current Job Status" Width="200px">
                 <Template Context="todo">
                     @{
                         var jobStatus = jobTypeStatusViewModels.FirstOrDefault(d => d.JobStatusType == todo.JobStatusType);
@@ -245,7 +245,7 @@
                 <EditTemplate Context="todo">
                     <RadzenDropDown TValue="int" @bind-Value="todo.JobStatusType" Data="@jobTypeStatusViewModels" TextProperty="JobStatusName" ValueProperty="Id" Style="width:100%" />
                 </EditTemplate>
-            </RadzenDataGridColumn>
+            </RadzenDataGridColumn> *@
 
         <RadzenDataGridColumn Property="Total" Title="JobPostedBy" Width="200px">
             <Template Context="todo">

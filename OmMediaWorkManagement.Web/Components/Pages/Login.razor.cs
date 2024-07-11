@@ -19,24 +19,31 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         [Inject]
         public NavigationManager NavigationManager { get; set; }
         public bool ShowAuthError { get; set; }
+        private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
         public string responseMessage { get; set; }
         string LastSubmitResult;
+        private bool showAlert = false;
         public async Task HandleValidSubmit()
         {
             ShowAuthError = false;
             var response = await AuthenticationService.Login(userForAuthentication);
-            response.EnsureSuccessStatusCode();
+      
             responseMessage = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-
+                responseMessage = "welcome to Om Media Solution";
+                alertColor = Radzen.AlertStyle.Success;
+                showAlert = true;
                 // Navigate to the home page or any desired location
                 NavigationManager.NavigateTo("/", true); // Navigate and reload the page
             }
             else
             {
-                ShowAuthError = true;
+                responseMessage = "User Not Exist or Bad Credentials";
+                alertColor = Radzen.AlertStyle.Danger;
+                showAlert = true;
+              
             }
         }
 

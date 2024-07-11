@@ -38,6 +38,10 @@ namespace OmMediaWorkManagement.Web.AuthService
 
                 // Send the request
                 var response = await httpClient.PostAsJsonAsync(requestUri, userForAuthentication);
+                if (response.IsSuccessStatusCode == false)
+                {
+                    return response;
+                }
                 var gettoken = await response.Content.ReadAsStringAsync();
                 var authResponse = JsonSerializer.Deserialize<AuthResponse>(gettoken);
                 var token = authResponse.token;
