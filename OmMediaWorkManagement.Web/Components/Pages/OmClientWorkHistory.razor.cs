@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Components.ViewModels;
 using OmMediaWorkManagement.Web.Helper;
+using Org.BouncyCastle.Utilities;
 using Radzen;
 using Radzen.Blazor;
 using File = System.IO.File;
@@ -49,9 +51,11 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private async Task OnClientSelected(object value)
         {
             selectedClientId = (int)value;
+          
             if (selectedClientId != 0)
             {
                 filteredClientWorkHistory = await OmService.GetClientWorkById(selectedClientId);
+
             }
 
             else
@@ -402,50 +406,86 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         public async Task GeneratePdfFromDataGridAsync(List<OmClientWork> data)
         {
-            var htmlContent = GenerateHtmlFromDataGrid(data);
+           
+            var htmlContent =await GenerateHtmlFromDataGrid(data);
+            responseMessage = "HTML Generated";
+            alertColor = Radzen.AlertStyle.Success;
+            showAlert = true; // Show alert
             try
             {
                 var pdfBytes = await _pdfService.GeneratePdfAsync(htmlContent);
-
+                responseMessage = "Generating PDF";
+                alertColor = Radzen.AlertStyle.Success;
+                showAlert = true; // Show alert
                 // Optionally, you can save or return the PDF bytes
                 // Example: Save to file
-                File.WriteAllBytes("path/to/save/file.pdf", pdfBytes);
+                await jsRuntime.InvokeVoidAsync("BlazorDownloadFile", "DigitalPrintEST.pdf", "application/pdf", pdfBytes);
             }
             catch (Exception ex) { }
         }
 
-        public string GenerateHtmlFromDataGrid(List<OmClientWork> data)
+        public async Task<string> GenerateHtmlFromDataGrid(List<OmClientWork> data)
         {
-             
-            // Example: Generate HTML table
-            var htmlContent = "<html><body><table border='1'><thead><tr>";
+            // Initialize the HTML content with the opening tags
+            var htmlContent = "<html><body><div class='container mt-3'><div class='d-flex justify-content-between mb-3'>";
 
-            // Generate table headers
-            foreach (var column in data)
-            {
-                htmlContent += $"<th>{column.WorkDetails}</th>";
-                htmlContent += $"<th>{column.PrintCount}</th>";
-                htmlContent += $"<th>{column.Price}</th>";
-            }
+            // Add headers for Client Name, Estimate, and Print Date
+            htmlContent += $"<div class='p-2'>{GetClientName(data.FirstOrDefault().OmClientId)}</div>";
+            htmlContent += $"<div class='p-2'>Estimate</div>";
+            htmlContent += $"<div class='p-2'>Print Date: {DateTime.Now}</div>";
+            htmlContent += "</div>";
 
+            // Add the table structure
+            htmlContent += "<div class='table-responsive'><table class='table table-bordered'><thead><tr>";
+
+            // Add table headers
+            htmlContent += "<th>Work Date</th>";
+            htmlContent += "<th>Detail</th>";
+            htmlContent += "<th>Quantity</th>";
+            htmlContent += "<th>Rate</th>";
+            htmlContent += "<th>Total Payable</th>";
+            htmlContent += "<th>Paid Amount</th>";
+            htmlContent += "<th>Due Balance</th>";
             htmlContent += "</tr></thead><tbody>";
 
-            // Generate table rows
+            int? totalPayable = 0;
+            int? totalPaidAmount = 0;
+            int? totalDueBalance = 0;
+
+            // Add rows dynamically from the provided data
             foreach (var item in data)
             {
                 htmlContent += "<tr>";
-
-                htmlContent += $"<td>{item.WorkDetails}</td>";
-                htmlContent += $"<td>{item.PrintCount}</td>";
-                // Add other columns similarly
-
+                htmlContent += $"<td class='text-center'>{ConvertUtcToIst(item.WorkDate)}</td>";
+                htmlContent += $"<td class='text-center'>{item.WorkDetails}</td>";
+                htmlContent += $"<td class='text-center'>{item.PrintCount}</td>";
+                htmlContent += $"<td class='text-center'>{item.Price}</td>";
+                htmlContent += $"<td class='text-center'>{item.TotalPayable}</td>";
+                htmlContent += $"<td class='text-center'>{item.PaidAmount}</td>";
+                htmlContent += $"<td class='text-center'>{item.DueBalance}</td>";
                 htmlContent += "</tr>";
+
+                // Calculate totals
+                totalPayable += item.TotalPayable;
+                totalPaidAmount += item.PaidAmount;
+                totalDueBalance += item.DueBalance;
             }
 
-            
-          
+            // Add total row
+            htmlContent += "<tr>";
+            htmlContent += "<td colspan='4'><strong>Total:</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalPayable}</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalPaidAmount}</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalDueBalance}</strong></td>";
+            htmlContent += "</tr>";
+
+            // Close the table and container tags
+            htmlContent += "</tbody></table></div></div></body></html>";
+
             return htmlContent;
         }
+
+
 
     }
 }

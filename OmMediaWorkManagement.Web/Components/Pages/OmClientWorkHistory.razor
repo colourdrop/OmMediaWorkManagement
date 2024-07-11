@@ -63,7 +63,7 @@
                 ColumnWidth="180px" Height="400px" Width="100%" CellClick="@OnCellClick" SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" @bind-Value=@selectedOmClientWork>
     <Columns>
 
-        <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false"  >
+        <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
             <HeaderTemplate>
                 <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
                                 Value="@(selectedOmClientWork == null || selectedOmClientWork?.Any() != true ? false : !clientWork.All(i => selectedOmClientWork.Contains(i)) ? null : clientWork.Any(i => selectedOmClientWork.Contains(i)))"
@@ -169,7 +169,7 @@
         </RadzenDataGridColumn>
 
 
-       <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">
+        <RadzenDataGridColumn Property="Remarks" Title="Remarks" Width="200px">
             <EditTemplate Context="work">
                 <RadzenTextBox @bind-Value="work.Remarks" Style="width:100%" />
             </EditTemplate>
@@ -219,3 +219,22 @@
 
 </RadzenDataGrid>
 
+<script>
+    function BlazorDownloadFile(filename, contentType, content) {
+        // Create the URL
+        const file = new File([content], filename, { type: contentType });
+        const exportUrl = URL.createObjectURL(file);
+
+        // Create the <a> element and click on it
+        const a = document.createElement("a");
+        document.body.appendChild(a);
+        a.href = exportUrl;
+        a.download = filename;
+        a.target = "_self";
+        a.click();
+
+        // We don't need to keep the object url, let's release the memory
+        // On Safari it seems you need to comment this line... (please let me know if you know why)
+        URL.revokeObjectURL(exportUrl);
+    }
+</script>

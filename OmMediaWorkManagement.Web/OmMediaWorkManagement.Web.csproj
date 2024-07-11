@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.6" />
-    <PackageReference Include="PDFsharp" Version="6.1.1" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
     <PackageReference Include="Radzen.Blazor" Version="4.32.5" />
   </ItemGroup>

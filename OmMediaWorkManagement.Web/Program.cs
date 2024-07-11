@@ -1,4 +1,6 @@
 using Blazored.LocalStorage;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 using Microsoft.AspNetCore.Components.Authorization;
 using OmMediaWorkManagement.Web.AuthInterface;
 using OmMediaWorkManagement.Web.AuthService;
@@ -32,12 +34,12 @@ builder.Services.AddScoped<RadzenDialog>();
 builder.Services.AddScoped<IOmService, OmServices>();
  
 builder.Services.AddHttpClient("ServerAPI",
-      client => client.BaseAddress = new Uri("https+http://localhost:7439"));
-    // client => client.BaseAddress = new Uri("http://192.168.1.22:81")); 
+  //    client => client.BaseAddress = new Uri("https+http://localhost:7439"));
+     client => client.BaseAddress = new Uri("http://192.168.1.22:81")); 
     // client => client.BaseAddress = new Uri("http://192.168.75.1")); 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
- 
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddScoped<IPdfService,PdfService>();
  
 
