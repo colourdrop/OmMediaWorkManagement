@@ -97,7 +97,10 @@ namespace OmMediaWorkManagement.Web.Components.Services
         {
             return await httpClient.GetFromJsonAsync<List<JobToDo>>("/api/OmMedia/GetJobToDoList");
         }
-
+        public async Task<List<JobToDo>> GetJobsToDosById(int clientID)
+        {
+            return await httpClient.GetFromJsonAsync<List<JobToDo>>($"/api/OmMedia/GetJobsToDosById/{clientID}");
+        }
         public async Task<HttpResponseMessage> AddJobTodo(JobToDo toDo)
         {
             // var response = await httpClient.PostAsJsonAsync("/prod /api/OmMedia/AddClient", client);

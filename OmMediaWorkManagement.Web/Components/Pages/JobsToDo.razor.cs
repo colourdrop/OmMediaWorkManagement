@@ -64,26 +64,27 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         protected override async Task OnInitializedAsync()
         {
 
-            todos = await OmService.GetJobToDos();
-            jobToDo = todos;
+            filteredtodos = await OmService.GetJobToDos();
+            jobToDo = filteredtodos;
             jobTypeStatusViewModels = await OmService.GetJobTypeStatusList();
             clients = await OmService.GetAllClients();
         }
-        //private async Task OnClientSelected(object value)
-        //{
-        //    selectedClientId = (int)value;
-        //    if (selectedClientId != 0)
-        //    {
-        //        filteredtodos = await OmService.GetClientWorkById(selectedClientId);
-        //    }
+        private async Task OnClientSelected(object value)
+        {
+            selectedClientId = (int)value;
+            if (selectedClientId != 0)
+            {
+                filteredtodos = await OmService.GetJobsToDosById(selectedClientId);
+            }
 
-        //    else
-        //    {
-        //        filteredtodos = await OmService.GetAllClientWork();
-        //    }
-        //    await todoGrid.Reload(); // Reload the grid to display the new data
+            else
+            {
+                filteredtodos = await OmService.GetJobToDos();
+            }
+            await todoGrid.Reload(); // Reload the grid to display the new data
 
-        //}
+        }
+
         private string GetClientName(int clientId)
         {
             return clients.FirstOrDefault(c => c.Id == clientId)?.Name ?? "Unknown Client";
@@ -308,7 +309,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         int? CalculateTotalTotal()
         {
             int? totalTotal = 0;
-            totalTotal = todos.Sum(x => x.TotalPayable);
+            totalTotal = filteredtodos.Sum(x => x.TotalPayable);
 
 
             return totalTotal;
@@ -316,7 +317,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         int? CalculateTotalPaidAmount()
         {
             int? totalTotal = 0;
-            totalTotal = todos.Sum(x => x.PaidAmount);
+            totalTotal = filteredtodos.Sum(x => x.PaidAmount);
 
 
 
@@ -325,7 +326,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         int? CalculateTotalDueAmount()
         {
             int? totalTotal = 0;
-            totalTotal = todos.Sum(x => x.DueBalance);
+            totalTotal = filteredtodos.Sum(x => x.DueBalance);
 
 
 

@@ -528,15 +528,53 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [Authorize]
         public async Task<IActionResult> GetJobsToDosById(int jobToDoId)
         {
-            var jobToDoRecord = await _context.JobToDo.Include(d => d.OmClient)
-                .FirstOrDefaultAsync(j => j.Id == jobToDoId);
+            
+            var jobList = await _context.JobToDo
+               .Include(d => d.JobImages)
+               .Include(d => d.OmClient)
+               .Include(d => d.OmEmployee).OrderByDescending(d => d.JobPostedDateTime)
+                .Where(j => j.Id == jobToDoId)
+               .ToListAsync();
 
-            if (jobToDoRecord == null)
+            var jobStatusDictionary = await _context.JobTypeStatus
+                .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Use Task.WhenAll to await all async projections
+            var jobToDoResponsesTasks = jobList.Select(async job => new JobToDoResponseViewModel
+            {
+                Id = job.Id,
+                OmClientId = job.OmClientId,
+                ClientName = job.OmClient.Name,
+                CompanyName = job.CompanyName,
+                Description = job.Description,
+                Price = job.Price,
+                Total = job.total,
+                TotalPayable = job.TotalPayable,
+                DueBalance = job.DueBalance,
+                PaidAmount = job.PaidAmount,
+                Quantity = job.Quantity,
+                JobStatusType = job.JobStatusType,
+                IsStatus = job.IsStatus,
+                JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
+                JobPostedDateTime = job.JobPostedDateTime,
+                OmEmpId = job.OmEmpId,
+                OmEmpName = job.OmEmployee.Name,
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+            }).ToList();
+
+            // Await all tasks to get the list of JobToDoResponseViewModel
+            var jobToDoResponses = await Task.WhenAll(jobToDoResponsesTasks);
+
+          
+            if (jobToDoResponses == null)
             {
                 return NotFound();
             }
 
-            return Ok(jobToDoRecord);
+            return Ok(jobToDoResponses);
         }
 
 
