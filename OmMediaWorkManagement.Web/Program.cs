@@ -1,6 +1,5 @@
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using OmMediaWorkManagement.Web;
 using OmMediaWorkManagement.Web.AuthInterface;
 using OmMediaWorkManagement.Web.AuthService;
 using OmMediaWorkManagement.Web.Components;
@@ -22,6 +21,8 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddRadzenComponents();
@@ -36,6 +37,10 @@ builder.Services.AddHttpClient("ServerAPI",
     // client => client.BaseAddress = new Uri("http://192.168.75.1")); 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
+ 
+builder.Services.AddScoped<IPdfService,PdfService>();
+ 
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

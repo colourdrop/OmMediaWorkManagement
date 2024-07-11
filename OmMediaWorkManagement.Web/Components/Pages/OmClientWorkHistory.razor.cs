@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Components.Web;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Components.ViewModels;
+using OmMediaWorkManagement.Web.Helper;
 using Radzen;
 using Radzen.Blazor;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using static System.Net.WebRequestMethods;
+using File = System.IO.File;
 
 namespace OmMediaWorkManagement.Web.Components.Pages
 {
@@ -33,6 +32,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private DataGridEditMode editMode = DataGridEditMode.Multiple;
         private string columnEditing;
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
+        [Inject]
+        public IPdfService _pdfService { get; set; }
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
@@ -110,7 +111,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                     PrintCount = client.PrintCount,
                     Price = client.Price,
                     PaidAmount = client.PaidAmount,
-                    TotalPayable=client.TotalPayable,
+                    TotalPayable = client.TotalPayable,
                     DueBalance = client.DueBalance,
                     Remarks = client.Remarks,
                     Total = 0,
@@ -159,7 +160,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             else
             {
                 clientsWorkGrid.CancelEditRow(client);
-                 
+
             }
             await LoadData();
         }
@@ -368,9 +369,9 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         int? CalculateTotalPaidAmount()
         {
             int? totalTotal = 0;
-            totalTotal =  filteredClientWorkHistory.Sum(x => x.PaidAmount);
+            totalTotal = filteredClientWorkHistory.Sum(x => x.PaidAmount);
 
-            
+
 
             return totalTotal;
         }
@@ -389,17 +390,62 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             {
                 CalculateTotal(work);
             }
-        } 
+        }
         private void OnPaidAmountKeyDown(KeyboardEventArgs args, OmClientWork work)
         {
             if (args.Key == "Tab" || args.Key == "Enter")
             {
-                work.DueBalance = work.TotalPayable -work.PaidAmount;
+                work.DueBalance = work.TotalPayable - work.PaidAmount;
 
                 StateHasChanged();
             }
         }
+        public async Task GeneratePdfFromDataGridAsync(List<OmClientWork> data)
+        {
+            var htmlContent = GenerateHtmlFromDataGrid(data);
+            try
+            {
+                var pdfBytes = await _pdfService.GeneratePdfAsync(htmlContent);
 
+                // Optionally, you can save or return the PDF bytes
+                // Example: Save to file
+                File.WriteAllBytes("path/to/save/file.pdf", pdfBytes);
+            }
+            catch (Exception ex) { }
+        }
+
+        public string GenerateHtmlFromDataGrid(List<OmClientWork> data)
+        {
+             
+            // Example: Generate HTML table
+            var htmlContent = "<html><body><table border='1'><thead><tr>";
+
+            // Generate table headers
+            foreach (var column in data)
+            {
+                htmlContent += $"<th>{column.WorkDetails}</th>";
+                htmlContent += $"<th>{column.PrintCount}</th>";
+                htmlContent += $"<th>{column.Price}</th>";
+            }
+
+            htmlContent += "</tr></thead><tbody>";
+
+            // Generate table rows
+            foreach (var item in data)
+            {
+                htmlContent += "<tr>";
+
+                htmlContent += $"<td>{item.WorkDetails}</td>";
+                htmlContent += $"<td>{item.PrintCount}</td>";
+                // Add other columns similarly
+
+                htmlContent += "</tr>";
+            }
+
+            
+          
+            return htmlContent;
+        }
 
     }
 }
