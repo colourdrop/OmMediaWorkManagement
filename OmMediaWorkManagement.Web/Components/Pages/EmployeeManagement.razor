@@ -22,7 +22,8 @@
                             @omEmployee.Name
                         </Template>
                         <EditTemplate Context="omEmployee">
-                            <RadzenFileInput>Upload Image</RadzenFileInput>
+                            <RadzenUpload Multiple="true" Accept="image/*" Url="upload/multiple" Progress="@((args) => OnProgress(args, "Images only upload"))" />
+
                             <RadzenTextBox @bind-Value="omEmployee.Name" Style="width:100%;" />
                         </EditTemplate>
                     </RadzenDataGridColumn>
@@ -111,4 +112,13 @@
     </div>
 </div>
  
- 
+@code {
+    int progress;
+    string info;
+
+    void OnProgress(UploadProgressArgs args, string name)
+    {
+        this.info = $"% '{name}' / {args.Loaded} of {args.Total} bytes.";
+        this.progress = args.Progress;
+    }
+}
