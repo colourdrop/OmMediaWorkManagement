@@ -118,7 +118,7 @@
             @* <RadzenDataGridColumn Property="Id" Title="todo ID" Width="120px" Frozen="true" /> *@
             <RadzenDataGridColumn Title="S.No" Width="120px" Frozen="true">
                 <Template Context="todo">
-                    @(todos.IndexOf(todo) + 1)
+                @(filteredtodos.IndexOf(todo) + 1)
                 </Template>
             </RadzenDataGridColumn>
        
@@ -266,7 +266,7 @@
         </RadzenDataGridColumn>
 
 
-            <RadzenDataGridColumn Context="todo" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+        <RadzenDataGridColumn Context="todo" Filterable="false" Sortable="false" Title="Action" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                 <Template Context="todo">
                     <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(todo))" @onclick:stopPropagation="true">
                     </RadzenButton>

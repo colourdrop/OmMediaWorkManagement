@@ -60,7 +60,8 @@
                 PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true" EditMode="@editMode"
                 Data="@filteredClientWorkHistory" TItem="OmClientWork" RowUpdate="@OnUpdateRow"
                 RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset"
-                ColumnWidth="180px" Height="400px" Width="100%" CellClick="@OnCellClick" SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" @bind-Value=@selectedOmClientWork>
+                ColumnWidth="180px" Height="400px" Width="100%" CellClick="@OnCellClick" 
+                SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" @bind-Value=@selectedOmClientWork>
     <Columns>
 
         <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
@@ -181,7 +182,7 @@
             </Template>
         </RadzenDataGridColumn>
 
-        <RadzenDataGridColumn Context="work" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+        <RadzenDataGridColumn Context="work" Filterable="false" Sortable="false" Title="Action" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="work">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(work))" @onclick:stopPropagation="true">
                 </RadzenButton>

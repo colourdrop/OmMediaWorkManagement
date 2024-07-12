@@ -4,10 +4,16 @@
 <div class="container-fluid mt-5">
     <div class="row">
         <div class="col-md-6">
-            <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" PageSize="5"
-                            AllowSorting="true" Data="@employees" TItem="OmEmployee"
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px" class="mt-2 mb-4">
+                <RadzenButton class="add-cst-btn" Icon="add_circle_outline" Text="Add Row" Click="@(() => InsertRow())" />
+
+                 
+
+            </RadzenStack>
+            <RadzenDataGrid @ref="empGrid"  ColumnWidth="200px"  AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
+                PageSize="50" PageSizeOptions="new[] { 15, 25, 50,100 }" AllowSorting="true"  Data="@employees" TItem="OmEmployee"
                             AllowRowSelectOnRowClick="true" RowClick="@(args => OnEmployeeRowClick(args))"
-                            @bind-Value="@SelectedEmp">
+                            @bind-Value="@SelectedEmp" EditMode="@editMode">
                             <Columns>
                      
                     <RadzenDataGridColumn TItem="OmEmployee" Property="Employee Profile" Title="Employee Profile" Width="200px">
@@ -15,13 +21,54 @@
                             <RadzenImage Path="@omEmployee.EmployeeProfilePath" Style="width: 42px; height: 42px; border-radius: 16px; margin-right: 6px;" />
                             @omEmployee.Name
                         </Template>
+                        <EditTemplate Context="omEmployee">
+                            <RadzenFileInput>Upload Image</RadzenFileInput>
+                            <RadzenTextBox @bind-Value="omEmployee.Name" Style="width:100%;" />
+                        </EditTemplate>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OmEmployee" Property="Address" Title="Address" Width="200px" />
-                    <RadzenDataGridColumn TItem="OmEmployee" Property="Email" Title="Email" Width="200px" />
-                    <RadzenDataGridColumn TItem="OmEmployee" Property="PhoneNumber" Title="Phone" Width="140px" />
-                    <RadzenDataGridColumn TItem="OmEmployee" Property="SalaryAmount" Title="Salary" Width="140px" />
-                    <RadzenDataGridColumn TItem="OmEmployee" Property="CreatedDate" Title="Created Date" FormatString="{0:d}" Width="140px" />
-                  
+                 @*    <RadzenDataGridColumn TItem="OmEmployee" Propertyd="Address" Title="Address" Width="200px" /> *@
+                    <RadzenDataGridColumn Property="Address" Title="Address" Width="200px">
+                        <EditTemplate Context="emp">
+                            <RadzenNumeric @bind-Value="emp.Address" Style="width:100%;" />
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="Email" Title="Email" Width="200px">
+                        <EditTemplate Context="emp">
+                            <RadzenNumeric @bind-Value="emp.Email" Style="width:100%;" />
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="PhoneNumber" Title="PhoneNumber" Width="200px">
+                        <EditTemplate Context="emp">
+                            <RadzenNumeric @bind-Value="emp.PhoneNumber" Style="width:100%;" />
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="SalaryAmount" Title="SalaryAmount" Width="200px">
+                        <EditTemplate Context="emp">
+                            <RadzenNumeric @bind-Value="emp.SalaryAmount" Style="width:100%;" />
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="CreatedDate" Title="CreatedDate" FormatString="{0:d}"  Width="200px">
+                        <EditTemplate Context="emp">
+                            <RadzenNumeric @bind-Value="emp.CreatedDate" Style="width:100%;" />
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+            
+                    <RadzenDataGridColumn Context="omEmployee" Filterable="false" Sortable="false" Title="Action" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                        <Template Context="omEmployee">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(omEmployee))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(omEmployee))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                        </Template>
+                        <EditTemplate Context="omEmployee">
+                            <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(omEmployee))" aria-label="Save" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                            <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(omEmployee))" aria-label="Cancel" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRow(omEmployee))" aria-label="Delete" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
                 </Columns>
                
             </RadzenDataGrid>
