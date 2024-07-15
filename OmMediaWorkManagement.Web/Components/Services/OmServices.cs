@@ -156,6 +156,57 @@ namespace OmMediaWorkManagement.Web.Components.Services
         {
             return await httpClient.GetFromJsonAsync<List<OmEmployeeSalaryManagement>>($"/api/OmMedia/GetSalaryManagementByEmployeeId?OmEmployeeId={employeeID}");
         }
+
+        public async Task<HttpResponseMessage> AddEmployee(AddOmEmployee addOmEmployee)
+        {
+            using (var formData = new MultipartFormDataContent())
+            {
+                // Add string content parameters
+                formData.Add(new StringContent(addOmEmployee.Name ?? ""), "Name");
+                formData.Add(new StringContent(addOmEmployee.Address ?? ""), "Address");
+                formData.Add(new StringContent(addOmEmployee.CompanyName ?? ""), "CompanyName");
+                formData.Add(new StringContent(addOmEmployee.Email ?? ""), "Email");
+                formData.Add(new StringContent(addOmEmployee.PhoneNumber ?? ""), "PhoneNumber");
+                formData.Add(new StringContent(addOmEmployee.SalaryAmount.ToString()), "SalaryAmount");
+                formData.Add(new StringContent(addOmEmployee.IsSalaryPaid.ToString()), "IsSalaryPaid");
+                formData.Add(new StringContent(addOmEmployee.Description ?? ""), "Description");
+
+                // Add EmployeeProfile file if present
+                if (addOmEmployee.EmployeeProfile != null)
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        await addOmEmployee.EmployeeProfile.CopyToAsync(stream);
+                        formData.Add(new StreamContent(stream), "EmployeeProfile", addOmEmployee.EmployeeProfile.FileName);
+                    }
+                }
+                // Add EmployeeDocuments files if present
+                if (addOmEmployee.EmployeeDocuments != null && addOmEmployee.EmployeeDocuments.Any())
+                {
+                    foreach (var file in addOmEmployee.EmployeeDocuments)
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            await file.CopyToAsync(stream);
+                            formData.Add(new StreamContent(stream), "EmployeeDocuments", file.FileName);
+                        }
+                    }
+                }
+
+
+                // Send HTTP POST request
+                var response = await httpClient.PostAsync("/api/OmMedia/AddEmployee", formData);
+
+                return response;
+            }
+        }
+
+        public async Task<HttpResponseMessage> AddSalaryManagement(OmEmployeeSalaryManagement omEmployeeSalaryManagement)
+        {
+            var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddSalaryManagement", omEmployeeSalaryManagement);
+
+            return response;
+        }
         #endregion
 
 

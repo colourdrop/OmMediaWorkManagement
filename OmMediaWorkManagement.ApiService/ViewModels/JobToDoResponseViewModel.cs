@@ -20,7 +20,7 @@
         public int OmEmpId {  get; set; }
         public string OmEmpName {  get; set; }
 
-        public DateTime? JobPostedDateTime { get; set; }
+        public DateTime JobPostedDateTime { get; set; }
         public List<string>? Images { get; set; }
     }
 

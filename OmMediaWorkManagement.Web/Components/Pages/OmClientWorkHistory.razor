@@ -50,7 +50,8 @@
         <RadzenButton class="add-cst-btn" Icon="add_circle_outline" Text="Add 50 Row" Click="@(() => InsertRow(50))" />
         <RadzenButton class="add-cst-btn" Icon="save" Text="Save All Records" Click="@SaveAllRecords" />
         <RadzenButton class="add-cst-btn" Icon="save" Text="Clear Rows" Click="@ClearEmptyRows" />
-        <RadzenButton Text="Generate PDF" Click="@(() => GeneratePdfFromDataGridAsync(filteredClientWorkHistory))" />
+        <RadzenButton Text="Generate PDF" Click="@(() => GeneratePdfFromDataGridAsync())" />
+        <RadzenButton Text="Send Bulk Email" Click="@(() => SendBulkWorkEmailByClientId())" />
 
     </RadzenStack>
 </RadzenStack>

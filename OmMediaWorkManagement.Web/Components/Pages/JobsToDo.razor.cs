@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Components.ViewModels;
+using OmMediaWorkManagement.Web.Helper;
 using Radzen;
 using Radzen.Blazor;
 using System;
@@ -43,7 +45,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private DataGridEditMode editMode = DataGridEditMode.Multiple;
         private string columnEditing;
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
-
+        [Inject]
+        public IPdfService _pdfService { get; set; }
         private bool IsFirstRender { get; set; } = true;
         private int GetRowIndex(JobToDo client)
         {
@@ -271,7 +274,41 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 newJobViewModel.Images.Add((IFormFile?)file);
             }
         }
+        public async Task GeneratePdfFromDataGridAsync()
+        {
 
+
+            try
+            {
+                var pdfBytes = await _pdfService.GetTodoDetailsPdfByClientId(selectedClientId);
+
+
+                await jsRuntime.InvokeVoidAsync("BlazorDownloadFile", "DigitalPrintEST.pdf", "application/pdf", pdfBytes);
+            }
+            catch (Exception ex) { }
+        }
+
+        public async Task SendBulkWorkEmailByClientId()
+        {
+
+
+
+            var response = await _pdfService.SendBulkWorkEmailByClientId(selectedClientId);
+
+            if (response.IsSuccessStatusCode == true)
+            {
+                responseMessage = await response.Content.ReadAsStringAsync();
+                alertColor = Radzen.AlertStyle.Success;
+                showAlert = true; // Show alert
+            }
+            else
+            {
+                responseMessage = await response.Content.ReadAsStringAsync();
+                alertColor = Radzen.AlertStyle.Danger;
+                showAlert = true; // Show alert
+
+            }
+        }
         private async void OnCellClick(DataGridCellMouseEventArgs<JobToDo> args)
         {
             if (todoToUpdate.Any())

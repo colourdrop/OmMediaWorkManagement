@@ -22,7 +22,7 @@
                             @omEmployee.Name
                         </Template>
                         <EditTemplate Context="omEmployee">
-                            <RadzenUpload Multiple="true" Accept="image/*" Url="upload/multiple" Progress="@((args) => OnProgress(args, "Images only upload"))" />
+                            <RadzenUpload Multiple="true" Accept="image/*" Url="upload/multiple" OnChange="@HandleFileSelection" Progress="@((args) => OnProgress(args, "Images only upload"))" />
 
                             <RadzenTextBox @bind-Value="omEmployee.Name" Style="width:100%;" />
                         </EditTemplate>
@@ -30,12 +30,12 @@
                  @*    <RadzenDataGridColumn TItem="OmEmployee" Propertyd="Address" Title="Address" Width="200px" /> *@
                     <RadzenDataGridColumn Property="Address" Title="Address" Width="200px">
                         <EditTemplate Context="emp">
-                            <RadzenNumeric @bind-Value="emp.Address" Style="width:100%;" />
+                            <RadzenTextArea @bind-Value="emp.Address" Style="width:100%;" />
                         </EditTemplate>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn Property="Email" Title="Email" Width="200px">
                         <EditTemplate Context="emp">
-                            <RadzenNumeric @bind-Value="emp.Email" Style="width:100%;" />
+                            <RadzenTextBox @bind-Value="emp.Email" Style="width:100%;" />
                         </EditTemplate>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn Property="PhoneNumber" Title="PhoneNumber" Width="200px">
@@ -50,10 +50,18 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn Property="CreatedDate" Title="CreatedDate" FormatString="{0:d}"  Width="200px">
                         <EditTemplate Context="emp">
-                            <RadzenNumeric @bind-Value="emp.CreatedDate" Style="width:100%;" />
+                            <RadzenDatePicker @bind-Value="emp.CreatedDate" Style="width:100%;" />
                         </EditTemplate>
                     </RadzenDataGridColumn>
-            
+                  @*   <RadzenDataGridColumn Property="EmployeeDocuments" Title="EmployeeDocuments" FormatString="{0:d}" Width="200px">
+                        <Template Context="emp">
+                            To view Document Click on Document Tab
+                                </Template>
+                        <EditTemplate Context="emp">
+                            <RadzenUpload Multiple="true" Accept="image/*" Url="upload/multiple" OnChange="@HandleDocumentFileSelection" Progress="@((args) => OnProgress(args, "Images only upload"))" />
+
+                        </EditTemplate>
+                    </RadzenDataGridColumn> *@
                     <RadzenDataGridColumn Context="omEmployee" Filterable="false" Sortable="false" Title="Action" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="omEmployee">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(omEmployee))" @onclick:stopPropagation="true">
@@ -112,13 +120,4 @@
     </div>
 </div>
  
-@code {
-    int progress;
-    string info;
-
-    void OnProgress(UploadProgressArgs args, string name)
-    {
-        this.info = $"% '{name}' / {args.Loaded} of {args.Total} bytes.";
-        this.progress = args.Progress;
-    }
-}
+ 

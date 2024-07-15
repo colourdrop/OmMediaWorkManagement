@@ -44,6 +44,8 @@ namespace OmMediaWorkManagement.Web.Components.Services
         #region EmployeeManagement
         Task<List<OmEmployee>>GetOmEmployees();
         Task<List<OmEmployeeSalaryManagement>> GetSalaryManagementByEmployeeId(int employeeID);
+        Task<HttpResponseMessage> AddEmployee(AddOmEmployee addOmEmployee);
+        Task<HttpResponseMessage> AddSalaryManagement(OmEmployeeSalaryManagement omEmployeeSalaryManagement);
         #endregion
     }
 }

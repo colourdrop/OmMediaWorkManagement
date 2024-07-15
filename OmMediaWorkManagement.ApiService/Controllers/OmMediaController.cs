@@ -8,6 +8,8 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 namespace OmMediaWorkManagement.ApiService.Controllers
 {
@@ -17,11 +19,13 @@ namespace OmMediaWorkManagement.ApiService.Controllers
     {
         private readonly OmContext _context;
         private readonly ILogger<OmMediaController> _logger;
+        private readonly IConverter _converter;
 
-        public OmMediaController(OmContext context, ILogger<OmMediaController> logger)
+        public OmMediaController(OmContext context, ILogger<OmMediaController> logger, IConverter converter)
         {
             _context = context;
             _logger = logger;
+            _converter = converter;
         }
 
         #region Client Details
@@ -304,6 +308,107 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok($"Work Updated Successfully");
         }
 
+
+        [HttpGet("GetWorkDetailsPdfByClientId")]
+        [Authorize]
+        public async Task<byte[]> GetWorkDetailsPdfByClientId(int clientId)
+        {
+            var clientWorks = await _context.OmClientWork
+                .Where(work => work.OmClientId == clientId && work.IsDeleted == false&&work.IsPaid==false)
+                 .Select(d => new ClientWorkDto
+                 {
+                     Id = d.Id,
+                     WorkDate = d.WorkDate,
+                     WorkDetails = d.WorkDetails,
+                     PrintCount = d.PrintCount,
+                     OmClientId = d.OmClientId,
+                     Price = d.Price,
+                     Total = d.Total,
+                     Remarks = d.Remarks,
+                     IsPaid = d.IsPaid,
+                     TotalPayable = d.TotalPayable,
+                     DueBalance = d.DueBalance,
+                     PaidAmount = d.PaidAmount,
+                     IsDeleted = d.IsDeleted,
+                     IsEmailSent = d.IsEmailSent,
+                     IsSMSSent = d.IsSMSSent,
+                     IsPushSent = d.IsPushSent,
+                     UserId = d.UserId,
+                     UserName = d.UserRegistration.UserName
+                 }).OrderByDescending(d => d.WorkDate)
+                .ToListAsync();
+            if (clientWorks.Count != 0)
+            {
+                var generateHTML = await GenerateWorkHistoryHtml(clientWorks);
+                var clientPDF = await GeneratePdfAsync(generateHTML);
+                return clientPDF;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        private async Task<string> GenerateWorkHistoryHtml(List<ClientWorkDto> data)
+        {
+            var GetClientName = _context.OmClient.FirstOrDefault(d => d.Id == data.FirstOrDefault().OmClientId).Name;
+            // Initialize the HTML content with the opening tags
+            var htmlContent = "<html><body><div class='container mt-3'><div class='d-flex justify-content-between mb-3'>";
+
+            // Add headers for Client Name, Estimate, and Print Date
+            htmlContent += $"<div class='p-2'>{GetClientName}</div>";     
+            htmlContent += $"<div class='p-2'>Print Date: {DateTime.Now}</div>";
+            htmlContent += "</div>";
+
+            // Add the table structure
+            htmlContent += "<div class='table-responsive'><table class='table table-bordered'><thead><tr>";
+
+            // Add table headers
+            htmlContent += "<th>Work Date</th>";
+            htmlContent += "<th>Detail</th>";
+            htmlContent += "<th>Quantity</th>";
+            htmlContent += "<th>Rate</th>";
+            htmlContent += "<th>Total Payable</th>";
+            htmlContent += "<th>Paid Amount</th>";
+            htmlContent += "<th>Due Balance</th>";
+            htmlContent += "</tr></thead><tbody>";
+
+            int? totalPayable = 0;
+            int? totalPaidAmount = 0;
+            int? totalDueBalance = 0;
+
+            // Add rows dynamically from the provided data
+            foreach (var item in data)
+            {
+                htmlContent += "<tr>";
+                htmlContent += $"<td class='text-center'>{ConvertUtcToIst(item.WorkDate)}</td>";
+                htmlContent += $"<td class='text-center'>{item.WorkDetails}</td>";
+                htmlContent += $"<td class='text-center'>{item.PrintCount}</td>";
+                htmlContent += $"<td class='text-center'>{item.Price}</td>";
+                htmlContent += $"<td class='text-center'>{item.TotalPayable}</td>";
+                htmlContent += $"<td class='text-center'>{item.PaidAmount}</td>";
+                htmlContent += $"<td class='text-center'>{item.DueBalance}</td>";
+                htmlContent += "</tr>";
+
+                // Calculate totals
+                totalPayable += item.TotalPayable;
+                totalPaidAmount += item.PaidAmount;
+                totalDueBalance += item.DueBalance;
+            }
+
+            // Add total row
+            htmlContent += "<tr>";
+            htmlContent += "<td colspan='4'><strong>Total:</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalPayable}</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalPaidAmount}</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalDueBalance}</strong></td>";
+            htmlContent += "</tr>";
+
+            // Close the table and container tags
+            htmlContent += "</tbody></table></div></div></body></html>";
+
+            return htmlContent;
+        }
+
         #endregion
 
         #region JobTodo
@@ -532,7 +637,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         [Authorize]
         public async Task<IActionResult> GetJobsToDosById(int jobToDoId)
         {
-            
+
             var jobList = await _context.JobToDo
                .Include(d => d.JobImages)
                .Include(d => d.OmClient)
@@ -572,7 +677,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             // Await all tasks to get the list of JobToDoResponseViewModel
             var jobToDoResponses = await Task.WhenAll(jobToDoResponsesTasks);
 
-          
+
             if (jobToDoResponses == null)
             {
                 return NotFound();
@@ -626,7 +731,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         //[Authorize]
         public async Task<IActionResult> GetJobsToDosByUserId(int empId)
         {
-            var getJobList = await _context.JobToDo.Include(d=>d.OmEmployee).Include(d=>d.OmClient).Include(d=>d.JobImages).Where(d => d.OmEmpId == empId).OrderByDescending(d=>d.JobPostedDateTime).ToListAsync();
+            var getJobList = await _context.JobToDo.Include(d => d.OmEmployee).Include(d => d.OmClient).Include(d => d.JobImages).Where(d => d.OmEmpId == empId).OrderByDescending(d => d.JobPostedDateTime).ToListAsync();
             var request = HttpContext.Request;
             var baseUrl = $"{request.Scheme}://{request.Host}";
             var jobStatusDictionary = await _context.JobTypeStatus
@@ -638,7 +743,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 OmClientId = job.OmClientId,
                 ClientName = job.OmClient.Name,
                 CompanyName = job.OmClient.CompanyName,
-                Description = job.Description,           
+                Description = job.Description,
                 Quantity = job.Quantity,
                 JobStatusType = job.JobStatusType,
                 IsStatus = job.IsStatus,
@@ -655,6 +760,129 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(jobToDoResponses.ToList());
         }
+
+        [HttpGet("GetTodoDetailsPdfByClientId")]
+        [Authorize]
+        public async Task<byte[]> GetTodoDetailsPdfByClientId(int clientId)
+        {
+            var jobList = await _context.JobToDo
+                .Include(d => d.JobImages)
+                .Include(d => d.OmClient)
+                .Include(d => d.OmEmployee)
+                .OrderByDescending(job => job.JobPostedDateTime).Where(d=>d.OmClientId==clientId)
+                .ToListAsync();
+
+            var jobStatusDictionary = await _context.JobTypeStatus
+                .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Use Task.WhenAll to await all async projections
+            var jobToDoResponsesTasks = jobList.Select(async job => new JobToDoResponseViewModel
+            {
+                Id = job.Id,
+                OmClientId = job.OmClientId,
+                ClientName = job.OmClient.Name,
+                CompanyName = job.CompanyName,
+                Description = job.Description,
+                Price = job.Price,
+                Total = job.total,
+                TotalPayable = job.TotalPayable,
+                DueBalance = job.DueBalance,
+                PaidAmount = job.PaidAmount,
+                Quantity = job.Quantity,
+                JobStatusType = job.JobStatusType,
+                IsStatus = job.IsStatus,
+                JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
+                JobPostedDateTime = job.JobPostedDateTime,
+                OmEmpId = job.OmEmpId,
+                OmEmpName = job.OmEmployee.Name,
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+            }).ToList();
+
+            // Await all tasks to get the list of JobToDoResponseViewModel
+            var jobToDoResponses = await Task.WhenAll(jobToDoResponsesTasks);
+            if (jobToDoResponses.Length != 0)
+            {
+                // Assuming jobToDoResponses is an array (JobToDoResponseViewModel[])
+                var jobToDoResponsesArray = await Task.WhenAll(jobToDoResponsesTasks);
+
+                // Convert array to list if needed
+                var jobToDoResponsesList = jobToDoResponsesArray.ToList();
+
+                // Example of passing list to a method
+                var generateHTML = await GenerateTodoHistoryHtml(jobToDoResponsesList);
+
+                var clientPDF = await GeneratePdfAsync(generateHTML);
+                return clientPDF;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        private async Task<string> GenerateTodoHistoryHtml(List<JobToDoResponseViewModel> data)
+        {
+            var GetClientName = _context.OmClient.FirstOrDefault(d => d.Id == data.FirstOrDefault().OmClientId).Name;
+            // Initialize the HTML content with the opening tags
+            var htmlContent = "<html><body><div class='container mt-3'><div class='d-flex justify-content-between mb-3'>";
+
+            // Add headers for Client Name, Estimate, and Print Date
+            htmlContent += $"<div class='p-2'>{GetClientName}</div>";
+            htmlContent += $"<div class='p-2'>Print Date: {DateTime.Now}</div>";
+            htmlContent += "</div>";
+
+            // Add the table structure
+            htmlContent += "<div class='table-responsive'><table class='table table-bordered'><thead><tr>";
+
+            // Add table headers
+            htmlContent += "<th>Work Date</th>";
+            htmlContent += "<th>Detail</th>";
+            htmlContent += "<th>Quantity</th>";
+            htmlContent += "<th>Rate</th>";
+            htmlContent += "<th>Total Payable</th>";
+            htmlContent += "<th>Paid Amount</th>";
+            htmlContent += "<th>Due Balance</th>";
+            htmlContent += "</tr></thead><tbody>";
+
+            int? totalPayable = 0;
+            int? totalPaidAmount = 0;
+            int? totalDueBalance = 0;
+
+            // Add rows dynamically from the provided data
+            foreach (var item in data)
+            {
+                htmlContent += "<tr>";
+                htmlContent += $"<td class='text-center'>{ConvertUtcToIst(item.JobPostedDateTime)}</td>";
+                htmlContent += $"<td class='text-center'>{item.Description}</td>";
+                htmlContent += $"<td class='text-center'>{item.Quantity}</td>";
+                htmlContent += $"<td class='text-center'>{item.Price}</td>";
+                htmlContent += $"<td class='text-center'>{item.TotalPayable}</td>";
+                htmlContent += $"<td class='text-center'>{item.PaidAmount}</td>";
+                htmlContent += $"<td class='text-center'>{item.DueBalance}</td>";
+                htmlContent += "</tr>";
+
+                // Calculate totals
+                totalPayable += item.TotalPayable;
+                totalPaidAmount += item.PaidAmount;
+                totalDueBalance += item.DueBalance;
+            }
+
+            // Add total row
+            htmlContent += "<tr>";
+            htmlContent += "<td colspan='4'><strong>Total:</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalPayable}</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalPaidAmount}</strong></td>";
+            htmlContent += $"<td class='text-center'><strong>{totalDueBalance}</strong></td>";
+            htmlContent += "</tr>";
+
+            // Close the table and container tags
+            htmlContent += "</tbody></table></div></div></body></html>";
+
+            return htmlContent;
+        }
+        
         #endregion
 
         #region OmMachines
@@ -830,6 +1058,107 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return StatusCode(500, $"Failed to send email: {ex.Message}");
             }
         }
+
+
+        [HttpPost]
+        [Route("SendBulkWorkEmailByClientId")]
+        [Authorize]
+        public async Task<IActionResult> SendBulkWorkEmailByClientId(int clientId)
+        {
+            var client = await _context.OmClient.FirstOrDefaultAsync(d => d.Id == clientId);
+            var clientWorkList = await _context.OmClientWork
+                .Where(work => work.OmClientId == clientId && !work.IsDeleted && !work.IsPaid)
+                .Select(d => new ClientWorkDto
+                {
+                    Id = d.Id,
+                    WorkDate = d.WorkDate,
+                    WorkDetails = d.WorkDetails,
+                    PrintCount = d.PrintCount,
+                    OmClientId = d.OmClientId,
+                    Price = d.Price,
+                    Total = d.Total,
+                    Remarks = d.Remarks,
+                    IsPaid = d.IsPaid,
+                    TotalPayable = d.TotalPayable,
+                    DueBalance = d.DueBalance,
+                    PaidAmount = d.PaidAmount,
+                    IsDeleted = d.IsDeleted,
+                    IsEmailSent = d.IsEmailSent,
+                    IsSMSSent = d.IsSMSSent,
+                    IsPushSent = d.IsPushSent,
+                    UserId = d.UserId,
+                    UserName = d.UserRegistration.UserName
+                })
+                .OrderByDescending(d => d.WorkDate)
+                .ToListAsync();
+
+            if (client == null)
+            {
+                return BadRequest("Client not found");
+            }
+            if (clientWorkList.Count == 0)
+            {
+                return BadRequest("Please Select other client there is not work history ");
+            }
+            try
+            {
+                // Generate the HTML content and PDF
+                var htmlContent = await GenerateWorkHistoryHtml(clientWorkList);
+                var pdfBytes = await GeneratePdfAsync(htmlContent);
+
+                // Gmail SMTP server address
+                string smtpServer = "smtp.gmail.com";
+                int port = 587; // Gmail SMTP port
+                string fromAddress = "colourdrop99@gmail.com";
+                string password = "uepe ssdz gylo xaaj";
+
+                // Create a new SmtpClient
+                using (SmtpClient smtpClient = new SmtpClient(smtpServer, port))
+                {
+                    // Enable SSL/TLS encryption
+                    smtpClient.EnableSsl = true;
+                    // Set the credentials
+                    smtpClient.Credentials = new NetworkCredential(fromAddress, password);
+
+                    // Create the email message
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        mailMessage.From = new MailAddress(fromAddress);
+                        mailMessage.To.Add(client.Email);
+                        mailMessage.Subject = "Payment Reminder: Pending Invoice for " + client.CompanyName;
+                        // Constructing the email body using the template
+                        string body = $"Dear {client.Name},\n\n";
+                        body += "We have completed the work for you, and the payment is now pending. Please find the work details in the attached PDF.\n\n";
+                        body += "Please initiate the payment at your earliest convenience. If you have already made the payment, kindly ignore this email.\n\n";
+                        body += "This email was generated by our system. For more information about our services, please visit www.codersf5.com.\n\n";
+                        body += "Best regards,\n";
+                        body += "Sukhdev Singh\n";
+                        body += "Om Media Solutions\n";
+
+                        mailMessage.Body = body;
+
+                        // Attach the PDF
+                        using (var ms = new MemoryStream(pdfBytes))
+                        {
+                            ms.Position = 0;
+                            mailMessage.Attachments.Add(new Attachment(ms, "WorkEstimate.pdf", "application/pdf"));
+
+                            // Send the email
+                            smtpClient.Send(mailMessage);
+                        }
+                    }
+                }
+
+               
+
+                return Ok("Email sent successfully with PDF attachment");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to send email: {ex.Message}");
+            }
+        }
+
         #endregion
 
         #region AddEmployee
@@ -1110,6 +1439,62 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         }
 
         #endregion
+
+
+
+        #region PDF Generator
+        private async Task<byte[]> GeneratePdfAsync(string? htmlContent)
+        {
+            var globalSettings = new GlobalSettings
+            {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Landscape,
+                PaperSize = PaperKind.A4,
+                Margins = new MarginSettings { Top = 10, Bottom = 10 },
+                DocumentTitle = "Digital Print Work Estimate"
+            };
+
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = htmlContent,
+                WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "bootstrap", "bootstrap.min.css") },
+                HeaderSettings = { FontName = "Arial", FontSize = 9, Center = "ESTIMATE", Line = true },
+                FooterSettings = { FontName = "Arial", FontSize = 9, Line = true, Center = "System Generated Report\nDeveloped & Designed by www.codersf5.com" }
+            };
+
+            var watermark = "<div style='position: fixed; width: 100%; height: 100%; z-index: -1; font-size: 200px; color: lightgray; opacity: 0.5; transform: rotate(-45deg); text-align: center; vertical-align: middle; line-height: 20rem;'>ESTIMATE</div>";
+
+            var pdf = new HtmlToPdfDocument
+            {
+                GlobalSettings = globalSettings,
+                Objects = { new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = watermark + htmlContent,
+                WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "bootstrap", "bootstrap.min.css") },
+                HeaderSettings = { FontName = "Arial", FontSize = 9, Center = "ESTIMATE", Line = true },
+                FooterSettings = { FontName = "Arial", FontSize = 9, Line = true, Center = "System Generated Report\nDeveloped & Designed by www.codersf5.com" }
+            }
+        }
+            };
+
+            return _converter.Convert(pdf);
+        }
+
+        #endregion
+
+        string ConvertUtcToIst(DateTime utcDateTime)
+        {
+            // Get Indian Standard Time zone
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+            // Convert UTC to IST
+            DateTime istDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, istZone);
+
+            // Format datetime as "M/d/yyyy h:mm tt"
+            return istDateTime.ToString("M/d/yyyy h:mm tt");
+        }
     }
 
 

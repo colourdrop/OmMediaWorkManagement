@@ -51,7 +51,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private async Task OnClientSelected(object value)
         {
             selectedClientId = (int)value;
-          
+
             if (selectedClientId != 0)
             {
                 filteredClientWorkHistory = await OmService.GetClientWorkById(selectedClientId);
@@ -404,85 +404,40 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 StateHasChanged();
             }
         }
-        public async Task GeneratePdfFromDataGridAsync(List<OmClientWork> data)
+        public async Task GeneratePdfFromDataGridAsync()
         {
-           
-            var htmlContent =await GenerateHtmlFromDataGrid(data);
-            responseMessage = "HTML Generated";
-            alertColor = Radzen.AlertStyle.Success;
-            showAlert = true; // Show alert
+
+
             try
             {
-                var pdfBytes = await _pdfService.GeneratePdfAsync(htmlContent);
-                responseMessage = "Generating PDF";
-                alertColor = Radzen.AlertStyle.Success;
-                showAlert = true; // Show alert
-                // Optionally, you can save or return the PDF bytes
-                // Example: Save to file
+                var pdfBytes = await _pdfService.GetWorkDetailsPdfByClientId(selectedClientId);
+
+
                 await jsRuntime.InvokeVoidAsync("BlazorDownloadFile", "DigitalPrintEST.pdf", "application/pdf", pdfBytes);
             }
             catch (Exception ex) { }
         }
 
-        public async Task<string> GenerateHtmlFromDataGrid(List<OmClientWork> data)
+        public async Task SendBulkWorkEmailByClientId()
         {
-            // Initialize the HTML content with the opening tags
-            var htmlContent = "<html><body><div class='container mt-3'><div class='d-flex justify-content-between mb-3'>";
 
-            // Add headers for Client Name, Estimate, and Print Date
-            htmlContent += $"<div class='p-2'>{GetClientName(data.FirstOrDefault().OmClientId)}</div>";
-            htmlContent += $"<div class='p-2'>Estimate</div>";
-            htmlContent += $"<div class='p-2'>Print Date: {DateTime.Now}</div>";
-            htmlContent += "</div>";
 
-            // Add the table structure
-            htmlContent += "<div class='table-responsive'><table class='table table-bordered'><thead><tr>";
 
-            // Add table headers
-            htmlContent += "<th>Work Date</th>";
-            htmlContent += "<th>Detail</th>";
-            htmlContent += "<th>Quantity</th>";
-            htmlContent += "<th>Rate</th>";
-            htmlContent += "<th>Total Payable</th>";
-            htmlContent += "<th>Paid Amount</th>";
-            htmlContent += "<th>Due Balance</th>";
-            htmlContent += "</tr></thead><tbody>";
+            var response = await _pdfService.SendBulkWorkEmailByClientId(selectedClientId);
 
-            int? totalPayable = 0;
-            int? totalPaidAmount = 0;
-            int? totalDueBalance = 0;
-
-            // Add rows dynamically from the provided data
-            foreach (var item in data)
+            if (response.IsSuccessStatusCode == true)
             {
-                htmlContent += "<tr>";
-                htmlContent += $"<td class='text-center'>{ConvertUtcToIst(item.WorkDate)}</td>";
-                htmlContent += $"<td class='text-center'>{item.WorkDetails}</td>";
-                htmlContent += $"<td class='text-center'>{item.PrintCount}</td>";
-                htmlContent += $"<td class='text-center'>{item.Price}</td>";
-                htmlContent += $"<td class='text-center'>{item.TotalPayable}</td>";
-                htmlContent += $"<td class='text-center'>{item.PaidAmount}</td>";
-                htmlContent += $"<td class='text-center'>{item.DueBalance}</td>";
-                htmlContent += "</tr>";
-
-                // Calculate totals
-                totalPayable += item.TotalPayable;
-                totalPaidAmount += item.PaidAmount;
-                totalDueBalance += item.DueBalance;
+                responseMessage = await response.Content.ReadAsStringAsync();
+                alertColor = Radzen.AlertStyle.Success;
+                showAlert = true; // Show alert
             }
+            else
+            {
+                responseMessage = await response.Content.ReadAsStringAsync();
+                alertColor = Radzen.AlertStyle.Danger;
+                showAlert = true; // Show alert
 
-            // Add total row
-            htmlContent += "<tr>";
-            htmlContent += "<td colspan='4'><strong>Total:</strong></td>";
-            htmlContent += $"<td class='text-center'><strong>{totalPayable}</strong></td>";
-            htmlContent += $"<td class='text-center'><strong>{totalPaidAmount}</strong></td>";
-            htmlContent += $"<td class='text-center'><strong>{totalDueBalance}</strong></td>";
-            htmlContent += "</tr>";
-
-            // Close the table and container tags
-            htmlContent += "</tbody></table></div></div></body></html>";
-
-            return htmlContent;
+            }
         }
 
 

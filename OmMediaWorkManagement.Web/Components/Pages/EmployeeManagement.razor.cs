@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.Web.Components.Models;
 using OmMediaWorkManagement.Web.Components.Services;
@@ -6,6 +7,7 @@ using OmMediaWorkManagement.Web.Components.ViewModels;
 using Radzen;
 using Radzen.Blazor;
 using System.ComponentModel.DataAnnotations;
+using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 
 namespace OmMediaWorkManagement.Web.Components.Pages
 {
@@ -14,7 +16,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         [Inject]
         public IOmService _OmService { get; set; }
         List<OmEmployee> employees = new List<OmEmployee>();
-        IList<OmEmployee> SelectedEmp  ;
+        IList<OmEmployee> SelectedEmp;
         List<OmEmployeeSalaryManagement> salaryManagementData = new List<OmEmployeeSalaryManagement>();
         private string responseMessage = "";
         private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
@@ -29,6 +31,11 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private List<OmEmployee> empToInsert = new List<OmEmployee>();
         private List<OmEmployee> empToUpdate = new List<OmEmployee>();
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
+        int progress;
+        string info;
+       public IFormFile selectedFile;
+       public  List<IFormFile> selectedDocumentFile=new List<IFormFile>();
+
         protected override async Task OnInitializedAsync()
         {
             employees = await _OmService.GetOmEmployees();
@@ -39,19 +46,19 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private int GetRowIndex(OmEmployee omEmployee)
         {
             return employees.IndexOf(omEmployee);
-        } 
-        async void OnEmployeeRowClick(DataGridRowMouseEventArgs< OmEmployee> omEmployee)
+        }
+        async void OnEmployeeRowClick(DataGridRowMouseEventArgs<OmEmployee> omEmployee)
         {
             if (omEmployee.Data != null)
             {
-                salaryManagementData=await _OmService.GetSalaryManagementByEmployeeId(omEmployee.Data.Id);
+                salaryManagementData = await _OmService.GetSalaryManagementByEmployeeId(omEmployee.Data.Id);
             }
             salaryManagementGrid.RefreshDataAsync();
         }
 
         async Task FetchSalaryManagement(int employeeId)
         {
-            var salaryManagement=await _OmService.GetSalaryManagementByEmployeeId(employeeId);
+            var salaryManagement = await _OmService.GetSalaryManagementByEmployeeId(employeeId);
         }
         async Task AddSalary()
         {
@@ -68,7 +75,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         private async Task EditRow(OmEmployee omEmployee)
         {
-            if (editMode == DataGridEditMode.Single  )
+            if (editMode == DataGridEditMode.Single)
             {
                 Reset();
             }
@@ -82,75 +89,95 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             //Reset(client);
 
         }
-        private async Task InsertRow( )
+        private async Task InsertRow()
         {
-            
-                var emp = new OmEmployee { CreatedDate = DateTime.UtcNow };
+
+            var emp = new OmEmployee { CreatedDate = DateTime.UtcNow };
             empToInsert.Add(emp);
             employees.Insert(0, emp);
             await empGrid.EditRow(emp);
             await empGrid.Reload();
             StateHasChanged();
         }
+        void OnProgress(UploadProgressArgs args, string name)
+        {
+
+            this.info = $"% '{name}' / {args.Loaded} of {args.Total} bytes.";
+            this.progress = args.Progress;
+        }
+
+        void HandleFileSelection(IEnumerable<IFormFile> files)
+        {
+            foreach (var file in files)
+            {
+                selectedFile = file;
+
+
+            }
+        }
+        void HandleDocumentFileSelection(IEnumerable<IFormFile> files)
+        {
+            foreach (var file in files)
+            {
+                selectedDocumentFile.Add( file);
+
+
+            }
+        }
+        
         private async Task SaveRow(OmEmployee omEmployee)
         {
-            //CalculateTotal(toDo);
-            //var validationResults = new List<ValidationResult>();
-            //var isValid = Validator.TryValidateObject(toDo, new ValidationContext(toDo), validationResults, true);
-            //if (isValid)
-            //{
-            //    if (toDo.Id != 0 && toDo.Price != null)
-            //    {
-            //        JobToDoViewModel jobToDoViewModel = new JobToDoViewModel()
-            //        {
-            //            OmClientId = toDo.OmClientId,
-            //            ClientName = toDo.ClientName,
-            //            ComapnyName = toDo.CompanyName,
-            //            Quantity = (int)toDo.Quantity,
-            //            Price = (int)toDo.Price,
-            //            TotalPayable = toDo.TotalPayable,
-            //            DueBalance = toDo.DueBalance,
-            //            PaidAmount = toDo.PaidAmount,
-            //            total = 0,
-            //            Description = toDo.Description,
-            //            IsStatus = toDo.IsStatus,
-            //            JobStatusType = toDo.JobStatusType,
-            //        };
-            //        var response = await OmService.UpdateJobtToDo(toDo.Id, jobToDoViewModel);
-            //        response.EnsureSuccessStatusCode();
-            //        responseMessage = await response.Content.ReadAsStringAsync();
+            if (selectedFile != null)
+            {
+                // Initialize AddOmEmployee instance
+                AddOmEmployee addOmEmployee = new AddOmEmployee();
 
-            //        if (response.IsSuccessStatusCode == true)
-            //        {
-            //            alertColor = Radzen.AlertStyle.Success;
-            //        }
-            //        else
-            //        {
-            //            alertColor = Radzen.AlertStyle.Danger;
+                // Map properties from OmEmployee to AddOmEmployee
+                addOmEmployee.Name = omEmployee.Name;
+                addOmEmployee.Address = omEmployee.Address;
+                addOmEmployee.CompanyName = omEmployee.CompanyName;
+                addOmEmployee.Email = omEmployee.Email;
+                addOmEmployee.PhoneNumber = omEmployee.PhoneNumber;
+                addOmEmployee.SalaryAmount = omEmployee.SalaryAmount;
+                addOmEmployee.IsSalaryPaid = omEmployee.IsSalaryPaid;
+                addOmEmployee.Description = omEmployee.Description;
 
-            //        }
-            //        showAlert = true; // Show alert
-            //    }
-            //    else
-            //    {
-            //        await todoGrid.UpdateRow(toDo);
+                // Set EmployeeProfile if selectedFile is not null
+                using (var memoryStream = new MemoryStream())
+                {
+                    await selectedFile.CopyToAsync(memoryStream);
+                    addOmEmployee.EmployeeProfile = new FormFile(memoryStream, 0, memoryStream.Length, selectedFile.Name, selectedFile.FileName);
+                }
+                // Add EmployeeDocuments files if present
+                // Handle EmployeeDocuments
+                if (selectedDocumentFile != null && selectedDocumentFile.Any())
+                {
+                    addOmEmployee.EmployeeDocuments = new List<IFormFile>();
 
-            //    }
-            //}
-            //else
-            //{
-            //    responseMessage = "Please fill all columns";
-            //    alertColor = Radzen.AlertStyle.Warning;
-            //    showAlert = true; // Show alert
-            //}
-            //await RefreshTable();
-            //await todoGrid.Reload();
+                    foreach (var file in selectedDocumentFile)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await file.CopyToAsync(memoryStream);
+                            addOmEmployee.EmployeeDocuments.Add(new FormFile(memoryStream, 0, memoryStream.Length, file.Name, file.FileName));
+                        }
+                    }
+                }
+                // Send HTTP request to API endpoint to add employee
+                var response = await _OmService.AddEmployee(addOmEmployee);
 
+                // Handle response as needed
+            }
+            else
+            {
+                // Handle case where no file is selected
+            }
         }
+
 
         private void CancelEdit(OmEmployee omEmployee)
         {
-            Reset( );
+            Reset();
             empGrid.CancelEditRow(omEmployee);
 
 

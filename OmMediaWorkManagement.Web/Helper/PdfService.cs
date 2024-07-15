@@ -1,44 +1,41 @@
 ﻿using DinkToPdf;
 using DinkToPdf.Contracts;
+using System.Net.Http;
 namespace OmMediaWorkManagement.Web.Helper
 {
     public class PdfService : IPdfService
     {
-        private readonly IConverter _converter;
-        public PdfService(IConverter converter)
+        private readonly HttpClient httpClient;
+        public PdfService(HttpClient httpClient)
         {
-            _converter = converter;
+            this.httpClient = httpClient;
         }
- 
 
-            public async Task<byte[]> GeneratePdfAsync(string htmlContent)
-            {
-                var globalSettings = new GlobalSettings
-                {
-                    ColorMode = ColorMode.Color,
-                    Orientation = Orientation.Landscape,
-                    PaperSize = PaperKind.A4,
-                    Margins = new MarginSettings { Top = 10 },
-                    DocumentTitle = "Digital Print Work Estimate"
-                };
-       
-            var objectSettings = new ObjectSettings
-                {
-                    PagesCount = true,
-                    HtmlContent = htmlContent,
-                    WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "bootstrap", "bootstrap.min.css") },
-                    HeaderSettings = { FontName = "Arial", FontSize = 9, Right = "Page [page] of [toPage]", Line = true },
-                    FooterSettings = { FontName = "Arial", FontSize = 9, Line = true, Center = "Report Footer" }
-                };
-
-                var pdf = new HtmlToPdfDocument
-                {
-                    GlobalSettings = globalSettings,
-                    Objects = { objectSettings }
-                };
-
-                return _converter.Convert(pdf);
-            }
+        public async Task<byte[]> GetTodoDetailsPdfByClientId(int clientId)
+        {
+            return await httpClient.GetFromJsonAsync<byte[]>($"/api/OmMedia/GetTodoDetailsPdfByClientId?clientId={clientId}");
         }
- 
+
+        public async Task<byte[]> GetWorkDetailsPdfByClientId(int clientId)
+        {
+            return await httpClient.GetFromJsonAsync<byte[]>($"/api/OmMedia/GetWorkDetailsPdfByClientId?clientId={clientId}");
+        }
+
+        public async Task<HttpResponseMessage> SendBulkTodoEmailByClientId(int clientId)
+        {
+            var response = await httpClient.PostAsync($"/api/OmMedia/SendBulkWorkEmailByClientId?clientId={clientId}", null);
+
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> SendBulkWorkEmailByClientId(int clientId)
+        {
+            var response = await httpClient.PostAsync($"/api/OmMedia/SendBulkWorkEmailByClientId?clientId={clientId}", null);
+
+            return response;
+
+        }
+
+    }
+
 }
