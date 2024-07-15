@@ -23,7 +23,7 @@ namespace OmMediaWorkManagement.Web.Helper
 
         public async Task<HttpResponseMessage> SendBulkTodoEmailByClientId(int clientId)
         {
-            var response = await httpClient.PostAsync($"/api/OmMedia/SendBulkWorkEmailByClientId?clientId={clientId}", null);
+            var response = await httpClient.PostAsync($"/api/OmMedia/SendBulkTodoEmailByClientId?clientId={clientId}", null);
 
             return response;
         }

@@ -77,7 +77,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             selectedClientId = (int)value;
             if (selectedClientId != 0)
             {
-                filteredtodos = await OmService.GetJobsToDosById(selectedClientId);
+                filteredtodos = await OmService.GetJobsToDosByClientId(selectedClientId);
             }
 
             else
@@ -283,7 +283,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 var pdfBytes = await _pdfService.GetTodoDetailsPdfByClientId(selectedClientId);
 
 
-                await jsRuntime.InvokeVoidAsync("BlazorDownloadFile", "DigitalPrintEST.pdf", "application/pdf", pdfBytes);
+                await jsRuntime.InvokeVoidAsync("BlazorDownloadFile", "OffsetPrint.pdf", "application/pdf", pdfBytes);
             }
             catch (Exception ex) { }
         }
@@ -293,7 +293,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
 
 
-            var response = await _pdfService.SendBulkWorkEmailByClientId(selectedClientId);
+            var response = await _pdfService.SendBulkTodoEmailByClientId(selectedClientId);
 
             if (response.IsSuccessStatusCode == true)
             {

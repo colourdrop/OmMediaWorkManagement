@@ -685,6 +685,59 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(jobToDoResponses);
         }
+    
+        [HttpGet("GetJobsToDosByClientId/{clientId}")]
+        [Authorize]
+        public async Task<IActionResult> GetJobsToDosByClientId(int clientId)
+        {
+
+            var jobList = await _context.JobToDo
+               .Include(d => d.JobImages)
+               .Include(d => d.OmClient)
+               .Include(d => d.OmEmployee).OrderByDescending(d => d.JobPostedDateTime)
+                .Where(j => j.OmClientId==clientId)
+               .ToListAsync();
+
+            var jobStatusDictionary = await _context.JobTypeStatus
+                .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Use Task.WhenAll to await all async projections
+            var jobToDoResponsesTasks = jobList.Select(async job => new JobToDoResponseViewModel
+            {
+                Id = job.Id,
+                OmClientId = job.OmClientId,
+                ClientName = job.OmClient.Name,
+                CompanyName = job.CompanyName,
+                Description = job.Description,
+                Price = job.Price,
+                Total = job.total,
+                TotalPayable = job.TotalPayable,
+                DueBalance = job.DueBalance,
+                PaidAmount = job.PaidAmount,
+                Quantity = job.Quantity,
+                JobStatusType = job.JobStatusType,
+                IsStatus = job.IsStatus,
+                JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
+                JobPostedDateTime = job.JobPostedDateTime,
+                OmEmpId = job.OmEmpId,
+                OmEmpName = job.OmEmployee.Name,
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+            }).ToList();
+
+            // Await all tasks to get the list of JobToDoResponseViewModel
+            var jobToDoResponses = await Task.WhenAll(jobToDoResponsesTasks);
+
+
+            if (jobToDoResponses == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(jobToDoResponses);
+        }
 
 
         [HttpDelete("DeleteJobTodo/{id}")]
@@ -1158,6 +1211,119 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return StatusCode(500, $"Failed to send email: {ex.Message}");
             }
         }
+
+        [HttpPost]
+        [Route("SendBulkTodoEmailByClientId")]
+        [Authorize]
+        public async Task<IActionResult> SendBulkTodoEmailByClientId(int clientId)
+        {
+            var client = await _context.OmClient.FirstOrDefaultAsync(d => d.Id == clientId);
+            var jobList = await _context.JobToDo
+                .Include(d => d.JobImages)
+                .Include(d => d.OmClient)
+                .Include(d => d.OmEmployee).OrderByDescending(d => d.JobPostedDateTime)
+                 .Where(j => j.OmClientId == clientId)
+                .ToListAsync();
+
+            var jobStatusDictionary = await _context.JobTypeStatus
+                .ToDictionaryAsync(x => x.JobStatusType, x => x.JobStatusName);
+
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Use Task.WhenAll to await all async projections
+            var jobToDoResponsesTasks = jobList.Select(async job => new JobToDoResponseViewModel
+            {
+                Id = job.Id,
+                OmClientId = job.OmClientId,
+                ClientName = job.OmClient.Name,
+                CompanyName = job.CompanyName,
+                Description = job.Description,
+                Price = job.Price,
+                Total = job.total,
+                TotalPayable = job.TotalPayable,
+                DueBalance = job.DueBalance,
+                PaidAmount = job.PaidAmount,
+                Quantity = job.Quantity,
+                JobStatusType = job.JobStatusType,
+                IsStatus = job.IsStatus,
+                JobStatusName = jobStatusDictionary.TryGetValue(job.JobStatusType, out var jobStatusName) ? jobStatusName : null,
+                JobPostedDateTime = job.JobPostedDateTime,
+                OmEmpId = job.OmEmpId,
+                OmEmpName = job.OmEmployee.Name,
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+            }).ToList();
+
+            // Await all tasks to get the list of JobToDoResponseViewModel
+            var jobToDoResponses = await Task.WhenAll(jobToDoResponsesTasks);
+            var jobListTodo = jobToDoResponses.ToList();
+            if (client == null)
+            {
+                return BadRequest("Client not found");
+            }
+            if (jobListTodo.Count == 0)
+            {
+                return BadRequest("Please Select other client there is not work history ");
+            }
+            try
+            {
+                // Generate the HTML content and PDF
+                var htmlContent = await GenerateTodoHistoryHtml(jobListTodo);
+                var pdfBytes = await GeneratePdfAsync(htmlContent);
+
+                // Gmail SMTP server address
+                string smtpServer = "smtp.gmail.com";
+                int port = 587; // Gmail SMTP port
+                string fromAddress = "colourdrop99@gmail.com";
+                string password = "uepe ssdz gylo xaaj";
+
+                // Create a new SmtpClient
+                using (SmtpClient smtpClient = new SmtpClient(smtpServer, port))
+                {
+                    // Enable SSL/TLS encryption
+                    smtpClient.EnableSsl = true;
+                    // Set the credentials
+                    smtpClient.Credentials = new NetworkCredential(fromAddress, password);
+
+                    // Create the email message
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        mailMessage.From = new MailAddress(fromAddress);
+                        mailMessage.To.Add(client.Email);
+                        mailMessage.Subject = "Payment Reminder: Pending Invoice for " + client.CompanyName;
+                        // Constructing the email body using the template
+                        string body = $"Dear {client.Name},\n\n";
+                        body += "We have completed the work for you, and the payment is now pending. Please find the work details in the attached PDF.\n\n";
+                        body += "Please initiate the payment at your earliest convenience. If you have already made the payment, kindly ignore this email.\n\n";
+                        body += "This email was generated by our system. For more information about our services, please visit www.codersf5.com.\n\n";
+                        body += "Best regards,\n";
+                        body += "Sukhdev Singh\n";
+                        body += "Om Media Solutions\n";
+
+                        mailMessage.Body = body;
+
+                        // Attach the PDF
+                        using (var ms = new MemoryStream(pdfBytes))
+                        {
+                            ms.Position = 0;
+                            mailMessage.Attachments.Add(new Attachment(ms, "WorkEstimate.pdf", "application/pdf"));
+
+                            // Send the email
+                            smtpClient.Send(mailMessage);
+                        }
+                    }
+                }
+
+
+
+                return Ok("Email sent successfully with PDF attachment");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to send email: {ex.Message}");
+            }
+        }
+
 
         #endregion
 
