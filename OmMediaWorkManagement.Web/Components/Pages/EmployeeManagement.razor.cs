@@ -35,7 +35,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         string info;
        public IFormFile selectedFile;
        public  List<IFormFile> selectedDocumentFile=new List<IFormFile>();
-
+        RadzenUpload upload;
+        RadzenUpload uploadDD;
         protected override async Task OnInitializedAsync()
         {
             employees = await _OmService.GetOmEmployees();
@@ -101,21 +102,24 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         void OnProgress(UploadProgressArgs args, string name)
         {
-
-            this.info = $"% '{name}' / {args.Loaded} of {args.Total} bytes.";
-            this.progress = args.Progress;
-        }
-
-        void HandleFileSelection(IEnumerable<IFormFile> files)
-        {
-            foreach (var file in files)
+            foreach (var file in args.Files)
             {
-                selectedFile = file;
+                // selectedFile = file;
 
 
             }
         }
-        void HandleDocumentFileSelection(IEnumerable<IFormFile> files)
+
+        void HandleFileSelection(UploadChangeEventArgs args)
+        {
+            foreach (var file in args.Files)
+            {
+               // selectedFile = file;
+
+
+            }
+        }
+        void HandleDocumentFileSelection(IList<IFormFile> files)
         {
             foreach (var file in files)
             {

@@ -22,10 +22,12 @@
                             @omEmployee.Name
                         </Template>
                         <EditTemplate Context="omEmployee">
-                            <RadzenUpload Multiple="true" Accept="image/*" Url="upload/multiple" OnChange="@HandleFileSelection" Progress="@((args) => OnProgress(args, "Images only upload"))" />
 
+
+                            <RadzenUpload Multiple="true" Url="upload/multiple" Progress=@(args => OnProgress(args, "Multiple files upload")) class="w-100" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select file" }})" />
                             <RadzenTextBox @bind-Value="omEmployee.Name" Style="width:100%;" />
                         </EditTemplate>
+
                     </RadzenDataGridColumn>
                  @*    <RadzenDataGridColumn TItem="OmEmployee" Propertyd="Address" Title="Address" Width="200px" /> *@
                     <RadzenDataGridColumn Property="Address" Title="Address" Width="200px">
@@ -53,7 +55,7 @@
                             <RadzenDatePicker @bind-Value="emp.CreatedDate" Style="width:100%;" />
                         </EditTemplate>
                     </RadzenDataGridColumn>
-                  @*   <RadzenDataGridColumn Property="EmployeeDocuments" Title="EmployeeDocuments" FormatString="{0:d}" Width="200px">
+                    <RadzenDataGridColumn Property="EmployeeDocuments" Title="EmployeeDocuments" FormatString="{0:d}" Width="200px">
                         <Template Context="emp">
                             To view Document Click on Document Tab
                                 </Template>
@@ -61,7 +63,7 @@
                             <RadzenUpload Multiple="true" Accept="image/*" Url="upload/multiple" OnChange="@HandleDocumentFileSelection" Progress="@((args) => OnProgress(args, "Images only upload"))" />
 
                         </EditTemplate>
-                    </RadzenDataGridColumn> *@
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn Context="omEmployee" Filterable="false" Sortable="false" Title="Action" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                         <Template Context="omEmployee">
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(omEmployee))" @onclick:stopPropagation="true">
