@@ -23,7 +23,9 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
     public class OmEmployeeSalaryManagementViewModel
     {
        
-        public int OmEmployeeId { get; set; }  
+        public int? OmEmployeeId { get; set; }  
+        public int? salaryManagementid { get; set; }
+       
         public decimal? AdvancePayment { get; set; } 
        
         public decimal? OverTimeSalary { get; set; }

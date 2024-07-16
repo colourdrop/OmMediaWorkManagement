@@ -48,6 +48,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         [Inject]
         public IPdfService _pdfService { get; set; }
         private bool IsFirstRender { get; set; } = true;
+        private bool IsDelete=false;
         private int GetRowIndex(JobToDo client)
         {
             return todos.IndexOf(client);
@@ -197,7 +198,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
                 }
                 showAlert = true; // Show alert
-                todos = todos.Where(c => c.Id != jobToDo.Id).ToList();
+             
                 await RefreshTable();
             }
             else
@@ -248,7 +249,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         private async Task RefreshTable()
         {
-            todos = await OmService.GetJobToDos();
+            filteredtodos = await OmService.GetJobToDos();
             await todoGrid.Reload();
         }
         private void ShowDialog()

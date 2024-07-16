@@ -17,7 +17,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         public IOmService _OmService { get; set; }
         List<OmEmployee> employees = new List<OmEmployee>();
         IList<OmEmployee> SelectedEmp;
-        List<OmEmployeeSalaryManagement> salaryManagementData = new List<OmEmployeeSalaryManagement>();
+        List<OmEmployeeSalaryManagement> salaryManagement = new List<OmEmployeeSalaryManagement>();
         private string responseMessage = "";
         private Radzen.AlertStyle alertColor = Radzen.AlertStyle.Info;
         private bool showAlert = false;
@@ -30,18 +30,30 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private string columnEditing;
         private List<OmEmployee> empToInsert = new List<OmEmployee>();
         private List<OmEmployee> empToUpdate = new List<OmEmployee>();
+        private List<OmEmployeeSalaryManagement> empSalToInsert = new List<OmEmployeeSalaryManagement>();
+        private List<OmEmployeeSalaryManagement> empSalToUpdate = new List<OmEmployeeSalaryManagement>();
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
         int progress;
         string info;
         private IBrowserFile selectedFile;
         private List<IBrowserFile> selectedDocumentFiles = new List<IBrowserFile>();
-     
+        private int SelectedEmpId;
         protected override async Task OnInitializedAsync()
         {
             employees = await _OmService.GetOmEmployees();
             await base.OnInitializedAsync();
             SelectedEmp = new List<OmEmployee>() { employees.FirstOrDefault() };
 
+        }
+        private async Task RefreshTable()
+        {
+            employees = await _OmService.GetOmEmployees();
+            await empGrid.Reload();
+        }
+        private async Task RefreshSalaryTable(int omEmployeeId)
+        {
+            salaryManagement = await _OmService.GetSalaryManagementByEmployeeId(omEmployeeId);
+            await salaryManagementGrid.RefreshDataAsync();
         }
         private int GetRowIndex(OmEmployee omEmployee)
         {
@@ -51,7 +63,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
             if (omEmployee.Data != null)
             {
-                salaryManagementData = await _OmService.GetSalaryManagementByEmployeeId(omEmployee.Data.Id);
+                salaryManagement = await _OmService.GetSalaryManagementByEmployeeId(omEmployee.Data.Id);
+                SelectedEmpId = omEmployee.Data.Id;
             }
             salaryManagementGrid.RefreshDataAsync();
         }
@@ -60,14 +73,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
             var salaryManagement = await _OmService.GetSalaryManagementByEmployeeId(employeeId);
         }
-        async Task AddSalary()
-        {
-            // Implement functionality to add salary
-            // Example: POST request to add salary
-            // HttpClient httpClient = new HttpClient();
-            // var response = await httpClient.PostAsync(apiUrl, new StringContent(data, Encoding.UTF8, "application/json"));
-            // Handle the response as needed
-        }
+
         private void Reset()
         {
             empToInsert.Clear();
@@ -151,19 +157,22 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                     EmployeeDocuments = selectedDocumentFiles?.ToList()
                 };
 
-                
+
                 // Send HTTP request to API endpoint to add employee
                 var response = await _OmService.AddEmployee(addOmEmployee);
-                if (response.IsSuccessStatusCode)
+                responseMessage = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode == true)
                 {
-                    
-                    selectedFile = null;
-                    selectedDocumentFiles.Clear();
+                    alertColor = Radzen.AlertStyle.Success;
                 }
                 else
                 {
-                    Console.WriteLine($"Failed to add employee: {response.ReasonPhrase}");
+                    alertColor = Radzen.AlertStyle.Danger;
+
                 }
+                showAlert = true; // Show alert
+                await RefreshTable();
             }
             catch (Exception ex)
             {
@@ -209,16 +218,116 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             //}
         }
 
-        private async Task<IFormFile> CreateFormFileFromIFormFile(IBrowserFile file)
+        #region Sal Managment Crud
+        //Below is Salary Crud
+        async Task AddSalary()
         {
-            using var memoryStream = new MemoryStream();
-            await file.OpenReadStream(maxAllowedSize: 10485760).CopyToAsync(memoryStream); // 10 MB limit
-            memoryStream.Position = 0;
-            return new FormFile(memoryStream, 0, memoryStream.Length, file.Name, file.Name)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = file.ContentType
-            };
+            var empSal = new OmEmployeeSalaryManagement { OmEmployeeId = SelectedEmpId, CreatedDate = DateTime.UtcNow };
+            empSalToInsert.Add(empSal);
+            salaryManagement.Insert(0, empSal);
+
+            await salaryManagementGrid.EditRow(empSal);
+            await salaryManagementGrid.Reload();
+
+            StateHasChanged();
+
         }
+        private async Task EditEmpSalRow(OmEmployeeSalaryManagement omEmployeeSal)
+        {
+            if (editMode == DataGridEditMode.Single)
+            {
+                Reset();
+            }
+
+            empSalToUpdate.Add(omEmployeeSal);
+            await salaryManagementGrid.EditRow(omEmployeeSal);
+        }
+        private async Task DeleteEmpSalRow(OmEmployeeSalaryManagement omEmployeeSal)
+        {
+
+
+            var response = await _OmService.DeleteSalaryManagementById(omEmployeeSal.EmployeeSalaryId);
+            response.EnsureSuccessStatusCode(); 
+            responseMessage = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode == true)
+            {
+                alertColor = Radzen.AlertStyle.Success;
+            }
+            else
+            {
+                alertColor = Radzen.AlertStyle.Danger;
+
+            }
+            showAlert = true; // Show alert
+
+            await RefreshSalaryTable(SelectedEmpId);
+
+        }
+        private async Task SaveEmpSalRow(OmEmployeeSalaryManagement omEmployeeSal)
+        {
+            try
+            {
+                AddOmEmployeeSalaryManagement addOmEmployeeSalaryManagement = new AddOmEmployeeSalaryManagement()
+                {
+                    OmEmployeeId = SelectedEmpId,
+                    salaryManagementid = omEmployeeSal.EmployeeSalaryId,
+                    AdvancePayment = omEmployeeSal.AdvancePayment,
+                    OverBalance = 0,
+                    OverTimeSalary = 0,
+                    DueBalance = 0,
+
+                };
+                if (omEmployeeSal.EmployeeSalaryId == 0)
+                {
+                    // Send HTTP request to API endpoint to add employee
+                    var response = await _OmService.AddSalaryManagement(addOmEmployeeSalaryManagement);
+                    responseMessage = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode == true)
+                    {
+                        alertColor = Radzen.AlertStyle.Success;
+                    }
+                    else
+                    {
+                        alertColor = Radzen.AlertStyle.Danger;
+
+                    }
+                }
+                else
+                {
+                    // Send HTTP request to API endpoint to add employee
+                    var response = await _OmService.UpdateSalaryManagement(addOmEmployeeSalaryManagement);
+                    responseMessage = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode == true)
+                    {
+                        alertColor = Radzen.AlertStyle.Success;
+                    }
+                    else
+                    {
+                        alertColor = Radzen.AlertStyle.Danger;
+
+                    }
+                }
+                await RefreshSalaryTable(SelectedEmpId);
+
+                SelectedEmpId = 0;
+                showAlert = true; // Show alert
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving employee: {ex.Message}");
+            }
+        }
+        private void CancelEditEmpSalRow(OmEmployeeSalaryManagement omEmployeeSal)
+        {
+            Reset();
+            salaryManagementGrid.CancelEditRow(omEmployeeSal);
+
+
+        }
+        #endregion
+
     }
 }

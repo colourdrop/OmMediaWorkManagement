@@ -214,9 +214,21 @@ namespace OmMediaWorkManagement.Web.Components.Services
             }
         }
      
-        public async Task<HttpResponseMessage> AddSalaryManagement(OmEmployeeSalaryManagement omEmployeeSalaryManagement)
+        public async Task<HttpResponseMessage> AddSalaryManagement(AddOmEmployeeSalaryManagement omEmployeeSalaryManagement)
         {
             var response = await httpClient.PostAsJsonAsync("/api/OmMedia/AddSalaryManagement", omEmployeeSalaryManagement);
+
+            return response;
+        }
+        public async Task<HttpResponseMessage> UpdateSalaryManagement(AddOmEmployeeSalaryManagement omEmployeeSalaryManagement)
+        {
+            var response = await httpClient.PutAsJsonAsync("/api/OmMedia/UpdateSalaryManagement", omEmployeeSalaryManagement);
+
+            return response;
+        }
+        public async Task<HttpResponseMessage> DeleteSalaryManagementById(int salaryManagementid)
+        {
+            var response = await httpClient.DeleteAsync($"/api/OmMedia/DeleteSalaryManagementById?salaryManagementid={salaryManagementid}");
 
             return response;
         }

@@ -1,15 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DinkToPdf;
+using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OmMediaWorkManagement.ApiService.DataContext;
 using OmMediaWorkManagement.ApiService.Models;
 using OmMediaWorkManagement.ApiService.ViewModels;
-using System.Net.Mail;
 using System.Net;
-using System.Net.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
-using DinkToPdf.Contracts;
-using DinkToPdf;
+using System.Net.Mail;
 
 namespace OmMediaWorkManagement.ApiService.Controllers
 {
@@ -1545,14 +1543,23 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             // Calculate DueBalance based on whether there is a latest salary record
             decimal? dueBalance = (latestSalary?.DueBalance ?? employee.SalaryAmount) - omEmployeeSalaryManagementViewModel.AdvancePayment;
 
+            // Determine OverBalance based on DueBalance and any existing OverBalance
+            decimal? overBalance = latestSalary?.OverBalance ?? 0; // Start with existing OverBalance or 0
+
+            if (dueBalance < 0)
+            {
+                overBalance += Math.Abs(dueBalance.Value); // Accumulate OverBalance
+                dueBalance = 0; // Set dueBalance to 0 if it's negative
+            }
+
             // Create new OmEmployeeSalaryManagement object
             var omEmployeeSalary = new OmEmployeeSalaryManagement()
             {
-                OmEmployeeId = omEmployeeSalaryManagementViewModel.OmEmployeeId,
+                OmEmployeeId = (int)omEmployeeSalaryManagementViewModel.OmEmployeeId,
                 AdvancePayment = omEmployeeSalaryManagementViewModel.AdvancePayment,
                 AdvancePaymentDate = DateTime.UtcNow,
                 DueBalance = dueBalance,
-                OverBalance = omEmployeeSalaryManagementViewModel.OverBalance,
+                OverBalance = overBalance,
                 OverTimeSalary = omEmployeeSalaryManagementViewModel.OverTimeSalary,
                 CreatedDate = DateTime.UtcNow
             };
@@ -1566,25 +1573,49 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
         [HttpPut("UpdateSalaryManagement")]
         [Authorize]
-        public async Task<IActionResult> UpdateSalaryManagement(int salaryManagementid, [FromForm] OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
+        public async Task<IActionResult> UpdateSalaryManagement(OmEmployeeSalaryManagementViewModel omEmployeeSalaryManagementViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var employeeSalaryManagement = await _context.OmEmployeeSalaryManagement.FindAsync(salaryManagementid);
-            var getEmploye = await _context.OmEmployee.FindAsync(omEmployeeSalaryManagementViewModel.OmEmployeeId);
+            // Find the existing salary management record by id
+            var employeeSalaryManagement = await _context.OmEmployeeSalaryManagement.FindAsync(omEmployeeSalaryManagementViewModel.salaryManagementid);
             if (employeeSalaryManagement == null)
             {
-                return NotFound();
+                return NotFound("Salary management record not found");
+            }
+
+            // Find the associated employee
+            var employee = await _context.OmEmployee.FindAsync(omEmployeeSalaryManagementViewModel.OmEmployeeId);
+            if (employee == null)
+            {
+                return NotFound("Employee not found");
+            }
+
+            // Calculate DueBalance based on the employee's salary and the updated AdvancePayment
+            var latestSalary = await _context.OmEmployeeSalaryManagement
+                .Where(d => d.OmEmployeeId == omEmployeeSalaryManagementViewModel.OmEmployeeId)
+                .OrderByDescending(d => d.CreatedDate)
+                .FirstOrDefaultAsync();
+
+            decimal? dueBalance = (latestSalary?.DueBalance ?? employee.SalaryAmount) - omEmployeeSalaryManagementViewModel.AdvancePayment;
+
+            // Determine OverBalance based on DueBalance and any existing OverBalance
+            decimal? overBalance = latestSalary?.OverBalance ?? 0; // Start with existing OverBalance or 0
+
+            if (dueBalance < 0)
+            {
+                overBalance += Math.Abs(dueBalance.Value); // Accumulate OverBalance
+                dueBalance = 0; // Set dueBalance to 0 if it's negative
             }
 
             // Update the salary management fields
             employeeSalaryManagement.AdvancePayment = omEmployeeSalaryManagementViewModel.AdvancePayment;
             employeeSalaryManagement.AdvancePaymentDate = DateTime.UtcNow;
-            employeeSalaryManagement.DueBalance = employeeSalaryManagement.DueBalance - omEmployeeSalaryManagementViewModel.DueBalance;
-            employeeSalaryManagement.OverBalance = omEmployeeSalaryManagementViewModel.OverBalance;
+            employeeSalaryManagement.DueBalance = dueBalance;
+            employeeSalaryManagement.OverBalance = overBalance;
             employeeSalaryManagement.OverTimeSalary = omEmployeeSalaryManagementViewModel.OverTimeSalary;
             employeeSalaryManagement.CreatedDate = DateTime.UtcNow;
 
@@ -1594,7 +1625,23 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok("Updated Successfully");
         }
 
+        [HttpDelete("DeleteSalaryManagementById")]
+        [Authorize]
+        public async Task<IActionResult> DeleteSalaryManagementById(int salaryManagementid)
+        {
+            var getSalRecord = await _context.OmEmployeeSalaryManagement.Where(d => d.EmployeeSalaryId == salaryManagementid).FirstOrDefaultAsync();
+            if (getSalRecord != null)
+            {
+                _context.OmEmployeeSalaryManagement.Remove(getSalRecord);
+                _context.SaveChanges();
+                return Ok("Record Deleted successfully");
+            }
+            else
+            {
+                return BadRequest("Record not found Please refresh");
+            }
 
+        }
 
         [HttpGet("GetSalaryManagementByEmployeeId")]
         [Authorize]
