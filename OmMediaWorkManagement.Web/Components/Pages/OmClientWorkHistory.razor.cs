@@ -406,7 +406,13 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         public async Task GeneratePdfFromDataGridAsync()
         {
-
+            if (selectedClientId == 0)
+            {
+                responseMessage = "Please First select Client";
+                alertColor = Radzen.AlertStyle.Warning;
+                showAlert = true; // Show alert
+                return;
+            }
 
             try
             {

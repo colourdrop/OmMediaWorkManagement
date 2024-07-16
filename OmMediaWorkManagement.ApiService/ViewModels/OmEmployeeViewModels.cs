@@ -8,9 +8,9 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
         public string Name { get; set; }        
         public string Address { get; set; }
         public string? CompanyName { get; set; }
-        [EmailAddress]
+       
         public string? Email { get; set; }
-        [Phone]
+       
         public string? PhoneNumber { get; set; }
         public decimal SalaryAmount { get; set; }
         public bool IsSalaryPaid { get; set; }

@@ -33,8 +33,8 @@ namespace OmMediaWorkManagement.Web.Components.Models
         public decimal SalaryAmount { get; set; }
         public bool IsSalaryPaid { get; set; }
         public string? Description { get; set; }
-        public IFormFile? EmployeeProfile { get; set; }
-        public List<IFormFile>? EmployeeDocuments { get; set; }
+        public IBrowserFile? EmployeeProfile { get; set; }
+        public List<IBrowserFile>? EmployeeDocuments { get; set; }
 
         public bool IsDeleted { get; set; }
     }

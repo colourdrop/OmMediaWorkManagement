@@ -181,7 +181,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         {
             Reset(jobToDo);
 
-            if (todos.Contains(jobToDo))
+            if (jobToDo.Id !=0)
             {
                 var response = await OmService.DeleteJobTodo(jobToDo.Id);
                 response.EnsureSuccessStatusCode();
@@ -198,12 +198,12 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 }
                 showAlert = true; // Show alert
                 todos = todos.Where(c => c.Id != jobToDo.Id).ToList();
-                await todoGrid.Reload();
+                await RefreshTable();
             }
             else
             {
                 todoGrid.CancelEditRow(jobToDo);
-                await todoGrid.Reload();
+                await RefreshTable();
             }
         }
 
@@ -277,7 +277,13 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         public async Task GeneratePdfFromDataGridAsync()
         {
 
-
+            if (selectedClientId == 0)
+            {
+                responseMessage = "Please First select Client";
+                alertColor = Radzen.AlertStyle.Warning;
+                showAlert = true; // Show alert
+                return;
+            }
             try
             {
                 var pdfBytes = await _pdfService.GetTodoDetailsPdfByClientId(selectedClientId);

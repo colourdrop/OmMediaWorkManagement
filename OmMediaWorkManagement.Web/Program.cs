@@ -9,6 +9,7 @@ using OmMediaWorkManagement.Web.Components.Services;
 using OmMediaWorkManagement.Web.Helper;
 using Radzen;
 using Radzen.Blazor;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 
 
 builder.Services.AddRazorComponents()
@@ -41,8 +43,11 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
   .CreateClient("ServerAPI"));
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddScoped<IPdfService,PdfService>();
- 
 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10485760; // 10 MB   a`
+});
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

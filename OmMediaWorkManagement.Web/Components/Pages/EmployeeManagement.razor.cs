@@ -33,10 +33,9 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         private List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
         int progress;
         string info;
-       public IFormFile selectedFile;
-       public  List<IFormFile> selectedDocumentFile=new List<IFormFile>();
-        RadzenUpload upload;
-        RadzenUpload uploadDD;
+        private IBrowserFile selectedFile;
+        private List<IBrowserFile> selectedDocumentFiles = new List<IBrowserFile>();
+     
         protected override async Task OnInitializedAsync()
         {
             employees = await _OmService.GetOmEmployees();
@@ -100,84 +99,77 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             await empGrid.Reload();
             StateHasChanged();
         }
-        void OnProgress(UploadProgressArgs args, string name)
+        private void HandleFileSelection(InputFileChangeEventArgs args)
         {
-            foreach (var file in args.Files)
+            var file = args.File;
+            if (file.Size <= 10485760) // 10 MB
             {
-                // selectedFile = file;
-
-
-            }
-        }
-
-        void HandleFileSelection(UploadChangeEventArgs args)
-        {
-            foreach (var file in args.Files)
-            {
-               // selectedFile = file;
-
-
-            }
-        }
-        void HandleDocumentFileSelection(IList<IFormFile> files)
-        {
-            foreach (var file in files)
-            {
-                selectedDocumentFile.Add( file);
-
-
-            }
-        }
-        
-        private async Task SaveRow(OmEmployee omEmployee)
-        {
-            if (selectedFile != null)
-            {
-                // Initialize AddOmEmployee instance
-                AddOmEmployee addOmEmployee = new AddOmEmployee();
-
-                // Map properties from OmEmployee to AddOmEmployee
-                addOmEmployee.Name = omEmployee.Name;
-                addOmEmployee.Address = omEmployee.Address;
-                addOmEmployee.CompanyName = omEmployee.CompanyName;
-                addOmEmployee.Email = omEmployee.Email;
-                addOmEmployee.PhoneNumber = omEmployee.PhoneNumber;
-                addOmEmployee.SalaryAmount = omEmployee.SalaryAmount;
-                addOmEmployee.IsSalaryPaid = omEmployee.IsSalaryPaid;
-                addOmEmployee.Description = omEmployee.Description;
-
-                // Set EmployeeProfile if selectedFile is not null
-                using (var memoryStream = new MemoryStream())
-                {
-                    await selectedFile.CopyToAsync(memoryStream);
-                    addOmEmployee.EmployeeProfile = new FormFile(memoryStream, 0, memoryStream.Length, selectedFile.Name, selectedFile.FileName);
-                }
-                // Add EmployeeDocuments files if present
-                // Handle EmployeeDocuments
-                if (selectedDocumentFile != null && selectedDocumentFile.Any())
-                {
-                    addOmEmployee.EmployeeDocuments = new List<IFormFile>();
-
-                    foreach (var file in selectedDocumentFile)
-                    {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await file.CopyToAsync(memoryStream);
-                            addOmEmployee.EmployeeDocuments.Add(new FormFile(memoryStream, 0, memoryStream.Length, file.Name, file.FileName));
-                        }
-                    }
-                }
-                // Send HTTP request to API endpoint to add employee
-                var response = await _OmService.AddEmployee(addOmEmployee);
-
-                // Handle response as needed
+                selectedFile = file;
             }
             else
             {
-                // Handle case where no file is selected
+                Console.WriteLine($"File size exceeds the limit: {file.Size} bytes");
             }
         }
 
+        private void HandleDocumentFileSelection(InputFileChangeEventArgs args)
+        {
+            foreach (var file in args.GetMultipleFiles())
+            {
+                if (file.Size <= 10485760) // 10 MB
+                {
+                    selectedDocumentFiles.Add(file);
+                }
+                else
+                {
+                    Console.WriteLine($"File size exceeds the limit: {file.Size} bytes");
+                }
+            }
+        }
+
+        private async Task SaveRow(OmEmployee omEmployee)
+        {
+            try
+            {
+                if (selectedFile == null)
+                {
+                    Console.WriteLine("No file selected.");
+                    return;
+                }
+
+                AddOmEmployee addOmEmployee = new AddOmEmployee
+                {
+                    Name = omEmployee.Name,
+                    Address = omEmployee.Address,
+                    CompanyName = omEmployee.CompanyName,
+                    Email = omEmployee.Email,
+                    PhoneNumber = omEmployee.PhoneNumber,
+                    SalaryAmount = omEmployee.SalaryAmount,
+                    IsSalaryPaid = omEmployee.IsSalaryPaid,
+                    Description = omEmployee.Description,
+                    EmployeeProfile = selectedFile,
+                    EmployeeDocuments = selectedDocumentFiles?.ToList()
+                };
+
+                
+                // Send HTTP request to API endpoint to add employee
+                var response = await _OmService.AddEmployee(addOmEmployee);
+                if (response.IsSuccessStatusCode)
+                {
+                    
+                    selectedFile = null;
+                    selectedDocumentFiles.Clear();
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to add employee: {response.ReasonPhrase}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving employee: {ex.Message}");
+            }
+        }
 
         private void CancelEdit(OmEmployee omEmployee)
         {
@@ -217,5 +209,16 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             //}
         }
 
+        private async Task<IFormFile> CreateFormFileFromIFormFile(IBrowserFile file)
+        {
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 10485760).CopyToAsync(memoryStream); // 10 MB limit
+            memoryStream.Position = 0;
+            return new FormFile(memoryStream, 0, memoryStream.Length, file.Name, file.Name)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = file.ContentType
+            };
+        }
     }
 }

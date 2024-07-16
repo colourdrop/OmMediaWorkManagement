@@ -1331,6 +1331,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
         [HttpPost("AddEmployee")]
         [Authorize]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddEmployee([FromForm] OmEmployeeViewModels omEmployeeViewModel)
         {
             if (ModelState.IsValid)
@@ -1404,7 +1405,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return Ok("Added Successfully");
             }
 
-            return BadRequest(ModelState);
+            return BadRequest("Something is Wrong");
         }
 
 
