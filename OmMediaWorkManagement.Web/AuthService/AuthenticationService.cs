@@ -32,7 +32,7 @@ namespace OmMediaWorkManagement.Web.AuthService
             try
             {
                 // Create the request URI
-                var requestUri = "/api/OmMediaAuth/login";                 
+                var requestUri = "/omapi/api/OmMediaAuth/login";                 
                 var fullUrl = httpClient.BaseAddress + requestUri;          
                              
 
@@ -70,7 +70,7 @@ namespace OmMediaWorkManagement.Web.AuthService
         {
             
                 
-                var response = await httpClient.PostAsJsonAsync("/api/OmMediaAuth/registration", userForRegistration);
+                var response = await httpClient.PostAsJsonAsync("/omapi/api/OmMediaAuth/registration", userForRegistration);
 
 
                 return response;

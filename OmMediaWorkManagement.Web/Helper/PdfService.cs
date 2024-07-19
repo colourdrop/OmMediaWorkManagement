@@ -13,24 +13,24 @@ namespace OmMediaWorkManagement.Web.Helper
 
         public async Task<byte[]> GetTodoDetailsPdfByClientId(int clientId)
         {
-            return await httpClient.GetFromJsonAsync<byte[]>($"/api/OmMedia/GetTodoDetailsPdfByClientId?clientId={clientId}");
+            return await httpClient.GetFromJsonAsync<byte[]>($"/omapi/api/OmMedia/GetTodoDetailsPdfByClientId?clientId={clientId}");
         }
 
         public async Task<byte[]> GetWorkDetailsPdfByClientId(int clientId)
         {
-            return await httpClient.GetFromJsonAsync<byte[]>($"/api/OmMedia/GetWorkDetailsPdfByClientId?clientId={clientId}");
+            return await httpClient.GetFromJsonAsync<byte[]>($"/omapi/api/OmMedia/GetWorkDetailsPdfByClientId?clientId={clientId}");
         }
 
         public async Task<HttpResponseMessage> SendBulkTodoEmailByClientId(int clientId)
         {
-            var response = await httpClient.PostAsync($"/api/OmMedia/SendBulkTodoEmailByClientId?clientId={clientId}", null);
+            var response = await httpClient.PostAsync($"/omapi/api/OmMedia/SendBulkTodoEmailByClientId?clientId={clientId}", null);
 
             return response;
         }
 
         public async Task<HttpResponseMessage> SendBulkWorkEmailByClientId(int clientId)
         {
-            var response = await httpClient.PostAsync($"/api/OmMedia/SendBulkWorkEmailByClientId?clientId={clientId}", null);
+            var response = await httpClient.PostAsync($"/omapi/api/OmMedia/SendBulkWorkEmailByClientId?clientId={clientId}", null);
 
             return response;
 

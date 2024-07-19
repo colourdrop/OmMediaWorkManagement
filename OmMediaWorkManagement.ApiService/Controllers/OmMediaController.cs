@@ -443,7 +443,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
                 if (jobToDoViewModel.Images != null)
                 {
-                    var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    var imagesFolder = Path.Combine("/var/www/html/Images-OMAPI");
 
                     if (!Directory.Exists(imagesFolder))
                     {
@@ -515,7 +515,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             if (jobToDoViewModel.Images != null)
             {
-                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                var imagesFolder = Path.Combine("/var/www/html/Images-OMAPI"); 
 
                 if (!Directory.Exists(imagesFolder))
                 {
@@ -620,7 +620,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -754,7 +754,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             // Delete associated images physically from wwwroot and from database
             foreach (var jobImage in jobToDo.JobImages)
             {
-                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), jobImage.ImagePath);
+                var imagePath = Path.Combine("/var/www/html/Images-OMAPI", Path.GetFileName(jobImage.ImagePath));
+
 
                 // Check if file exists before attempting to delete
                 if (System.IO.File.Exists(imagePath))
@@ -777,6 +778,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting JobToDo: {ex.Message}");
             }
         }
+
 
         [HttpGet("GetJobsToDosByEmpId")]
         //[Authorize]

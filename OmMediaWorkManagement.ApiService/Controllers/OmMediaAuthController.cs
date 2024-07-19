@@ -23,16 +23,18 @@ namespace OmMediaWorkManagement.ApiService.Controllers
     {
         private readonly OmContext _context;
         private readonly UserManager<UserRegistration> _userManager;
+        private readonly ILogger<OmMediaAuthController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
 
-        public OmMediaAuthController(OmContext context, UserManager<UserRegistration> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public OmMediaAuthController(OmContext context, UserManager<UserRegistration> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, ILogger<OmMediaAuthController> logger)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         #region Register
@@ -183,6 +185,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         public async Task<IActionResult> GetRoles()
         {
             var getRoles = await _roleManager.Roles.ToListAsync();
+            _logger.LogInformation("Roles");
             return Ok(getRoles);
         }
         #endregion

@@ -120,8 +120,7 @@ var app = builder.Build();
 // Use Swagger and SwaggerUI
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 app.UseStaticFiles();
 app.UseRouting();
 
