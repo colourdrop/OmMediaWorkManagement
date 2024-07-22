@@ -1,9 +1,6 @@
 ﻿@page "/clients"
 @inject NavigationManager Navigation
  
-
-
-<RadzenDialog @rendermode="@RenderMode.InteractiveServer" />
 <RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
     @responseMessage
 </RadzenAlert>
