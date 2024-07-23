@@ -32,11 +32,12 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
             if (response.IsSuccessStatusCode)
             {
+              
+                // Navigate to the home page or any desired location
+                NavigationManager.NavigateTo("/", true); // Navigate and reload the page
                 responseMessage = "welcome to Om Media Solution";
                 alertColor = Radzen.AlertStyle.Success;
                 showAlert = true;
-                // Navigate to the home page or any desired location
-                NavigationManager.NavigateTo("/", true); // Navigate and reload the page
             }
             else
             {

@@ -38,10 +38,11 @@ namespace OmMediaWorkManagement.Web.Helper
 
         public async Task MarkUserAsAuthenticated(string email)
         {
+            var savedToken = await _localStorage.GetItemAsync<string>("authToken");
             var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email) }, "apiauth"));
             var authState = new AuthenticationState(authenticatedUser);
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
-            await _localStorage.SetItemAsync("authToken", "your_token"); // Set token in local storage if needed
+            await _localStorage.SetItemAsync("authToken", savedToken); // Set token in local storage if needed
         }
 
         public async Task MarkUserAsLoggedOut()

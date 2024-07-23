@@ -620,7 +620,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -669,7 +669,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -722,7 +722,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -804,7 +804,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -851,7 +851,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -1511,10 +1511,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 SalaryAmount = emp.SalaryAmount,
                 IsSalaryPaid = emp.IsSalaryPaid,
                 Description = emp.Description,
-                EmployeeProfilePath = $"{baseUrl}/images/{Path.GetFileName(emp.EmployeeProfilePath)}",
+                EmployeeProfilePath = $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(emp.EmployeeProfilePath)}",
                 CreatedDate = emp.CreatedDate,
                 IsDeleted = emp.IsDeleted,
-                EmployeeDocuments = emp.EmployeeDocuments.Select(doc => $"{baseUrl}/images/{Path.GetFileName(doc.EmployeeDocumentsPath)}").ToList()
+                EmployeeDocuments = emp.EmployeeDocuments.Select(doc => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(doc.EmployeeDocumentsPath)}").ToList()
             }).ToList();
 
             return Ok(employeeResponses);

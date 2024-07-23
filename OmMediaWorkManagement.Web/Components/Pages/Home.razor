@@ -1,15 +1,46 @@
 ﻿@page "/"
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
- 
+ @inject IJSRuntime JS
  
  
 <AuthorizeView>
 
     <Authorized>
         <h4> <h3>@context.User.Identity.Name </h3> Welcome  to Om Media World</h4>
+        @if (latency is null)
+        {
+            <span>Calculating...</span>
+        }
+        else
+        {
+            <span>@(latency.Value.TotalMilliseconds)ms</span>
+        }
+
     </Authorized>
     
 
 </AuthorizeView>
+@code {
+    private DateTime startTime;
+    private TimeSpan? latency;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            startTime = DateTime.UtcNow;
+            var _ = await JS.InvokeAsync<string>("toString");
+            latency = DateTime.UtcNow - startTime;
+            StateHasChanged();
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        
+    }
+}
  
