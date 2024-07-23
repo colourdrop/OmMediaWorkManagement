@@ -18,12 +18,13 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         private readonly OmContext _context;
         private readonly ILogger<OmMediaController> _logger;
         private readonly IConverter _converter;
-
-        public OmMediaController(OmContext context, ILogger<OmMediaController> logger, IConverter converter)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public OmMediaController(OmContext context, ILogger<OmMediaController> logger, IConverter converter, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
             _logger = logger;
             _converter = converter;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         #region Client Details
@@ -425,9 +426,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             {
                 var jobToDo = new JobToDo
                 {
-
                     OmClientId = jobToDoViewModel.OmClientId,
-
                     Price = jobToDoViewModel.Price,
                     PaidAmount = jobToDoViewModel.PaidAmount,
                     TotalPayable = jobToDoViewModel.TotalPayable,
@@ -441,9 +440,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     OmEmpId = Convert.ToInt32(userId)
                 };
 
-                if (jobToDoViewModel.Images != null)
+                if (jobToDoViewModel.Images != null && jobToDoViewModel.Images.Count > 0)
                 {
-                    var imagesFolder = Path.Combine("/var/www/html/Images-OMAPI");
+                    var webRootPath = _hostingEnvironment.WebRootPath;
+                    var imagesFolder = Path.Combine(webRootPath, "Images-OMAPI");
 
                     if (!Directory.Exists(imagesFolder))
                     {
@@ -452,7 +452,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
                     foreach (var formFile in jobToDoViewModel.Images)
                     {
-                        if (formFile != null)
+                        if (formFile != null && formFile.Length > 0)
                         {
                             var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(formFile.FileName);
                             var filePath = Path.Combine(imagesFolder, uniqueFileName);
@@ -462,7 +462,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                                 await formFile.CopyToAsync(fileStream);
                             }
 
-                            var imagePath = Path.Combine("images", uniqueFileName);
+                            var imagePath = Path.Combine("Images-OMAPI", uniqueFileName);
 
                             jobToDo.JobImages.Add(new JobImages
                             {
@@ -515,12 +515,14 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             if (jobToDoViewModel.Images != null)
             {
-                var imagesFolder = Path.Combine("/var/www/html/Images-OMAPI"); 
+                var imagesFolder = "/var/www/html/Images-OMAPI"; // Use absolute path
 
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
+                    _logger.LogInformation("Directory Created");
                 }
+                _logger.LogInformation("Directory Exist");
 
                 // Delete existing images from the folder
                 foreach (var jobImage in jobToDo.JobImages)
@@ -620,7 +622,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -628,7 +630,6 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(jobToDoResponses);
         }
-
 
 
         [HttpGet("GetJobsToDosById/{jobToDoId}")]
@@ -669,7 +670,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -722,7 +723,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -754,7 +755,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             // Delete associated images physically from wwwroot and from database
             foreach (var jobImage in jobToDo.JobImages)
             {
-                var imagePath = Path.Combine("/var/www/html/Images-OMAPI", Path.GetFileName(jobImage.ImagePath));
+                var imagePath = Path.Combine("/images", Path.GetFileName(jobImage.ImagePath));
 
 
                 // Check if file exists before attempting to delete
@@ -804,7 +805,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -851,7 +852,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 JobPostedDateTime = job.JobPostedDateTime,
                 OmEmpId = job.OmEmpId,
                 OmEmpName = job.OmEmployee.Name,
-                Images = job.JobImages.Select(img => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(img.ImagePath)}").ToList()
+                Images = job.JobImages.Select(img => $"{baseUrl}/images/{Path.GetFileName(img.ImagePath)}").ToList()
             }).ToList();
 
             // Await all tasks to get the list of JobToDoResponseViewModel
@@ -1511,10 +1512,10 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 SalaryAmount = emp.SalaryAmount,
                 IsSalaryPaid = emp.IsSalaryPaid,
                 Description = emp.Description,
-                EmployeeProfilePath = $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(emp.EmployeeProfilePath)}",
+                EmployeeProfilePath = $"{baseUrl}/images/{Path.GetFileName(emp.EmployeeProfilePath)}",
                 CreatedDate = emp.CreatedDate,
                 IsDeleted = emp.IsDeleted,
-                EmployeeDocuments = emp.EmployeeDocuments.Select(doc => $"{baseUrl}/var/www/html/Images-OMAPI/{Path.GetFileName(doc.EmployeeDocumentsPath)}").ToList()
+                EmployeeDocuments = emp.EmployeeDocuments.Select(doc => $"{baseUrl}/images/{Path.GetFileName(doc.EmployeeDocumentsPath)}").ToList()
             }).ToList();
 
             return Ok(employeeResponses);

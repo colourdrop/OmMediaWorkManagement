@@ -106,6 +106,14 @@ builder.Services.AddSwaggerGen(opt =>
         }
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOriginPolicy",
+        builder => builder  
+            .AllowAnyOrigin() // Allow requests from any origin
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
 builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 var logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -118,12 +126,13 @@ builder.Logging.AddSerilog(logger);
 var app = builder.Build();
 
 // Use Swagger and SwaggerUI
+app.UseCors("AllowAnyOriginPolicy");
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseForwardedHeaders();
 app.UseStaticFiles();
 app.UseRouting();
-
+ 
 app.UseAuthentication();
 app.UseMiddleware<TokenExpirationMiddleware>();
 app.UseAuthorization();
