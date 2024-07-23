@@ -31,7 +31,14 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 RoleId = "", // Ensure RoleId is set as needed
              
             };
+            if (userRegistrationViewModel.Password != userRegistrationViewModel.ConfirmPassword)
+            {
+                alertColor = Radzen.AlertStyle.Danger;
+                responseMessage = "Check your Password";
+                showAlert = true;
+                return;
 
+            }
             ShowAuthError = false;
 
             try
@@ -42,8 +49,8 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 {
                     alertColor = Radzen.AlertStyle.Success;
                     showAlert = true;
-                 
 
+                    responseMessage = "User Created Succesfully";
                     NavigationManager.NavigateTo("/login");
                 }
                 else
