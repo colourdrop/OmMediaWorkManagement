@@ -442,8 +442,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
                 if (jobToDoViewModel.Images != null && jobToDoViewModel.Images.Count > 0)
                 {
-                    var webRootPath = _hostingEnvironment.WebRootPath;
-                    var imagesFolder = Path.Combine(webRootPath, "Images-OMAPI");
+                    var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
 
                     if (!Directory.Exists(imagesFolder))
                     {
@@ -462,7 +461,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                                 await formFile.CopyToAsync(fileStream);
                             }
 
-                            var imagePath = Path.Combine("Images-OMAPI", uniqueFileName);
+                            var imagePath = Path.Combine("images", uniqueFileName);
 
                             jobToDo.JobImages.Add(new JobImages
                             {
@@ -515,15 +514,12 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             if (jobToDoViewModel.Images != null)
             {
-                var imagesFolder = "/var/www/html/Images-OMAPI"; // Use absolute path
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
 
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
-                    _logger.LogInformation("Directory Created");
                 }
-                _logger.LogInformation("Directory Exist");
-
                 // Delete existing images from the folder
                 foreach (var jobImage in jobToDo.JobImages)
                 {
