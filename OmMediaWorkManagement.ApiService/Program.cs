@@ -12,72 +12,52 @@ using OmMediaWorkManagement.ApiService.Middleware;
 using OmMediaWorkManagement.ApiService.Models;
 using Serilog;
 using System.Text;
-
 var builder = WebApplication.CreateBuilder(args);
-ConfigurationManager configuration = builder.Configuration;
-// Add service defaults & Aspire components.
-builder.AddServiceDefaults();
+
+// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContextPool<OmContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("Postgres");
-
-    options.UseNpgsql(connectionString,
-        npgsqlOptionsAction: sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
-            // Adjust maxRetryCount and maxRetryDelay as needed.
-        });
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
 builder.Services.AddIdentity<UserRegistration, IdentityRole>()
-   .AddEntityFrameworkStores<OmContext>()
-   .AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<OmContext>()
+    .AddDefaultTokenProviders();
 
-// Other service registrations
-
-
-
-// Config Identity
 builder.Services.Configure<IdentityOptions>(options =>
 {
-	// Password settings.
-	options.Password.RequireDigit = true;
-	options.Password.RequireLowercase = true;
-	options.Password.RequireNonAlphanumeric = true;
-	options.Password.RequireUppercase = true;
-	options.Password.RequiredLength = 6;
-	options.Password.RequiredUniqueChars = 1;
-	// User settings.
-	options.User.AllowedUserNameCharacters =
-	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-	
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 });
-// Adding Authentication
+
 builder.Services.AddAuthentication(options =>
 {
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-
-// Adding Jwt Bearer
 .AddJwtBearer(options =>
 {
-	options.SaveToken = true;
-	options.RequireHttpsMetadata = false;
-	options.TokenValidationParameters = new TokenValidationParameters()
-	{
-		ValidateIssuer = true,
-		ValidateAudience = true,
-		ValidAudience = configuration["JWT:ValidAudience"],
-		ValidIssuer = configuration["JWT:ValidIssuer"],
-		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-	};
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
 });
-// Add services to the container.
+
 builder.Services.AddProblemDetails();
-builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "OmMediaWorkManagement", Version = "v1" });
@@ -90,7 +70,6 @@ builder.Services.AddSwaggerGen(opt =>
         BearerFormat = "JWT",
         Scheme = "bearer"
     });
-
     opt.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -98,50 +77,50 @@ builder.Services.AddSwaggerGen(opt =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
             },
-            new string[]{}
+            new string[] { }
         }
     });
 });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAnyOriginPolicy",
-        builder => builder  
-            .AllowAnyOrigin() // Allow requests from any origin
+        builder => builder
+            .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
-builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+
+builder.Services.AddSingleton<IConverter>(new SynchronizedConverter(new PdfTools()));
+
 var logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateLogger();
 
-
 builder.Logging.AddSerilog(logger);
+
 var app = builder.Build();
 
-// Use Swagger and SwaggerUI
 app.UseCors("AllowAnyOriginPolicy");
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseForwardedHeaders();
 app.UseStaticFiles();
 app.UseRouting();
- 
+
 app.UseAuthentication();
 app.UseMiddleware<TokenExpirationMiddleware>();
 app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
 app.UseExceptionHandler("/Home/Error");
 app.UseHsts();
 
-// Map endpoints
 app.MapDefaultControllerRoute();
 app.MapControllers();
 

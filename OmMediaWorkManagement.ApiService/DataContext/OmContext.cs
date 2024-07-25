@@ -4,7 +4,7 @@ using OmMediaWorkManagement.ApiService.Models;
 
 namespace OmMediaWorkManagement.ApiService.DataContext
 {
-	public class OmContext : IdentityDbContext<UserRegistration>
+    public class OmContext : IdentityDbContext<UserRegistration>
 	{
 		public OmContext(DbContextOptions<OmContext> options)
 			: base(options)
