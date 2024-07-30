@@ -1405,6 +1405,63 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return BadRequest("Something is Wrong");
         }
 
+        [HttpDelete("DeleteEmployee/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteEmployee(int id)
+        {
+            // Fetch the employee including related documents and salary information
+            var emp = await _context.OmEmployee
+                .Include(e => e.EmployeeDocuments)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            // If employee not found, return NotFound
+            if (emp == null)
+            {
+                return NotFound();
+            }
+
+            // Fetch the employee's salary management records
+            var empSalary = await _context.OmEmployeeSalaryManagement
+                .Where(s => s.OmEmployeeId == emp.Id)
+                .ToListAsync();
+
+            // Define the base path for images
+            var basePath = "/images";
+
+            // Delete the employee's profile image if it exists
+            var imageProfilePath = Path.Combine(basePath, Path.GetFileName(emp.EmployeeProfilePath));
+            if (System.IO.File.Exists(imageProfilePath))
+            {
+                System.IO.File.Delete(imageProfilePath);
+            }
+
+            // Delete each document associated with the employee if it exists
+            foreach (var empDoc in emp.EmployeeDocuments)
+            {
+                var imagePath = Path.Combine(basePath, Path.GetFileName(empDoc.EmployeeDocumentsPath));
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
+
+            // Remove the employee and associated salary records from the database
+            _context.OmEmployee.Remove(emp);
+            _context.OmEmployeeSalaryManagement.RemoveRange(empSalary);
+
+            try
+            {
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+                return Ok("Employee deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                // Return an error response with the exception message
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting employee: {ex.Message}");
+            }
+        }
+
 
         [HttpPut("UpdateEmployee/{id}")]
         [Authorize]
@@ -1487,6 +1544,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok("Updated Successfully");
         }
+
 
 
         [HttpGet("GetAllEmployee")]

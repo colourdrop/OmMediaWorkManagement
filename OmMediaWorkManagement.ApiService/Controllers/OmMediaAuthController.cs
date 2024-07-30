@@ -245,6 +245,23 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
         #endregion
 
+        #region GetAlluser
+        [HttpGet("GetAlluser")]
+        
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = _userManager.Users.Select(user => new
+            {
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
+                // Do not expose the password or any other sensitive information
+            }).ToList();
+
+            return Ok(users);
+        }
+        #endregion
+
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
