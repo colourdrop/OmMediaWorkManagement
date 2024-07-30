@@ -778,7 +778,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
 
         [HttpGet("GetJobsToDosByEmpId")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetJobsToDosByUserId(int empId)
         {
             var getJobList = await _context.JobToDo.Include(d => d.OmEmployee).Include(d => d.OmClient).Include(d => d.JobImages).Where(d => d.OmEmpId == empId).OrderByDescending(d => d.JobPostedDateTime).ToListAsync();
