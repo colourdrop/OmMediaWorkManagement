@@ -13,7 +13,7 @@ namespace OmMediaWorkManagement.ApiService.Models
         public string? WorkDetails { get; set; }
 
         public int PrintCount { get; set; }
-        public int Price { get; set; }
+        public decimal Price { get; set; }
         public int? PaidAmount { get; set; }
         public int? DueBalance { get; set; }
         public int? TotalPayable { get; set; }

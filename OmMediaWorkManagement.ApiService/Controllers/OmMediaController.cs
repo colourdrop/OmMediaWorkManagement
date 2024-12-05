@@ -442,8 +442,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
                 if (jobToDoViewModel.Images != null && jobToDoViewModel.Images.Count > 0)
                 {
-                    var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-
+                    //var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    var imagesFolder = @"/var/www/html/Images-OMAPI/";
                     if (!Directory.Exists(imagesFolder))
                     {
                         Directory.CreateDirectory(imagesFolder);
@@ -514,8 +514,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             if (jobToDoViewModel.Images != null)
             {
-                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-
+              //  var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                var imagesFolder = @"/var/www/html/Images-OMAPI/";
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
@@ -1082,7 +1082,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                                                                                                              // Constructing the email body using the template
                         string body = $"Dear {client.Name},\n\n";
                         body += "I hope this email finds you well.\n\n";
-                        body += "This is a gentle reminder regarding the pending payment for the work done on " + clientWork.WorkDate.ToString("yyyy-MM-ddTHH:mm:ssZ") + ".\n";
+                        body += "This is a gentle reminder regarding the pending payment for the work done on " + ConvertUtcToIst(clientWork.WorkDate) + ".\n";
                         body += "We have provided services for " + clientWork.WorkDetails + " totaling " + clientWork.PrintCount + " prints, at a rate of " + clientWork.Price + " per print, resulting in a total amount of " + clientWork.Total + ".\n\n";
                         body += "However, as of now, we have not received the payment for this job. We kindly request you to settle the outstanding amount at your earliest convenience.\n\n";
                         body += "If you have already initiated the payment, please disregard this reminder. Otherwise, we would appreciate your prompt attention to this matter.\n\n";
@@ -1348,8 +1348,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     UserId = userId,
                 };
 
-                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-
+               // var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                var imagesFolder = @"/var/www/html/Images-OMAPI/";
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
@@ -1490,8 +1490,8 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             employee.IsSalaryPaid = omEmployeeViewModel.IsSalaryPaid;
             employee.IsDeleted = omEmployeeViewModel.IsDeleted;
 
-            var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-
+          //  var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            var imagesFolder = @"/var/www/html/Images-OMAPI/";
             if (!Directory.Exists(imagesFolder))
             {
                 Directory.CreateDirectory(imagesFolder);

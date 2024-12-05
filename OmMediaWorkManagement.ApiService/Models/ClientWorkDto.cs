@@ -7,7 +7,7 @@
         public string WorkDetails { get; set; }
         public int PrintCount { get; set; }
         public int OmClientId { get; set; }
-        public int Price { get; set; }
+        public decimal Price { get; set; }
         public int? Total { get; set; }
         public string Remarks { get; set; }
         public bool IsPaid { get; set; }

@@ -8,7 +8,7 @@
 
         public string? CompanyName { get; set; }
         public string? Description { get; set; }
-        public int? Price { get; set; }
+        public decimal? Price { get; set; }
         public int? PaidAmount { get; set; }
         public int? TotalPayable { get; set; }
         public int? DueBalance { get; set; }

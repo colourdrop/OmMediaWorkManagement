@@ -50,6 +50,7 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
+        ValidateLifetime = true,
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JWT:ValidAudience"],
         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
@@ -115,7 +116,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
-app.UseMiddleware<TokenExpirationMiddleware>();
+//app.UseMiddleware<TokenExpirationMiddleware>();
 app.UseAuthorization();
 
 app.UseExceptionHandler("/Home/Error");

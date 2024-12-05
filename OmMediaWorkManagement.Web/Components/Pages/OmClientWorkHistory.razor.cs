@@ -211,7 +211,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         }
         private async void CalculateTotal(OmClientWork work)
         {
-            work.TotalPayable = work.PrintCount * work.Price;
+            work.TotalPayable = (int?)(work.PrintCount * work.Price);
             work.DueBalance = work.TotalPayable - work.PaidAmount;
             StateHasChanged();
 

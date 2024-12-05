@@ -214,8 +214,8 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<int?>("PostedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Price")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<double?>("Quantity")
                         .HasColumnType("double");
@@ -325,8 +325,8 @@ namespace OmMediaWorkManagement.ApiService.Migrations
                     b.Property<int?>("PaidAmount")
                         .HasColumnType("int");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<int>("PrintCount")
                         .HasColumnType("int");

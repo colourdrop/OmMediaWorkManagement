@@ -34,7 +34,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
             {
               
                 // Navigate to the home page or any desired location
-                NavigationManager.NavigateTo("/", true); // Navigate and reload the page
+                NavigationManager.NavigateTo("/OmHome", true); // Navigate and reload the page
                 responseMessage = "welcome to Om Media Solution";
                 alertColor = Radzen.AlertStyle.Success;
                 showAlert = true;

@@ -1,6 +1,6 @@
 ﻿<header class="cst-header">
     <h3 class="cst-header-title">
-    
+
         <img type="image/png" src="/OmFaviNew.svg" alt="Om Media Logo" class="cst-header-logo" @onclick="ToggleSidebar" />
         Om Media
     </h3>
@@ -12,56 +12,70 @@
 <div class="auto-hiding-nav-menu">
     <nav class="nav-menu">
         <div class="nav-item px-1">
-            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href=""  Match="NavLinkMatch.All">
-                <i class="fa-solid fa-house fa-xl cst-nav-icon" style="color:#999999;"></i>
+            <NavLink class="nav-link wrap-text " style="gap: 2rem; " href="OmHome" Match="NavLinkMatch.All">
+                <i class="fa-solid fa-house fa-xl cst-nav-icon" style="color:#999999;padding-left:13px" ;></i>
                 <span>Home</span>
             </NavLink>
         </div>
         <div class="nav-item px-1">
-            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="clients">
-                <i class="fa-solid fa-user-plus fa-xl cst-nav-icon" style="color:#999999;"></i>
+            <NavLink class="nav-link wrap-text" style="gap: 2rem;" href="clients">
+                <i class="fa-solid fa-user-plus fa-xl cst-nav-icon" style="color:#999999;padding-left:13px" ;></i>
                 <span>Client</span>
             </NavLink>
         </div>
         <div class="nav-item px-1">
-            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="WorkHistory">
-                <i class="fa-regular fa-clipboard fa-xl cst-nav-icon" style="color:#999999;"></i>
+            <NavLink class="nav-link wrap-text" style="gap: 2.6rem;" href="WorkHistory">
+                <i class="fa-regular fa-clipboard fa-xl cst-nav-icon" style="color:#999999;padding-left:16px" ;></i>
                 <span>Digital-P</span>
             </NavLink>
         </div>
         <div class="nav-item px-1">
-            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="JobsToDo">
-                <i class="fa-solid fa-table-list fa-xl cst-nav-icon" style="color:#999999;"></i>
+            <NavLink class="nav-link wrap-text" style="gap: 2.2rem;" href="JobsToDo">
+                <i class="fa-solid fa-table-list fa-xl cst-nav-icon" style="color:#999999;padding-left:13px" ;></i>
                 <span>Offset/R/B</span>
             </NavLink>
         </div>
         <div class="nav-item px-1">
-            <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="EmployeeManagement">
-                <i class="fa-solid fa-bars-progress fa-xl cst-nav-icon" style="color:#999999;"></i>
+            <NavLink class="nav-link wrap-text" style="gap: 2rem;" href="EmployeeManagement">
+                <i class="fa-solid fa-bars-progress fa-xl cst-nav-icon" style="color:#999999;padding-left:13px" ;></i>
                 <span>Employee-M</span>
             </NavLink>
         </div>
+        <div class="nav-item px-1">
+            <NavLink class="nav-link wrap-text" style="gap: 2rem;" href="Register">
+                <i class="fa-solid fa-registered fa-xl cst-nav-icon" style="color:#999999;padding-left:13px" ;  ></i>
+                <span  >
+                    Register
+                </span>
+
+            </NavLink>
+        </div>
     </nav>
-    <div class="nav-item px-1 logout-item">
-        <NavLink class="nav-link wrap-text" style="gap: 1rem;" href="logout">
-            <i class="fa-solid fa-arrow-right-from-bracket fa-xl cst-nav-icon" style="color:#999999;"></i>
-            <span>Logout</span>
-        </NavLink>
-    </div>
+
+
+</div>
+
+<div class="nav-item px-1 logout-item">
+    <NavLink class="nav-link wrap-text" style="gap: 2rem;" href="logout">
+        <i class="fa-solid fa-arrow-right-from-bracket fa-xl cst-nav-icon" style="color:#999999;padding-left:13px" ;></i>
+        <span>Logout</span>
+    </NavLink>
 </div>
 <style>
     .wrap-text {
         white-space: normal;
         word-wrap: break-word;
     }
+
     .collapse {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
 
- 
 </style>
 @code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
     [Parameter]
     public bool SidebarOpen { get; set; }
 
@@ -72,5 +86,5 @@
     {
         await OnSidebarToggle.InvokeAsync(null);
     }
-    
+   
 }

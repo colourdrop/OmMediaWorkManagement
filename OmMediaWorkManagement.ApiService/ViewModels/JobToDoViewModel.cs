@@ -9,7 +9,7 @@ namespace OmMediaWorkManagement.ApiService.ViewModels
      
 
         public double Quantity { get; set; }
-        public int? Price { get; set; }
+        public decimal? Price { get; set; }
         public int? PaidAmount { get; set; }
         public int? DueBalance { get; set; }
         public int? TotalPayable { get; set; }

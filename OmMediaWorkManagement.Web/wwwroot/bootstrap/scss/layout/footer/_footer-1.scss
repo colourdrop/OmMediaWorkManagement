@@ -1,0 +1,102 @@
+// Footer Start ===
+
+.dz-footer{
+	.footer-inner{
+		text-align: center;
+		padding: 100px 0;
+		.section-head{
+			color: #fff;
+			margin: 0 auto 60px;
+			max-width: 1140px;
+			h2{
+				font-size: 78px;
+				color: #fff;
+			}
+			p{
+				font-size: 20px;
+				font-weight: 600;
+				color: #D7D7D7;
+				margin-bottom: 0;
+			}
+		}
+	}
+	.footer-bottom{
+		padding: 35px 0px;
+		border-top: 1px solid rgba(255, 255, 255, 0.10);
+		font-weight: 400;
+		font-size: 15px;
+		color: #fff;
+		text-align: center;
+		.copyright-text{
+			margin-bottom: 0;
+			a{
+				font-weight: 600;
+			}
+		}
+	}
+	@include respond('tab-land'){
+		.footer-inner{
+			padding: 100px 0;
+			.section-head{
+				h2{
+					font-size: 60px;
+				}
+			}
+		}
+	}
+	@include respond('tab-port'){
+		.footer-inner{
+			.section-head{
+				max-width: unset;
+				h2{
+					font-size: 45px;
+				}
+			}
+		}
+	}
+	@include respond('phone-land'){
+		.footer-inner{
+			padding: 50px 0;
+			.section-head{
+				margin: 0 auto 40px;
+				h2{
+					font-size: 34px;
+				}
+				p{
+					font-size: 16px;
+				}
+			}
+		}
+		.footer-bottom{
+			padding: 20px 0px;
+		}
+	}
+	@include respond('phone'){
+		.footer-inner{
+			padding: 40px 0;
+			.section-head{
+				margin: 0 auto 35px;
+				h2{
+					font-size: 24px;
+				}
+				p{
+					font-size: 14px;
+				}
+			}
+			.buy-btn{
+				padding: 12px;
+				font-size: 16px;
+				.price{
+					font-size: 18px;					
+				}
+				svg{
+					width: auto;
+					height: auto;
+				}
+			}
+		}
+		.footer-bottom{
+			font-size: 12px;
+		}
+	}
+}

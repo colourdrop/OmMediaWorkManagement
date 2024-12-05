@@ -109,7 +109,7 @@
     top: 1%;
     text-align: center;   
     position: relative;
-    overflow: hidden;
+   /* overflow: hidden;*/
     border-radius: 19px;
     width: 84%;
     height: 7%;
@@ -156,8 +156,9 @@
 .cst-header {
     animation: cst-slideIn 1s ease-out;
 }
-.logout-item{
-    margin-bottom:0%;
+.logout-item { 
+    position: relative;
+    top: 45%;
 }
 
 

@@ -65,8 +65,7 @@ app.UseAntiforgery();
  
 app.UseOutputCache();
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-     ;
+    .AddInteractiveServerRenderMode();
 
 app.MapDefaultEndpoints();
  

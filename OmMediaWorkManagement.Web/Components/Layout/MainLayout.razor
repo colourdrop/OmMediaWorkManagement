@@ -2,15 +2,16 @@
 @inject IAuthenticationService AuthenticationService
 
 <div class="page">
-    <AuthorizeView> <Authorized>
+    <AuthorizeView>
+        <Authorized>
 
-            <div class="sidebar" style="width:@(SidebarOpen ? "250px" : "55px")">
+            <div class="sidebar" style="width:@(SidebarOpen ? "250px" : "63px")">
                 <NavMenu SidebarOpen="SidebarOpen" OnSidebarToggle="ToggleSidebar" />
             </div>
 
         </Authorized>
     </AuthorizeView>
-       
+
     <main>
 
 
@@ -19,12 +20,12 @@
             <RadzenComponents />
         </article>
     </main>
-    
+
 </div>
-<RadzenFooter style="  display: block;width:20%;margin-left:50%;padding: 20px;text-align: center;/* box-shadow: 10px 10px 20px #babecc, -10px -10px 20px #ffffff; *//* border: 1px solid rgba(255, 255, 255, 0.3); */border-radius: 20px;background-color: #f1f2f6;">
-   
+<RadzenFooter style="  display: contents;width:20%;margin-left:50%;padding: 20px;text-align: center;/* box-shadow: 10px 10px 20px #babecc, -10px -10px 20px #ffffff; *//* border: 1px solid rgba(255, 255, 255, 0.3); */border-radius: 20px;background-color: #f1f2f6;">
+
     <p style="margin-bottom: 0; font-size: 16px;">
-        <img type="image/png" src="/cf.png" width="45rem"/>
+        <img type="image/png" src="/codersf5.png" width="45rem" />
         Developed & Designed By <a href="http://www.codersf5.com" target="_blank" class="animated-link">CodersF5.com</a>
     </p>
 
@@ -35,7 +36,7 @@
     <a class="dismiss">🗙</a>
 </div>
 <style>
- 
+
     .animated-link {
         color: #007bff;
         text-decoration: none;
@@ -65,7 +66,7 @@
             }
 </style>
 
- 
+
 
 @code {
     [Parameter]
@@ -78,7 +79,7 @@
         var user = (await AuthStat).User;
         if (!user.Identity.IsAuthenticated)
         {
-            navigationManager.NavigateTo($"/login");
+            navigationManager.NavigateTo($"/");
         }
     }
     private void ToggleSidebar()

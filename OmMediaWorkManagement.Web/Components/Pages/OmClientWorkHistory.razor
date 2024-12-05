@@ -118,6 +118,7 @@
                 <RadzenNumeric @bind-Value="work.PrintCount" Style="width:100%;" />
             </EditTemplate>
         </RadzenDataGridColumn>
+
         <RadzenDataGridColumn Property="Price" Title="Rate" Width="200px">
             <EditTemplate Context="work">
                 <RadzenNumeric @bind-Value="work.Price" Style="width:100%;" @onkeypress="(args => OnPriceKeyDown(args, work))" />

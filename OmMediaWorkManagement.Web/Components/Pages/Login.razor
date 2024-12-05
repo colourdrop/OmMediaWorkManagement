@@ -28,6 +28,7 @@
         Last submit status: @LastSubmitResult
     </h2>
 }
+<div></div>
 <div class="container">
     <div class="heading">Sign In</div>
     <EditForm Model="@userForAuthentication" OnValidSubmit="@HandleValidSubmit" FormName="LoginForm">
@@ -53,7 +54,7 @@
             <button type="submit" class="login-button" value="Save">Sign In</button>
         </div>
     </EditForm>
-    <div class="social-account-container">
+    @* <div class="social-account-container">
         <span class="title">Register yourself by click on SignUp</span>
 
         <button class="cst-register" onclick="@Register">
@@ -62,7 +63,7 @@
 
         
     </div>
-
+ *@
      
 </div>
 

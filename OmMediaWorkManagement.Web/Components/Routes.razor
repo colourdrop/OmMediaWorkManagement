@@ -1,4 +1,5 @@
-﻿<CascadingAuthenticationState>
+﻿@using OmMediaWorkManagement.Web.Components.Pages
+<CascadingAuthenticationState>
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData"     DefaultLayout="@typeof(Layout.MainLayout)" />
@@ -8,8 +9,8 @@
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(Layout.MainLayout)">
-            <p>Sorry, there's nothing at this address.</p>
+        <LayoutView Layout="@typeof(Layout.MainLayout)"> 
+            <HomeECommerce />
         </LayoutView>
     </NotFound>
 </Router>
