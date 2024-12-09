@@ -92,7 +92,7 @@
     <div style="white-space:nowrap; margin-left: 20px ">Edit Mode:</div>
     <RadzenSelectBar @bind-Value="@editMode" TextProperty="Text" ValueProperty="Value" style="margin-right: 16px"
                      Data="@(Enum.GetValues(typeof(DataGridEditMode)).Cast<DataGridEditMode>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small"
-                 Disabled="@(editMode == DataGridEditMode.Multiple && todoToInsert.Count() > 1)" />
+                     Disabled="@(editMode == DataGridEditMode.Multiple && todoToInsert.Count() > 1)" />
     <RadzenButton Text="Generate PDF" Click="@(() => GeneratePdfFromDataGridAsync())" />
     <RadzenButton Text="Send Bulk Email" Click="@(() => SendBulkWorkEmailByClientId())" />
 </RadzenStack>
@@ -146,7 +146,7 @@
         </RadzenDataGridColumn>
         <RadzenDataGridColumn Property="JobPostedDateTime" Title="Job Time" Width="200px">
             <Template Context="todo">
-                @String.Format("{0:g}", todo.JobPostedDateTime)
+                @ConvertUtcToIst(todo.JobPostedDateTime)
             </Template>
             <EditTemplate Context="todo">
                 <RadzenDatePicker @bind-Value="todo.JobPostedDateTime" Style="width:100%" />

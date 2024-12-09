@@ -376,6 +376,22 @@ namespace OmMediaWorkManagement.Web.Components.Pages
 
             return totalTotal;
         }
+        string ConvertUtcToIst(DateTime? utcDateTime)
+        {
+            if (utcDateTime == null)
+            {
+                return string.Empty;  // or return a default value or handle it as per your requirements
+            }
+
+            // Get Indian Standard Time zone
+            TimeZoneInfo istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+            // Convert UTC to IST
+            DateTime istDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime.Value, istZone);
+
+            // Format datetime as "M/d/yyyy h:mm tt"
+            return istDateTime.ToString("M/d/yyyy h:mm tt");
+        }
 
     }
 }
