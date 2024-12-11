@@ -313,7 +313,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
         public async Task<byte[]> GetWorkDetailsPdfByClientId(int clientId)
         {
             var clientWorks = await _context.OmClientWork
-                .Where(work => work.OmClientId == clientId && work.IsDeleted == false&&work.IsPaid==false)
+                .Where(work => work.OmClientId == clientId && work.IsDeleted == false && work.IsPaid == false)
                  .Select(d => new ClientWorkDto
                  {
                      Id = d.Id,
@@ -354,7 +354,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             var htmlContent = "<html><body><div class='container mt-3'><div class='d-flex justify-content-between mb-3'>";
 
             // Add headers for Client Name, Estimate, and Print Date
-            htmlContent += $"<div class='p-2'>{GetClientName}</div>";     
+            htmlContent += $"<div class='p-2'>{GetClientName}</div>";
             htmlContent += $"<div class='p-2'>Print Date: {DateTime.Now}</div>";
             htmlContent += "</div>";
 
@@ -514,7 +514,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             if (jobToDoViewModel.Images != null)
             {
-              //  var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                //  var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
                 var imagesFolder = @"/var/www/html/Images-OMAPI/";
                 if (!Directory.Exists(imagesFolder))
                 {
@@ -680,7 +680,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return Ok(jobToDoResponses);
         }
-    
+
         [HttpGet("GetJobsToDosByClientId/{clientId}")]
         [Authorize]
         public async Task<IActionResult> GetJobsToDosByClientId(int clientId)
@@ -690,7 +690,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                .Include(d => d.JobImages)
                .Include(d => d.OmClient)
                .Include(d => d.OmEmployee).OrderByDescending(d => d.JobPostedDateTime)
-                .Where(j => j.OmClientId==clientId)
+                .Where(j => j.OmClientId == clientId)
                .ToListAsync();
 
             var jobStatusDictionary = await _context.JobTypeStatus
@@ -819,7 +819,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                 .Include(d => d.JobImages)
                 .Include(d => d.OmClient)
                 .Include(d => d.OmEmployee)
-                .OrderByDescending(job => job.JobPostedDateTime).Where(d=>d.OmClientId==clientId)
+                .OrderByDescending(job => job.JobPostedDateTime).Where(d => d.OmClientId == clientId)
                 .ToListAsync();
 
             var jobStatusDictionary = await _context.JobTypeStatus
@@ -932,7 +932,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
 
             return htmlContent;
         }
-        
+
         #endregion
 
         #region OmMachines
@@ -1199,7 +1199,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     }
                 }
 
-               
+
 
                 return Ok("Email sent successfully with PDF attachment");
             }
@@ -1348,7 +1348,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
                     UserId = userId,
                 };
 
-               // var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                // var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
                 var imagesFolder = @"/var/www/html/Images-OMAPI/";
                 if (!Directory.Exists(imagesFolder))
                 {
@@ -1490,7 +1490,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             employee.IsSalaryPaid = omEmployeeViewModel.IsSalaryPaid;
             employee.IsDeleted = omEmployeeViewModel.IsDeleted;
 
-          //  var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            //  var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
             var imagesFolder = @"/var/www/html/Images-OMAPI/";
             if (!Directory.Exists(imagesFolder))
             {
@@ -1682,11 +1682,13 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             return Ok("Updated Successfully");
         }
 
-        [HttpDelete("DeleteSalaryManagementById")]
+
+
+        [HttpDelete("DeleteSalaryById/{id}")]
         [Authorize]
-        public async Task<IActionResult> DeleteSalaryManagementById(int salaryManagementid)
+        public async Task<IActionResult> DeleteSalaryById(int id)
         {
-            var getSalRecord = await _context.OmEmployeeSalaryManagement.Where(d => d.EmployeeSalaryId == salaryManagementid).FirstOrDefaultAsync();
+            var getSalRecord = await _context.OmEmployeeSalaryManagement.Where(d => d.EmployeeSalaryId == id).FirstOrDefaultAsync();
             if (getSalRecord != null)
             {
                 _context.OmEmployeeSalaryManagement.Remove(getSalRecord);
