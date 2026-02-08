@@ -1,75 +1,92 @@
 ﻿@page "/login"
 
-<style>
+<div class="min-h-screen flex items-center justify-center bg-[#F3EFEA]">
 
-    .cst-input {
-        width: 100% !important;
-        background: white !important;
-        border: none !important;
-        padding: 15px 20px !important;
-        border-radius: 20px !important;
-        margin-top: 15px;
-        box-shadow: #cff0ff 0px 10px 10px -5px !important;
-        border-inline: 2px solid transparent;
-    }
+    <div class="w-full max-w-md">
 
-</style>
-<RadzenAlert @bind-Visible="@showAlert" AlertStyle="@alertColor" ShowIcon="false" Variant="Variant.Flat" Shade="Shade.Lighter">
-    @responseMessage
-</RadzenAlert>
-@if (ShowAuthError)
-{
-    <div class="alert alert-danger" role="alert">
-        <p>@responseMessage</p>
-    </div>
-}@if (LastSubmitResult != null)
-{
-    <h2>
-        Last submit status: @LastSubmitResult
-    </h2>
-}
-<div></div>
-<div class="container">
-    <div class="heading">Sign In</div>
-    <EditForm Model="@userForAuthentication" OnValidSubmit="@HandleValidSubmit" FormName="LoginForm">
-        <DataAnnotationsValidator />
-
-        <div class="form">
-            <div class=" ">
-                <label for="email">UserName</label>
-                <InputText @bind-Value="userForAuthentication.Username" class="cst-input" />
-                <ValidationMessage For="@(() => userForAuthentication.Username)" />
-            </div>
-
-            <div class=" ">
-                <label for="password">Password</label>
-                <InputText @bind-Value="userForAuthentication.Password" type="password" class="cst-input" />
-                <ValidationMessage For="@(() => userForAuthentication.Password)" />
-            </div>
-
-            <div class="forgot-password">
-                <a href="#">Forgot Password ?</a>
-            </div>
-
-            <button type="submit" class="login-button" value="Save">Sign In</button>
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-semibold text-[#3A2E25]">Admin Login</h2>
+            <p class="text-sm text-[#8B7E74]">Authorized access only</p>
         </div>
-    </EditForm>
-    @* <div class="social-account-container">
-        <span class="title">Register yourself by click on SignUp</span>
 
-        <button class="cst-register" onclick="@Register">
-               SignUp
-            </button>
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-[#E5DED6]">
 
-        
+            <RadzenAlert Visible="@showAlert"
+                         AlertStyle="@alertColor"
+                         ShowIcon="true"
+                         Variant="Variant.Flat"
+                         Shade="Shade.Lighter"
+                         class="mb-4">
+                @responseMessage
+            </RadzenAlert>
+
+            <EditForm Model="@userForAuthentication" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-6">
+
+                    <div>
+                        <label class="text-sm text-[#6B5F55]">Username</label>
+                        <InputText @bind-Value="userForAuthentication.Username"
+                                   class="mt-2 w-full px-4 py-3 rounded-lg
+                                          bg-[#FAF8F5]
+                                          border border-[#D6CFC7]
+                                          focus:ring-2 focus:ring-[#A0824A]
+                                          outline-none" />
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-[#6B5F55]">Password</label>
+                        <InputText type="password"
+                                   @bind-Value="userForAuthentication.Password"
+                                   class="mt-2 w-full px-4 py-3 rounded-lg
+                                          bg-[#FAF8F5]
+                                          border border-[#D6CFC7]
+                                          focus:ring-2 focus:ring-[#A0824A]
+                                          outline-none" />
+                    </div>
+
+                    <div class="text-right">
+                        <a class="text-sm text-[#A0824A] hover:underline">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit"
+                            disabled="@isLoading"
+                            class="w-full py-3 rounded-lg
+               bg-[#A0824A] hover:bg-[#8D713F]
+               text-white font-medium transition
+               flex items-center justify-center gap-2">
+
+                        @if (isLoading)
+                        {
+                            <svg class="animate-spin h-5 w-5 text-white"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8z"></path>
+                            </svg>
+
+                            <span>Signing In...</span>
+                        }
+                        else
+                        {
+                            <span>Sign In</span>
+                        }
+
+                    </button>
+
+
+                </div>
+            </EditForm>
+        </div>
+
+        <p class="text-center text-xs text-[#9C8F86] mt-6">
+            Admin Portal · MediaCart
+        </p>
+
     </div>
- *@
-     
 </div>
-
-@code {
-    public void Register()
-    {
-        NavigationManager.NavigateTo("/Register");
-    }
-}

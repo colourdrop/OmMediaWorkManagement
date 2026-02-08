@@ -384,7 +384,7 @@ jQuery(window).on('load', function() {
     MoonCart.load();
 
     setTimeout(function() {
-        jQuery('#loading-area').remove();
+        //jQuery('#loading-area').remove();
     }, 2000);
 
 });
@@ -395,4 +395,11 @@ jQuery(window).on('resize', function() {
     'use strict';
     MoonCart.resize();
 });
+window.removeLoader = function () {
+    const el = document.getElementById("loading-area");
+    if (el) {
+        el.remove();
+    }
+}
+
 /*  Window Resize END */

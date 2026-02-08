@@ -70,11 +70,14 @@
     <script src="/bootstrap/vendor/group-slider/group-loop.js"></script>
     <!-- group JS -->
     <script src="/bootstrap/js/dz.ajax.js"></script>
-    <!-- AJAX -->
-    <script src="/bootstrap/js/custom.js"></script>
-    <!-- CUSTOM JS -->
+   
     
-    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+
     
     
     
@@ -87,8 +90,14 @@
 
 <body style="height:auto;background-color: #f1f2f6;">
     <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+
     <script src="_framework/blazor.web.js"></script>
+    <script src="/bootstrap/js/custom.js"></script>
+    <script src="/bootstrap/js/scroll.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
 </body>
+
 
 </html>

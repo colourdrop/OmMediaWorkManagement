@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	  
@@ -14,14 +14,10 @@
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="DinkToPdf" Version="1.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.2" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="Radzen.Blazor" Version="4.32.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\OmMediaWorkManagement.ServiceDefaults\OmMediaWorkManagement.ServiceDefaults.csproj" />
+    <PackageReference Include="Radzen.Blazor" Version="8.7.5" />
   </ItemGroup>
 
   <ItemGroup>

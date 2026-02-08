@@ -1,13 +1,9 @@
 ﻿using Blazored.LocalStorage;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Components.Authorization;
 using OmMediaWorkManagement.Web.AuthInterface;
 using OmMediaWorkManagement.Web.AuthModels;
 using OmMediaWorkManagement.Web.Helper;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 
 namespace OmMediaWorkManagement.Web.AuthService

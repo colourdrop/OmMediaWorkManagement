@@ -23,22 +23,26 @@ namespace OmMediaWorkManagement.Web.Components.Pages
         public string responseMessage { get; set; }
         string LastSubmitResult;
         private bool showAlert = false;
+        private bool isLoading = false;
+
         public async Task HandleValidSubmit()
         {
             ShowAuthError = false;
+            isLoading = true;
             var response = await AuthenticationService.Login(userForAuthentication);
       
             responseMessage = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-              
-                // Navigate to the home page or any desired location
-                NavigationManager.NavigateTo("/OmHome", true); // Navigate and reload the page
-                responseMessage = "welcome to Om Media Solution";
+                responseMessage = "Welcome to Om Media Solution";
                 alertColor = Radzen.AlertStyle.Success;
                 showAlert = true;
+
+                await Task.Delay(800);
+                NavigationManager.NavigateTo("/OmHome", true);
             }
+
             else
             {
                 responseMessage = "User Not Exist or Bad Credentials";
@@ -46,6 +50,7 @@ namespace OmMediaWorkManagement.Web.Components.Pages
                 showAlert = true;
               
             }
+            isLoading = false;
         }
 
 

@@ -1,6 +1,5 @@
 @charset "UTF-8";
  
-
 @import url(../icons/feather/css/iconfont.css);
 :root {
     --gradient: linear-gradient( to right, rgb(255, 64, 62) 0%, rgb(255, 129, 27) 100%);

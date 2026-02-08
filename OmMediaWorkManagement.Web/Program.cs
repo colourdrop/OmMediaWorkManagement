@@ -12,9 +12,7 @@ using Radzen.Blazor;
 using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add service defaults & Aspire components.
-builder.AddServiceDefaults();
+ 
 
 builder.Services.AddHttpContextAccessor();
 
@@ -67,6 +65,5 @@ app.UseOutputCache();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapDefaultEndpoints();
  
 app.Run();

@@ -1,5 +1,4 @@
-﻿using Grpc.Core;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -9,9 +8,7 @@ using OmMediaWorkManagement.Web.Components.ViewModels;
 using OmMediaWorkManagement.Web.Helper;
 using Radzen;
 using Radzen.Blazor;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
 
 namespace OmMediaWorkManagement.Web.Components.Pages
 {

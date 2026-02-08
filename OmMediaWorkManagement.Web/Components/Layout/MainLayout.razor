@@ -1,91 +1,83 @@
 ﻿@inherits LayoutComponentBase
 @inject IAuthenticationService AuthenticationService
+@inject NavigationManager navigationManager
 
-<div class="page">
-    <AuthorizeView>
-        <Authorized>
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-100 via-white to-slate-200">
 
-            <div class="sidebar" style="width:@(SidebarOpen ? "250px" : "63px")">
-                <NavMenu SidebarOpen="SidebarOpen" OnSidebarToggle="ToggleSidebar" />
-            </div>
+    <div class="flex flex-1">
 
-        </Authorized>
-    </AuthorizeView>
+        <AuthorizeView>
+            <Authorized>
+                <!-- Sidebar -->
+                <div class="bg-slate-900/90 backdrop-blur-xl text-white transition-all duration-300 shadow-xl"
+                     style="width:@(SidebarOpen ? "250px" : "70px")">
 
-    <main>
+                    <NavMenu SidebarOpen="SidebarOpen" OnSidebarToggle="ToggleSidebar" />
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <!-- Main Content -->
+        <main class="flex-1 w-full">
+
+            <article  >
+
+                @Body
+                <RadzenComponents />
+
+            </article>
+
+        </main>
 
 
-        <article class="content px-4">
-            @Body
-            <RadzenComponents />
-        </article>
-    </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 backdrop-blur-lg bg-white/50 border-t border-white/40">
+        <div class="flex items-center justify-center gap-2 text-sm text-gray-600">
+ 
+
+            <span>
+                Developed & Designed By
+                <a href="https://mohitjokae.vercel.app/"
+                   target="_blank"
+                   class="text-blue-600 hover:underline">
+                   Jokae
+                </a>
+            </span>
+
+        </div>
+    </footer>
 
 </div>
-<RadzenFooter style="  display: contents;width:20%;margin-left:50%;padding: 20px;text-align: center;/* box-shadow: 10px 10px 20px #babecc, -10px -10px 20px #ffffff; *//* border: 1px solid rgba(255, 255, 255, 0.3); */border-radius: 20px;background-color: #f1f2f6;">
 
-    <p style="margin-bottom: 0; font-size: 16px;">
-        <img type="image/png" src="/codersf5.png" width="45rem" />
-        Developed & Designed By <a href="http://www.codersf5.com" target="_blank" class="animated-link">CodersF5.com</a>
-    </p>
-
-</RadzenFooter>
-<div id="blazor-error-ui">
+<div id="blazor-error-ui"
+     class="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow">
     An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
+    <a href="" class="ml-2 underline">Reload</a>
 </div>
-<style>
-
-    .animated-link {
-        color: #007bff;
-        text-decoration: none;
-        position: relative;
-        transition: color 0.3s ease-in-out;
-    }
-
-        .animated-link::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: #007bff;
-            left: 0;
-            bottom: -3px;
-            border-radius: 2px;
-            transition: transform 0.3s ease-in-out;
-            transform: scaleX(0);
-        }
-
-        .animated-link:hover {
-            color: #0056b3;
-        }
-
-            .animated-link:hover::after {
-                transform: scaleX(1);
-            }
-</style>
-
-
 
 @code {
+
     [Parameter]
-    public bool SidebarOpen { get; set; } = false;
+    public bool SidebarOpen { get; set; } = true;
+
     [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await base.OnInitializedAsync();
+
         var user = (await AuthStat).User;
+
         if (!user.Identity.IsAuthenticated)
         {
-            navigationManager.NavigateTo($"/");
+            navigationManager.NavigateTo("/");
         }
     }
+
     private void ToggleSidebar()
     {
         SidebarOpen = !SidebarOpen;
     }
 }
-
-
