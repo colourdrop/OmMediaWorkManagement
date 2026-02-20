@@ -63,7 +63,7 @@ namespace OmMediaWorkManagement.ApiService.Controllers
             {
                 return BadRequest("Email address already exists.");
             }
-            if (registerViewModel.RoleId.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(registerViewModel.RoleId))
             {
                 var role = _roleManager.Roles.ToList();
               var UserRoleId = role.FirstOrDefault(d => d.Name == "User")?.Id;

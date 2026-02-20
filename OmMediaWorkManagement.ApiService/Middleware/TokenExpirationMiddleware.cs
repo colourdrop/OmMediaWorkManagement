@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace OmMediaWorkManagement.ApiService.Middleware
 {
